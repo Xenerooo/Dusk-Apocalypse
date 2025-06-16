@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://de0vgbbgfc85b"]
+
+[ext_resource type="Script" uid="uid://b0l7wo0ml4vyr" path="res://horde.gd" id="1_y8rr3"]
+
+[node name="Horde" type="Node2D"]
+script = ExtResource("1_y8rr3")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(1, 0, 0, 0.329412)
+polygon = PackedVector2Array(-128, -128, 128, -128, 128, 128, -128, 128)

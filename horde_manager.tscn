@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dt45c2jgfwifh"]
+
+[ext_resource type="Script" uid="uid://c2itx5wyc164h" path="res://horde_manager.gd" id="1_35s4k"]
+
+[node name="HordeManager" type="Node2D"]
+script = ExtResource("1_35s4k")
