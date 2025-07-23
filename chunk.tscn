@@ -278,7 +278,6 @@ script = ExtResource("7_5lkun")
 [node name="Trees" type="TileMapLayer" parent="Map"]
 y_sort_enabled = true
 material = SubResource("ShaderMaterial_44qyl")
-tile_map_data = PackedByteArray(0, 0, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0)
 tile_set = SubResource("TileSet_a6v8k")
 
 [node name="Building" type="Node2D" parent="."]

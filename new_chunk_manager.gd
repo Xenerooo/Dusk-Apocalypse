@@ -48,7 +48,6 @@ var slice_queue: Array[ChunkSliceTask] = []
 var active_task: ChunkSliceTask = null
 var slice_thread := Thread.new()
 
-
 func _ready():
 	for i in range(pool_initial_size):
 		var chunk = chunk_scene.instantiate()

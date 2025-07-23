@@ -11,7 +11,7 @@ extends Node
 @onready var big_map_generator: Node2D = $BigMapGenerator
 var map := {}
 var big_map := {
-	"size": MAP_SIZE,
+	"map_size": MAP_SIZE,
 	"chunk_size": 200,
 	"tile_size": 24,
 	"chunks": {} # Dictionary<Vector2i, Dictionary>
@@ -106,7 +106,7 @@ func populate_map():
 # Step 2: Connect cities with roads
 func connect_roads():
 	var regions = big_map["chunks"]
-	var size = big_map["size"]
+	var size = big_map["map_size"]
 
 	# Collect root city positions
 	var city_roots := []
@@ -196,7 +196,7 @@ func get_road_variant(pos: Vector2i, regions: Dictionary) -> String:
 # Step 3: Debug print the map to output
 func debug_print_map():
 	var regions = big_map["chunks"]
-	var size = big_map["size"]
+	var size = big_map["map_size"]
 	print("\n=== MAP DEBUG ===")
 
 	for y in size.y:
@@ -226,6 +226,7 @@ func debug_print_map():
 
 func save_world_save_resource(save_data: Dictionary, save_path: String):
 	var save_res := WorldSaveResource.new()
+	save_res.map_size = save_data.map_size
 	save_res.tile_size = save_data.tile_size
 	save_res.chunk_size = save_data.chunk_size
 	save_res.chunks = save_data.chunks
