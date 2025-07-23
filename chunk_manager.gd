@@ -1,11 +1,6 @@
 extends Node2D
 
-# === CONFIGURABLE PARAMETERS ===
-@export var seed: String = ""
-@export var ground_noise: FastNoiseLite
-@export var detail_noise: FastNoiseLite
 @export var chunk_scene: PackedScene
-
 @export var tile_size: int = 32:
 	set(value):
 		tile_size = value
@@ -16,12 +11,16 @@ extends Node2D
 		chunk_tile_size = value
 		_update_chunk_pixel_size()
 
+@export var TILES_PER_FRAME := 256
 @export var load_radius: int = 2
 @export var unload_radius: int = 3
 @export var label_chunk: Label
 @export_node_path("Node2D") var player_path
+@export var save_path: String = "user://saves/"
 
-# === INTERNAL STATE ===
+var chunk_pool: Array[Node] = []
+@export var pool_initial_size := 20
+
 var chunk_pixel_size: int
 var player_ref: Node2D
 var current_chunk := Vector2i(-999, -999)
@@ -30,43 +29,33 @@ var chunk_load_queue: Array[Vector2i] = []
 var chunk_last_keep_time: Dictionary = {}
 var generation_queue: Array[ChunkBuildTask] = []
 
-# === CONSTANTS ===
-const TILES_PER_FRAME := 256
 const CHUNKS_PER_FRAME := 1
 const UNLOAD_COOLDOWN := 1.0
-enum TileLayer {
-	GROUND,
-	TREES,
-	BUSHES
-}
-# === TIME TRACKING ===
 var time_elapsed := 0.0
 
-# === LIFECYCLE ===
 func _ready():
+	for i in range(pool_initial_size):
+		var chunk = chunk_scene.instantiate()
+		chunk.hide()
+		chunk_pool.append(chunk)
 	player_ref = get_node(player_path)
 	_update_chunk_pixel_size()
 
 func _process(delta):
 	if not player_ref:
 		return
-
 	time_elapsed += delta
 	_process_chunks()
 
-# === CHUNK PROCESSING ===
 func _process_chunks():
 	var player_chunk = _get_chunk_coords(player_ref.global_position)
 	current_chunk = player_chunk
-
 	var chunks_to_load = _get_chunks_in_radius(player_chunk, load_radius)
 	var chunks_to_unload = _get_chunks_in_radius(player_chunk, unload_radius)
-
 	_update_chunk_keep_times(chunks_to_load)
 	_prune_load_queue(chunks_to_load)
 	_queue_new_chunks(chunks_to_load)
 	_unload_old_chunks(chunks_to_unload)
-
 	_load_queued_chunks()
 	_generate_chunks_step()
 	_update_debug_label()
@@ -104,80 +93,99 @@ func _load_queued_chunks():
 		_spawn_chunk(pos)
 		i += 1
 
-func _spawn_chunk(pos: Vector2i):
-	var chunk = chunk_scene.instantiate()
+func _spawn_chunk(chunk_pos: Vector2i):
+	var chunk: Node
+	if chunk_pool.size() > 0:
+		chunk = chunk_pool.pop_back()
+		chunk.show()
+	else:
+		chunk = chunk_scene.instantiate()
+		add_child(chunk)
+
 	chunk.chunk_tile_size = chunk_tile_size
 	chunk.tile_size = tile_size
-	chunk.chunk_pos = pos
-	chunk.position = pos * chunk_pixel_size
-	chunk.set_noise_maps({
-		TileLayer.GROUND: ground_noise,
-		TileLayer.TREES: detail_noise,
-		TileLayer.BUSHES: detail_noise
-	})
+	chunk.chunk_pos = chunk_pos
+	chunk.position = chunk_pos * chunk_pixel_size
 	add_child(chunk)
 
+	# Load save data
 	var task := ChunkBuildTask.new()
 	task.chunk_node = chunk
-	task.chunk_pos = pos
+	task.chunk_pos = chunk_pos
 	task.tiles_done = 0
-	task.total_tiles = chunk_tile_size * chunk_tile_size
+	task.chunk_data = _load_chunk_data(chunk_pos)
+	#breakpoint
+	
 	generation_queue.append(task)
-
-	loaded_chunks[pos] = chunk
-	chunk_last_keep_time[pos] = time_elapsed
+	loaded_chunks[chunk_pos] = chunk
+	chunk_last_keep_time[chunk_pos] = time_elapsed
 
 func _unload_old_chunks(valid_chunks: Array[Vector2i]):
 	var keep_map := {}
 	for pos in valid_chunks:
 		keep_map[pos] = true
-
 	var building_chunks := {}
 	for task in generation_queue:
 		building_chunks[task.chunk_pos] = true
-
 	var to_unload := []
 	for pos in loaded_chunks.keys():
 		if keep_map.has(pos) or building_chunks.has(pos):
 			continue
 		if time_elapsed - chunk_last_keep_time.get(pos, 0.0) > UNLOAD_COOLDOWN:
 			to_unload.append(pos)
-
-	for pos in to_unload:
-		loaded_chunks[pos].queue_free()
-		loaded_chunks.erase(pos)
-		chunk_last_keep_time.erase(pos)
+	for chunk_pos in to_unload:
+		var chunk = loaded_chunks[chunk_pos]
+		chunk.reset()
+		chunk.hide()
+		chunk_pool.append(chunk)
+		chunk.get_parent().remove_child(chunk)
+		loaded_chunks.erase(chunk_pos)
+		chunk_last_keep_time.erase(chunk_pos)
 
 func _generate_chunks_step():
 	var tiles_this_frame := 0
 
 	while generation_queue.size() > 0 and tiles_this_frame < TILES_PER_FRAME:
 		var task = generation_queue[0]
-		var chunk = task.chunk_node
 
-		if task.is_complete():
+		if task.chunk_data.is_empty():
 			generation_queue.pop_front()
 			continue
 
-		var base_x = task.chunk_pos.x * chunk_tile_size
-		var base_y = task.chunk_pos.y * chunk_tile_size
-		var layer = task.get_current_layer()
+		var chunk = task.chunk_node
+		var layers = task.chunk_data.keys()
 
-		while task.tiles_done < task.total_tiles and tiles_this_frame < TILES_PER_FRAME:
-			var x = task.tiles_done % chunk_tile_size
-			var y = task.tiles_done / chunk_tile_size
-			task.tiles_done += 1
-			tiles_this_frame += 1
+		# All layers processed
+		if task.current_layer_index >= layers.size():
+			chunk.update_notifier()
+			generation_queue.pop_front()
+			continue
 
-			var world_x = base_x + x
-			var world_y = base_y + y
+		var layer_name = layers[task.current_layer_index]
 
-			chunk.generate_tile(x, y, world_x, world_y, layer)
+		# Only set tile data once for this layer
+		if task.tiles_done == 0 and chunk.pending_layers.is_empty():
+			var layer_tiles = { layer_name: task.chunk_data[layer_name] }
+			chunk.set_tile_data(layer_tiles)
 
+		var tiles_to_process := TILES_PER_FRAME - tiles_this_frame
+		var done :bool= chunk.process_tiles_step(tiles_to_process)
+		tiles_this_frame += tiles_to_process
 
-		if task.tiles_done >= task.total_tiles:
+		if done:
 			task.tiles_done = 0
 			task.current_layer_index += 1
+
+
+func _load_chunk_data(chunk_pos: Vector2i) -> Dictionary:
+	var file_path = "%schunk_%d_%d.json" % [save_path, chunk_pos.x, chunk_pos.y]
+	var file = FileAccess.open(file_path, FileAccess.READ)
+	if file:
+		var content = file.get_as_text()
+		var p = JSON.parse_string(content)
+		return p
+
+	return {}
 
 func _update_chunk_pixel_size():
 	chunk_pixel_size = chunk_tile_size * tile_size
@@ -186,3 +194,12 @@ func _update_debug_label():
 	if not label_chunk:
 		return
 	label_chunk.text = "Chunks: %d\nFPS: %d" % [chunk_last_keep_time.size(), Engine.get_frames_per_second()]
+
+
+
+class ChunkBuildTask:
+	var chunk_node: Node
+	var chunk_pos: Vector2i
+	var chunk_data: Dictionary = {}
+	var current_layer_index: int = 0
+	var tiles_done: int = 0

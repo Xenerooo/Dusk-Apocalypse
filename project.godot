@@ -21,6 +21,21 @@ window/size/always_on_top=true
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 
+[input]
+
+reset={
+"deadzone": 0.2,
+"events": []
+}
+cam_zoom={
+"deadzone": 0.2,
+"events": []
+}
+cam_zoom_out={
+"deadzone": 0.2,
+"events": []
+}
+
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true

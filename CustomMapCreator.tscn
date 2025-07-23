@@ -1,0 +1,296 @@
+[gd_scene load_steps=26 format=3 uid="uid://c1fk2htpd53um"]
+
+[ext_resource type="Script" uid="uid://d4j5as2m5mc3f" path="res://CustomMapCreator.gd" id="1_tl7am"]
+[ext_resource type="Script" uid="uid://27u8ky4cbxln" path="res://saves/migrate_saves.gd" id="2_elqbn"]
+[ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://asset/ground_textures/GroundTiles.tres" id="2_fuwu6"]
+[ext_resource type="Shader" uid="uid://n0wmq3uun33u" path="res://foliage.gdshader" id="5_cr3bc"]
+[ext_resource type="Script" uid="uid://biehv4j6l5mqw" path="res://grass.gd" id="7_jbdte"]
+[ext_resource type="Texture2D" uid="uid://bdsf64h2u4bkf" path="res://asset/PineTree2.png" id="8_dk4ox"]
+[ext_resource type="Texture2D" uid="uid://bupnot5afx7r7" path="res://asset/ground_textures/tileset-prototype-walls.png" id="9_2e3nj"]
+[ext_resource type="Texture2D" uid="uid://ur25humjvhv" path="res://asset/ground_textures/tileset-prototype.png" id="10_kln8f"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_hvwml"]
+noise_type = 0
+frequency = 0.0208
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_e81nj"]
+seamless = true
+noise = SubResource("FastNoiseLite_hvwml")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vwyad"]
+shader = ExtResource("5_cr3bc")
+shader_parameter/render_noise = false
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_e81nj")
+shader_parameter/amplitude = 0.01
+shader_parameter/time_scale = 0.02
+shader_parameter/noise_scale = 0.001
+shader_parameter/rotation_strength = 0.1
+shader_parameter/rotation_pivot = Vector2(0.5, 1.75)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_856wt"]
+load_path = "res://.godot/imported/vegetation.png-eb25d4e1e4daf3b307037fe2fb113f36.ctex"
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fuwu6"]
+texture = SubResource("CompressedTexture2D_856wt")
+texture_region_size = Vector2i(32, 32)
+0:1/0 = 0
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_elqbn"]
+tile_size = Vector2i(24, 24)
+sources/1 = SubResource("TileSetAtlasSource_fuwu6")
+
+[sub_resource type="Shader" id="Shader_e81nj"]
+code = "shader_type canvas_item;
+
+uniform bool render_noise = false;
+uniform sampler2D noise_texture : repeat_enable; // set in inspector
+uniform float amplitude : hint_range(0.0, 0.5, 0.01) = 0.2;
+uniform float time_scale : hint_range(0.0, 5.0, 0.01) = 0.04;
+uniform float noise_scale : hint_range(0.0, 2.0, 0.0001) = 0.001;
+uniform float rotation_strength : hint_range(0.0, 1.0, 0.05) = 1;
+uniform vec2 rotation_pivot = vec2(0.5, 1);
+uniform float distance_cutoff : hint_range(0.0, 1.0, 0.05) = 0.3;
+varying vec2 world_position;
+
+void vertex(){
+    world_position = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
+}
+
+vec2 get_sample_pos(vec2 pos, float scale, float offset) {
+	pos *= scale;
+	pos += offset;
+	return pos;
+}
+
+vec2 rotate_vec(vec2 vec, vec2 pivot, float rotation) {
+	float cosa = cos(rotation);
+	float sina = sin(rotation);
+	vec -= pivot;
+	return vec2(
+		cosa * vec.x - sina * vec.y,
+		cosa * vec.y + sina * vec.x
+	) + pivot;
+}
+
+vec2 get_pixelated_uvs(vec2 uv, vec2 texture_pixel_size) {
+    vec2 texture_dimensions = 1.0 / texture_pixel_size;
+    vec2 pixel_coords = uv * texture_dimensions;
+    vec2 snapped_pixel_coords = vec2(round(pixel_coords.x), round(pixel_coords.y));
+    vec2 pixelated_uv = snapped_pixel_coords / texture_dimensions;
+	return pixelated_uv;
+}
+
+void fragment() {
+	vec2 uv = get_pixelated_uvs(UV, TEXTURE_PIXEL_SIZE);
+
+	// get noise from texture
+	vec2 noise_sample_pos = get_sample_pos(uv, noise_scale, TIME * time_scale);
+	float noise_amount = texture(noise_texture, noise_sample_pos).r - 0.5f;
+
+	// get rotation position around a pivot
+	float rotation = amplitude * noise_amount;
+	vec2 rotated_uvs = rotate_vec(uv, rotation_pivot, rotation);
+
+	// blend original uvs and rotated uvs based on distance to pivot
+	float dist = distance(uv, rotation_pivot);
+	dist = clamp(dist, distance_cutoff, 1) * rotation_strength - distance_cutoff;
+	vec2 result_uvs = mix(uv, rotated_uvs, dist);
+
+	// output color
+	COLOR = texture(TEXTURE, result_uvs);
+
+	// optional, preview noise texture for debugging
+	if (render_noise) {
+		vec4 noise_color = texture(noise_texture, noise_sample_pos);
+		COLOR = noise_color;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mvdya"]
+shader = SubResource("Shader_e81nj")
+shader_parameter/render_noise = false
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_e81nj")
+shader_parameter/amplitude = 0.07
+shader_parameter/time_scale = 0.04
+shader_parameter/noise_scale = 0.5293
+shader_parameter/rotation_strength = 0.5
+shader_parameter/rotation_pivot = Vector2(0.5, 1)
+shader_parameter/distance_cutoff = 1.0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_y7tc6"]
+texture = ExtResource("8_dk4ox")
+texture_region_size = Vector2i(2, 2)
+0:0/size_in_atlas = Vector2i(24, 47)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(2, 42)
+
+[sub_resource type="TileSet" id="TileSet_g76wi"]
+tile_size = Vector2i(24, 24)
+sources/0 = SubResource("TileSetAtlasSource_y7tc6")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_elqbn"]
+texture = ExtResource("9_2e3nj")
+texture_region_size = Vector2i(24, 24)
+0:0/size_in_atlas = Vector2i(1, 2)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 12)
+0:0/0/y_sort_origin = 11
+0:2/0 = 0
+0:2/0/y_sort_origin = -99999
+1:0/size_in_atlas = Vector2i(1, 2)
+1:0/0 = 0
+1:0/0/texture_origin = Vector2i(0, 12)
+1:0/0/y_sort_origin = 11
+2:0/size_in_atlas = Vector2i(1, 2)
+2:0/0 = 0
+2:0/0/texture_origin = Vector2i(0, 12)
+2:0/0/y_sort_origin = 11
+3:0/size_in_atlas = Vector2i(1, 2)
+3:0/0 = 0
+3:0/0/texture_origin = Vector2i(0, 12)
+3:0/0/y_sort_origin = 11
+4:0/size_in_atlas = Vector2i(1, 2)
+4:0/0 = 0
+4:0/0/texture_origin = Vector2i(0, 12)
+4:0/0/y_sort_origin = 11
+
+[sub_resource type="TileSet" id="TileSet_g5iq7"]
+tile_size = Vector2i(24, 24)
+sources/0 = SubResource("TileSetAtlasSource_elqbn")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_pftrq"]
+texture = ExtResource("9_2e3nj")
+texture_region_size = Vector2i(24, 24)
+0:0/size_in_atlas = Vector2i(1, 2)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 12)
+0:0/0/y_sort_origin = 11
+0:2/0 = 0
+0:2/0/y_sort_origin = -99999
+
+[sub_resource type="TileSet" id="TileSet_obbuj"]
+tile_size = Vector2i(24, 24)
+sources/0 = SubResource("TileSetAtlasSource_pftrq")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t673m"]
+texture = ExtResource("10_kln8f")
+texture_region_size = Vector2i(24, 24)
+0:5/0 = 0
+0:5/0/terrain_set = 0
+0:5/0/terrain = 0
+0:5/0/terrains_peering_bit/right_side = 0
+0:5/0/terrains_peering_bit/top_side = 0
+1:5/0 = 0
+1:5/0/terrain_set = 0
+1:5/0/terrain = 0
+1:5/0/terrains_peering_bit/right_side = 0
+1:5/0/terrains_peering_bit/left_side = 0
+1:6/0 = 0
+0:6/0 = 0
+0:3/0 = 0
+0:3/0/terrain_set = 0
+0:3/0/terrain = 0
+0:3/0/terrains_peering_bit/right_side = 0
+0:3/0/terrains_peering_bit/bottom_side = 0
+1:3/0 = 0
+1:3/0/terrain_set = 0
+1:3/0/terrain = 0
+1:3/0/terrains_peering_bit/right_side = 0
+1:3/0/terrains_peering_bit/left_side = 0
+2:3/0 = 0
+2:3/0/terrain_set = 0
+2:3/0/terrain = 0
+2:3/0/terrains_peering_bit/bottom_side = 0
+2:3/0/terrains_peering_bit/left_side = 0
+2:4/0 = 0
+2:4/0/terrain_set = 0
+2:4/0/terrain = 0
+2:4/0/terrains_peering_bit/bottom_side = 0
+2:4/0/terrains_peering_bit/top_side = 0
+1:4/0 = 0
+0:4/0 = 0
+0:4/0/terrain_set = 0
+0:4/0/terrain = 0
+0:4/0/terrains_peering_bit/bottom_side = 0
+0:4/0/terrains_peering_bit/top_side = 0
+0:0/size_in_atlas = Vector2i(1, 3)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 24)
+1:0/size_in_atlas = Vector2i(1, 3)
+1:0/0 = 0
+1:0/0/texture_origin = Vector2i(0, 24)
+2:0/size_in_atlas = Vector2i(1, 3)
+2:0/0 = 0
+2:0/0/texture_origin = Vector2i(0, 24)
+2:5/0 = 0
+2:5/0/terrain_set = 0
+2:5/0/terrain = 0
+2:5/0/terrains_peering_bit/left_side = 0
+2:5/0/terrains_peering_bit/top_side = 0
+0:7/0 = 0
+1:7/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_ns8cl"]
+tile_size = Vector2i(24, 24)
+terrain_set_0/mode = 0
+terrain_set_0/terrain_0/name = "Terrain 0"
+terrain_set_0/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
+sources/0 = SubResource("TileSetAtlasSource_t673m")
+
+[sub_resource type="TileSet" id="TileSet_yqmi5"]
+tile_size = Vector2i(24, 24)
+
+[node name="CustomMapCreator" type="Node2D"]
+script = ExtResource("1_tl7am")
+CHUNK_SIZE = 200
+metadata/_edit_horizontal_guides_ = [960.0]
+metadata/_edit_vertical_guides_ = [960.0, 960.0, 4800.0]
+
+[node name="MigrateSaves" type="Node" parent="."]
+script = ExtResource("2_elqbn")
+old_resource_path = "res://resources/structures/structure_test.res"
+new_resource_path = "res://resources/structures/structure_test.res"
+
+[node name="Map" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Ground" type="TileMapLayer" parent="Map"]
+tile_set = ExtResource("2_fuwu6")
+
+[node name="Ground2" type="TileMapLayer" parent="Map"]
+tile_set = ExtResource("2_fuwu6")
+
+[node name="Vegetation" type="TileMapLayer" parent="Map"]
+y_sort_enabled = true
+material = SubResource("ShaderMaterial_vwyad")
+tile_set = SubResource("TileSet_elqbn")
+script = ExtResource("7_jbdte")
+
+[node name="Trees" type="TileMapLayer" parent="Map"]
+y_sort_enabled = true
+material = SubResource("ShaderMaterial_mvdya")
+tile_set = SubResource("TileSet_g76wi")
+
+[node name="Building" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="BuildingInteriorWalls" type="TileMapLayer" parent="Building"]
+y_sort_enabled = true
+tile_set = SubResource("TileSet_g5iq7")
+
+[node name="BuildingExteriorWalls" type="TileMapLayer" parent="Building"]
+y_sort_enabled = true
+tile_set = SubResource("TileSet_g5iq7")
+
+[node name="BuildingFloor" type="TileMapLayer" parent="Building"]
+tile_set = SubResource("TileSet_obbuj")
+
+[node name="BuildingOutline" type="TileMapLayer" parent="Building"]
+y_sort_enabled = true
+tile_set = SubResource("TileSet_ns8cl")
+
+[node name="Roof" type="TileMapLayer" parent="Building"]
+z_index = 1
+y_sort_enabled = true
+tile_set = SubResource("TileSet_yqmi5")

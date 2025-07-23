@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cv48gv828xltm"]
+
+[ext_resource type="Script" uid="uid://41bhxoa14saq" path="res://map_generator.gd" id="1_0r6lh"]
+[ext_resource type="Script" uid="uid://ijqb4nf6b1nr" path="res://big_map_generator.gd" id="2_7kg47"]
+
+[node name="MapGenerator" type="Node2D"]
+script = ExtResource("1_0r6lh")
+MAP_SIZE = Vector2i(3, 3)
+SINGLE_CITIES = 2
+
+[node name="BigMapGenerator" type="Node2D" parent="."]
+script = ExtResource("2_7kg47")
