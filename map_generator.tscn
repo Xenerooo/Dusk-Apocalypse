@@ -5,7 +5,7 @@
 
 [node name="MapGenerator" type="Node2D"]
 script = ExtResource("1_0r6lh")
-MAP_SIZE = Vector2i(3, 3)
+SINGLE_CITIES = 5
 
 [node name="BigMapGenerator" type="Node2D" parent="."]
 script = ExtResource("2_7kg47")

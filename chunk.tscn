@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://cf70atxem4i7a"]
+[gd_scene load_steps=30 format=3 uid="uid://cf70atxem4i7a"]
 
 [ext_resource type="Script" uid="uid://cssq6depb51dw" path="res://chunk.gd" id="1_kdh3y"]
 [ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://asset/ground_textures/GroundTiles.tres" id="2_e81nj"]
@@ -37,7 +37,7 @@ texture_region_size = Vector2i(32, 32)
 
 [sub_resource type="TileSet" id="TileSet_e81nj"]
 tile_size = Vector2i(24, 24)
-sources/1 = SubResource("TileSetAtlasSource_eoxb4")
+sources/0 = SubResource("TileSetAtlasSource_eoxb4")
 
 [sub_resource type="Shader" id="Shader_ipac1"]
 code = "shader_type canvas_item;
@@ -243,6 +243,9 @@ sources/0 = SubResource("TileSetAtlasSource_ylcux")
 [sub_resource type="TileSet" id="TileSet_bqd7a"]
 tile_size = Vector2i(24, 24)
 
+[sub_resource type="LabelSettings" id="LabelSettings_e81nj"]
+font_size = 176
+
 [node name="Chunk" type="Node2D" node_paths=PackedStringArray("notifier", "map", "ground", "ground2", "vegetation", "trees", "building", "building_outline", "interiorWall", "exteriorWall", "floor", "roof")]
 y_sort_enabled = true
 script = ExtResource("1_kdh3y")
@@ -305,6 +308,16 @@ tile_set = SubResource("TileSet_bqd7a")
 
 [node name="VisibiltyNotifier" type="VisibleOnScreenNotifier2D" parent="."]
 rect = Rect2(0, 0, 960, 960)
+
+[node name="Label" type="Label" parent="."]
+offset_left = 18.0
+offset_top = 23.0
+offset_right = 956.0
+offset_bottom = 958.0
+text = "Awwww"
+label_settings = SubResource("LabelSettings_e81nj")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [connection signal="screen_entered" from="VisibiltyNotifier" to="." method="_on_visibilty_notifier_screen_entered"]
 [connection signal="screen_exited" from="VisibiltyNotifier" to="." method="_on_visibilty_notifier_screen_exited"]

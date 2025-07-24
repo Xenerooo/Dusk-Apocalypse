@@ -5,6 +5,7 @@ class_name Chunk
 var chunk_pos: Vector2i
 
 @export var notifier: VisibleOnScreenNotifier2D
+@onready var label: Label = $Label
 
 @export_subgroup("Environment")
 @export var map: Node2D
@@ -89,6 +90,7 @@ func update_notifier():
 	var size := tile_size * chunk_tile_size
 	notifier.rect = Rect2(Vector2.ZERO, Vector2(size, size))
 	name = str(chunk_pos)
+	label.text = str(chunk_pos)
 
 func reset():
 	for tilemap in [ground,ground2, trees, vegetation, building_outline, exteriorWall, interiorWall, floor, roof]:
@@ -97,7 +99,7 @@ func reset():
 func _on_visibilty_notifier_screen_entered() -> void:
 	map.show()
 	building.show()
-	print("Chunk %s visible" % [chunk_pos])
+	#print("Chunk %s visible" % [chunk_pos])
 
 func _on_visibilty_notifier_screen_exited() -> void:
 	map.hide()

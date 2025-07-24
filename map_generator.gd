@@ -1,5 +1,6 @@
-extends Node
 
+@tool
+extends Node
 # Configuration
 @export var MAP_SIZE := Vector2i(10, 10)
 @export var  SINGLE_CITIES := 4
@@ -17,6 +18,18 @@ var big_map := {
 	"chunks": {} # Dictionary<Vector2i, Dictionary>
 }
 
+@export_tool_button("Generate Map", "🔨")
+var tool_gen = generate_map
+func generate_map():
+	randomize()
+	populate_map()
+	connect_roads()
+	assign_road_variants()
+	debug_print_map()
+	save_world_save_resource(big_map,  "res://saves/test_map.tres" )
+	
+	print("✅ Generation Done")
+	
 func _ready():
 	randomize()
 	#var t := ResourceLoader.load("res://saves/test_map.tres")

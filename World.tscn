@@ -1,13 +1,26 @@
-[gd_scene load_steps=10 format=3 uid="uid://xw0rgdcs8rf0"]
+[gd_scene load_steps=13 format=3 uid="uid://xw0rgdcs8rf0"]
 
 [ext_resource type="Script" uid="uid://b5bskh456xhw3" path="res://world.gd" id="1_eu7l1"]
 [ext_resource type="PackedScene" uid="uid://cf70atxem4i7a" path="res://chunk.tscn" id="2_2dftf"]
 [ext_resource type="Script" uid="uid://dxx0ggmp725lg" path="res://new_chunk_manager.gd" id="2_fv4w7"]
 [ext_resource type="Script" uid="uid://c8ksb2nbbe7tf" path="res://player.gd" id="3_bcbcq"]
+[ext_resource type="Script" uid="uid://cd75o1rcp0yft" path="res://terrain_logic.gd" id="4_fv4w7"]
 [ext_resource type="Texture2D" uid="uid://d0hi1m61eaxxb" path="res://icon.svg" id="4_p1v5b"]
 [ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://DynamicMargins.gd" id="4_wygdx"]
 [ext_resource type="Script" uid="uid://4fobfp3r5tpr" path="res://InteractiveTouchScreenButton.gd" id="5_wygdx"]
 [ext_resource type="Texture2D" uid="uid://wandk0jlox88" path="res://human_sample.png" id="8_bah7m"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_fv4w7"]
+frequency = 0.1979
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_fvag4"]
+noise_type = 3
+frequency = 0.0263
+fractal_type = 3
+fractal_octaves = 4
+fractal_lacunarity = 4.14
+fractal_gain = 1.29
+fractal_weighted_strength = 1.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bcbcq"]
 radius = 6.08276
@@ -21,11 +34,19 @@ y_sort_enabled = true
 script = ExtResource("2_fv4w7")
 chunk_scene = ExtResource("2_2dftf")
 tile_size = 24
+TILES_PER_FRAME = 512
 load_radius = 1
+unload_radius = 1
 label_chunk = NodePath("CanvasLayer/MarginContainer/Control/Panel/VBoxContainer/ChunkN")
 player_path = NodePath("../Node2D")
+terrain_logic_path = NodePath("TerrainLogic")
 save_path = "res://saves/test_map.tres"
 pool_initial_size = 100
+
+[node name="TerrainLogic" type="Node" parent="NewChunkManager"]
+script = ExtResource("4_fv4w7")
+ground_noise = SubResource("FastNoiseLite_fv4w7")
+tree_noise = SubResource("FastNoiseLite_fvag4")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="NewChunkManager"]
 
@@ -163,9 +184,9 @@ input_action = &"ui_left"
 metadata/_edit_use_anchors_ = true
 
 [node name="Node2D" type="CharacterBody2D" parent="."]
-position = Vector2(115, 133)
+position = Vector2(2609, 1242)
 script = ExtResource("3_bcbcq")
-speed = 70000.0
+speed = 100000.0
 
 [node name="ColorRect" type="ColorRect" parent="Node2D"]
 offset_left = -3.0

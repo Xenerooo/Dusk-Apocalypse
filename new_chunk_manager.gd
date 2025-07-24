@@ -16,6 +16,7 @@ extends Node2D
 @export var unload_radius: int = 3
 @export var label_chunk: Label
 @export_node_path("Node2D") var player_path
+@export_node_path("TerrainLogic") var terrain_logic_path
 @export var save_path: String = "res://saves/my_world_map.tres"
 @export var prefab_folder_path := "res://resources/structures/"
 
@@ -24,6 +25,7 @@ var chunk_pool: Array[Node] = []
 
 var chunk_pixel_size: int
 var player_ref: Node2D
+var terrain_logic_ref: TerrainLogic
 var current_chunk := Vector2i(-999, -999)
 var loaded_chunks: Dictionary = {}
 var chunk_load_queue: Array[Vector2i] = []
@@ -41,12 +43,14 @@ var prefab_cache: Dictionary = {}
 class ChunkSliceTask:
 	var chunk_pos: Vector2i
 	var prefab: MapStructureResource
+	var terrain_logic: TerrainLogic
 	var result: Dictionary = {}
 	var is_done := false
 
 var slice_queue: Array[ChunkSliceTask] = []
 var active_task: ChunkSliceTask = null
 var slice_thread := Thread.new()
+
 
 func _ready():
 	for i in range(pool_initial_size):
@@ -55,6 +59,7 @@ func _ready():
 		chunk_pool.append(chunk)
 
 	player_ref = get_node(player_path)
+	terrain_logic_ref = get_node(terrain_logic_path)
 	_update_chunk_pixel_size()
 
 	world_save = load(save_path)
@@ -112,7 +117,7 @@ func _get_chunk_coords(pos: Vector2) -> Vector2i:
 
 
 func _get_chunks_in_radius(center: Vector2i, radius: int) -> Array[Vector2i]:
-	var chunks :Array[Vector2i]= []
+	var chunks : Array[Vector2i]= []
 	for x in range(center.x - radius, center.x + radius + 1):
 		for y in range(center.y - radius, center.y + radius + 1):
 			chunks.append(Vector2i(x, y))
@@ -165,7 +170,7 @@ func _queue_slice_task(chunk_pos: Vector2i):
 	var world_chunk_pos = chunk_pos / TILES_PER_PREFAB
 
 	var world_chunk = world_save.chunks.get(world_chunk_pos)
-	if world_chunk == null :
+	if world_chunk == null:
 		return
 
 	var prefab_id = world_chunk.get("prefab_id", "")
@@ -177,6 +182,7 @@ func _queue_slice_task(chunk_pos: Vector2i):
 	var task := ChunkSliceTask.new()
 	task.chunk_pos = chunk_pos
 	task.prefab = prefab
+	task.terrain_logic = terrain_logic_ref
 	slice_queue.append(task)
 
 
@@ -190,7 +196,6 @@ func _process_chunk_slicing():
 		active_task = slice_queue.pop_front()
 		slice_thread.start(Callable(self, "_threaded_slice_prefab").bind(active_task))
 
-
 func _threaded_slice_prefab(task: ChunkSliceTask):
 	var PREFAB_TILE_SIZE := 200
 	var TILE_CHUNK_SIZE := chunk_tile_size
@@ -198,12 +203,16 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 
 	var chunk_pos = task.chunk_pos
 	var world_chunk_pos = chunk_pos / TILES_PER_PREFAB
+	var world_chunk_start_pos = world_chunk_pos * PREFAB_TILE_SIZE
 	var chunk_offset = chunk_pos - world_chunk_pos * TILES_PER_PREFAB
 	var tile_origin = chunk_offset * TILE_CHUNK_SIZE
 	var tile_end = tile_origin + Vector2i(TILE_CHUNK_SIZE, TILE_CHUNK_SIZE)
 
-	var result := {}
 
+	var result := {}
+	var claimed_positions := {}  # Dictionary<Vector2i, bool> — position claimed by any prefab layer
+
+	# === Load prefab tiles and track used positions ===
 	for layer_name in task.prefab.layers.keys():
 		var layer_data = task.prefab.layers[layer_name]
 		var positions: PackedVector2Array = layer_data["positions"]
@@ -211,19 +220,54 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 		var atlas_coords: PackedVector2Array = layer_data["atlas_coords"]
 
 		var tiles := []
+
 		for i in positions.size():
 			var pos = Vector2i(positions[i])
 			if pos.x >= tile_origin.x and pos.x < tile_end.x and pos.y >= tile_origin.y and pos.y < tile_end.y:
+				var local_pos = pos - tile_origin
+				claimed_positions[local_pos] = true  # 🔒 Mark this position as claimed by prefab
 				tiles.append({
-					"position": pos - tile_origin,
+					"position": local_pos,
 					"source_id": source_ids[i],
 					"atlas_coords": Vector2i(atlas_coords[i])
 				})
+
 		if not tiles.is_empty():
 			result[layer_name] = tiles
 
+	# === Procedural generation pass ===
+	for x in range(tile_origin.x, tile_end.x):
+		for y in range(tile_origin.y, tile_end.y):
+			var world_pos = Vector2i(x, y)
+			var tile_world_pos =   world_chunk_start_pos + Vector2i(x, y)
+			var local_pos = world_pos - tile_origin
+
+			# ❌ Skip if prefab claimed this position in any layer
+			if claimed_positions.has(local_pos):
+				continue
+
+			var lookups := task.terrain_logic.get_tiles_at(tile_world_pos)
+			#print("%s | %s" % [world_pos, world_chunk_pos])
+
+			for lookup in lookups:
+				if not lookup.has("layer") or not lookup.has("source_id") or not lookup.has("atlas_coords"):
+					continue
+
+				var layer_name = lookup["layer"]
+
+				if not result.has(layer_name):
+					result[layer_name] = []
+
+				result[layer_name].append({
+					"position": local_pos,
+					"source_id": lookup["source_id"],
+					"atlas_coords": lookup["atlas_coords"]
+				})
+
 	task.result = result
 	task.is_done = true
+
+
 
 
 func _spawn_chunk_with_data(chunk_pos: Vector2i, chunk_data: Dictionary):
@@ -265,12 +309,11 @@ func _unload_old_chunks(valid_chunks: Array[Vector2i]):
 			continue
 		if time_elapsed - chunk_last_keep_time.get(pos, 0.0) > UNLOAD_COOLDOWN:
 			var chunk = loaded_chunks[pos]
-			print("⏹ Unloading chunk: ", pos)
+			#print("⏹ Unloading chunk: ", pos)
 			chunk.reset()
 			chunk.hide()
 			chunk_pool.append(chunk)
 			chunk.get_parent().remove_child(chunk)
-			chunk.name = "chunk"
 			loaded_chunks.erase(pos)
 			chunk_last_keep_time.erase(pos)
 
@@ -324,3 +367,7 @@ class ChunkBuildTask:
 	var chunk_data: Dictionary = {}
 	var current_layer_index: int = 0
 	var tiles_done: int = 0
+
+
+func _exit_tree() -> void:
+	slice_thread.wait_to_finish()
