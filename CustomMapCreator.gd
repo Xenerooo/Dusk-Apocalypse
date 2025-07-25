@@ -38,6 +38,7 @@ func reset_tilemaps():
 		$Map/Ground,
 		$Map/Ground2,
 		$Map/Vegetation,
+		$Map/Props,
 		$Map/Trees,
 		$Building/BuildingOutline,
 		$Building/BuildingExteriorWalls,
@@ -56,6 +57,7 @@ func save_as_resource():
 	var chunk_map = group_tiles_by_chunk({
 		"Ground": $Map/Ground,
 		"Ground2": $Map/Ground2,
+		"Props": $Map/Props,
 		"Vegetation": $Map/Vegetation,
 		"Trees": $Map/Trees,
 		"BuildingOutline": $Building/BuildingOutline,
@@ -124,6 +126,7 @@ func load_prefab_to_tilemaps(_resource: MapStructureResource, target_chunk_pos: 
 	var tilemap_layers := {
 		"Ground": $Map/Ground,
 		"Ground2": $Map/Ground2,
+		"Props": $Map/Props,
 		"Vegetation": $Map/Vegetation,
 		"Trees": $Map/Trees,
 		"BuildingOutline": $Building/BuildingOutline,

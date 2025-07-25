@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="StructureLookups" load_steps=2 format=3 uid="uid://btvmgkqh4r5sj"]
+
+[ext_resource type="Script" uid="uid://sm3wn2cy4jry" path="res://resources/structures/lookups/structure_lookups.gd" id="1_e5y8b"]
+
+[resource]
+script = ExtResource("1_e5y8b")
+type = "city"
+variants = Array[String](["city_single_1", "city_single_2"])
+metadata/_custom_type_script = "uid://sm3wn2cy4jry"

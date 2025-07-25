@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://xw0rgdcs8rf0"]
+[gd_scene load_steps=17 format=3 uid="uid://xw0rgdcs8rf0"]
 
 [ext_resource type="Script" uid="uid://b5bskh456xhw3" path="res://world.gd" id="1_eu7l1"]
 [ext_resource type="PackedScene" uid="uid://cf70atxem4i7a" path="res://chunk.tscn" id="2_2dftf"]
@@ -8,19 +8,35 @@
 [ext_resource type="Texture2D" uid="uid://d0hi1m61eaxxb" path="res://icon.svg" id="4_p1v5b"]
 [ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://DynamicMargins.gd" id="4_wygdx"]
 [ext_resource type="Script" uid="uid://4fobfp3r5tpr" path="res://InteractiveTouchScreenButton.gd" id="5_wygdx"]
+[ext_resource type="Script" uid="uid://bpqljsrpxr6p3" path="res://resources/terrain/tile_generator.gd" id="6_f5c0m"]
+[ext_resource type="Script" uid="uid://c3b3eioqj67cr" path="res://chunk_debug_manager.gd" id="6_kva58"]
 [ext_resource type="Texture2D" uid="uid://wandk0jlox88" path="res://human_sample.png" id="8_bah7m"]
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_fv4w7"]
-frequency = 0.1979
-
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_fvag4"]
+frequency = 0.0034
+fractal_type = 2
+fractal_lacunarity = 2.09
+fractal_gain = 0.585
+fractal_weighted_strength = 0.76
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 30.355
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_kva58"]
+frequency = 0.0771
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_f5c0m"]
+frequency = 0.022
+fractal_lacunarity = 15.74
+fractal_gain = 1.08
+fractal_weighted_strength = 0.23
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_b2ar6"]
 noise_type = 3
-frequency = 0.0263
-fractal_type = 3
-fractal_octaves = 4
-fractal_lacunarity = 4.14
-fractal_gain = 1.29
+frequency = 0.0352
+fractal_gain = 1.125
 fractal_weighted_strength = 1.0
+domain_warp_type = 2
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bcbcq"]
 radius = 6.08276
@@ -29,28 +45,34 @@ radius = 6.08276
 y_sort_enabled = true
 script = ExtResource("1_eu7l1")
 
-[node name="NewChunkManager" type="Node2D" parent="." node_paths=PackedStringArray("label_chunk")]
+[node name="ChunkManager" type="Node2D" parent="." node_paths=PackedStringArray("label_chunk")]
 y_sort_enabled = true
 script = ExtResource("2_fv4w7")
 chunk_scene = ExtResource("2_2dftf")
 tile_size = 24
-TILES_PER_FRAME = 512
-load_radius = 1
-unload_radius = 1
 label_chunk = NodePath("CanvasLayer/MarginContainer/Control/Panel/VBoxContainer/ChunkN")
 player_path = NodePath("../Node2D")
 terrain_logic_path = NodePath("TerrainLogic")
-save_path = "res://saves/test_map.tres"
+tile_generator_path = NodePath("TileGenerator")
+save_path = "res://saves/test_map1.tres"
 pool_initial_size = 100
 
-[node name="TerrainLogic" type="Node" parent="NewChunkManager"]
+[node name="TerrainLogic" type="Node" parent="ChunkManager"]
 script = ExtResource("4_fv4w7")
-ground_noise = SubResource("FastNoiseLite_fv4w7")
-tree_noise = SubResource("FastNoiseLite_fvag4")
+biome_noise = SubResource("FastNoiseLite_fvag4")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="NewChunkManager"]
+[node name="TileGenerator" type="Node" parent="ChunkManager"]
+script = ExtResource("6_f5c0m")
+ground_variation = SubResource("FastNoiseLite_kva58")
+tree_variation = SubResource("FastNoiseLite_f5c0m")
+vegetation_variation = SubResource("FastNoiseLite_b2ar6")
 
-[node name="MarginContainer" type="MarginContainer" parent="NewChunkManager/CanvasLayer"]
+[node name="DebugManager" type="Node2D" parent="ChunkManager"]
+script = ExtResource("6_kva58")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="ChunkManager"]
+
+[node name="MarginContainer" type="MarginContainer" parent="ChunkManager/CanvasLayer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -58,16 +80,17 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_wygdx")
 
-[node name="Control" type="Control" parent="NewChunkManager/CanvasLayer/MarginContainer"]
+[node name="Control" type="Control" parent="ChunkManager/CanvasLayer/MarginContainer"]
 layout_mode = 2
+mouse_filter = 1
 
-[node name="Panel" type="Panel" parent="NewChunkManager/CanvasLayer/MarginContainer/Control"]
+[node name="Panel" type="Panel" parent="ChunkManager/CanvasLayer/MarginContainer/Control"]
 layout_mode = 2
-anchor_right = 0.118056
-anchor_bottom = 0.242284
+anchor_right = 0.190972
+anchor_bottom = 0.302469
 metadata/_edit_use_anchors_ = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="NewChunkManager/CanvasLayer/MarginContainer/Control/Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="ChunkManager/CanvasLayer/MarginContainer/Control/Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -75,10 +98,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ChunkN" type="Label" parent="NewChunkManager/CanvasLayer/MarginContainer/Control/Panel/VBoxContainer"]
+[node name="ChunkN" type="Label" parent="ChunkManager/CanvasLayer/MarginContainer/Control/Panel/VBoxContainer"]
 layout_mode = 2
 
-[node name="InteractiveTouchscreenButton" type="TextureButton" parent="NewChunkManager/CanvasLayer/MarginContainer/Control"]
+[node name="InteractiveTouchscreenButton" type="TextureButton" parent="ChunkManager/CanvasLayer/MarginContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.179688
@@ -93,7 +116,7 @@ script = ExtResource("5_wygdx")
 input_action = &"ui_right"
 metadata/_edit_use_anchors_ = true
 
-[node name="InteractiveTouchscreenButton2" type="TextureButton" parent="NewChunkManager/CanvasLayer/MarginContainer/Control"]
+[node name="InteractiveTouchscreenButton2" type="TextureButton" parent="ChunkManager/CanvasLayer/MarginContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.124132
@@ -108,7 +131,7 @@ script = ExtResource("5_wygdx")
 input_action = &"ui_down"
 metadata/_edit_use_anchors_ = true
 
-[node name="Reset" type="TextureButton" parent="NewChunkManager/CanvasLayer/MarginContainer/Control"]
+[node name="Reset" type="TextureButton" parent="ChunkManager/CanvasLayer/MarginContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.00954861
@@ -123,7 +146,7 @@ script = ExtResource("5_wygdx")
 input_action = &"reset"
 metadata/_edit_use_anchors_ = true
 
-[node name="Reset2" type="TextureButton" parent="NewChunkManager/CanvasLayer/MarginContainer/Control"]
+[node name="Reset2" type="TextureButton" parent="ChunkManager/CanvasLayer/MarginContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.0104167
@@ -138,7 +161,7 @@ script = ExtResource("5_wygdx")
 input_action = &"cam_zoom"
 metadata/_edit_use_anchors_ = true
 
-[node name="Reset3" type="TextureButton" parent="NewChunkManager/CanvasLayer/MarginContainer/Control"]
+[node name="Reset3" type="TextureButton" parent="ChunkManager/CanvasLayer/MarginContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.00954861
@@ -153,7 +176,7 @@ script = ExtResource("5_wygdx")
 input_action = &"cam_zoom_out"
 metadata/_edit_use_anchors_ = true
 
-[node name="InteractiveTouchscreenButton3" type="TextureButton" parent="NewChunkManager/CanvasLayer/MarginContainer/Control"]
+[node name="InteractiveTouchscreenButton3" type="TextureButton" parent="ChunkManager/CanvasLayer/MarginContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.125
@@ -168,7 +191,7 @@ script = ExtResource("5_wygdx")
 input_action = &"ui_up"
 metadata/_edit_use_anchors_ = true
 
-[node name="InteractiveTouchscreenButton4" type="TextureButton" parent="NewChunkManager/CanvasLayer/MarginContainer/Control"]
+[node name="InteractiveTouchscreenButton4" type="TextureButton" parent="ChunkManager/CanvasLayer/MarginContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.0694444
@@ -186,7 +209,7 @@ metadata/_edit_use_anchors_ = true
 [node name="Node2D" type="CharacterBody2D" parent="."]
 position = Vector2(2609, 1242)
 script = ExtResource("3_bcbcq")
-speed = 100000.0
+speed = 50000.0
 
 [node name="ColorRect" type="ColorRect" parent="Node2D"]
 offset_left = -3.0

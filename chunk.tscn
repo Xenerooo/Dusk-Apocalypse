@@ -1,12 +1,23 @@
-[gd_scene load_steps=30 format=3 uid="uid://cf70atxem4i7a"]
+[gd_scene load_steps=21 format=3 uid="uid://cf70atxem4i7a"]
 
 [ext_resource type="Script" uid="uid://cssq6depb51dw" path="res://chunk.gd" id="1_kdh3y"]
-[ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://asset/ground_textures/GroundTiles.tres" id="2_e81nj"]
+[ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://resources/terrain/GroundTiles.tres" id="2_e81nj"]
+[ext_resource type="TileSet" uid="uid://baqvve5g684u7" path="res://resources/terrain/props.tres" id="3_5lkun"]
+[ext_resource type="TileSet" uid="uid://ddc701j8tin6a" path="res://resources/terrain/Vegetation.tres" id="4_44qyl"]
 [ext_resource type="Shader" uid="uid://n0wmq3uun33u" path="res://foliage.gdshader" id="5_eoxb4"]
 [ext_resource type="Script" uid="uid://biehv4j6l5mqw" path="res://grass.gd" id="7_5lkun"]
-[ext_resource type="Texture2D" uid="uid://bdsf64h2u4bkf" path="res://asset/PineTree2.png" id="7_e81nj"]
-[ext_resource type="Texture2D" uid="uid://ur25humjvhv" path="res://asset/ground_textures/tileset-prototype.png" id="8_44qyl"]
-[ext_resource type="Texture2D" uid="uid://bupnot5afx7r7" path="res://asset/ground_textures/tileset-prototype-walls.png" id="9_a6v8k"]
+[ext_resource type="TileSet" uid="uid://bw2pxa6p1te7a" path="res://resources/terrain/Trees.tres" id="7_aj7hh"]
+[ext_resource type="TileSet" uid="uid://c0rqasl3vlxu5" path="res://resources/terrain/HouseTiles.tres" id="8_5lkun"]
+[ext_resource type="TileSet" uid="uid://o2c82v8m0hts" path="res://resources/terrain/HouseInterior.tres" id="8_aj7hh"]
+[ext_resource type="TileSet" uid="uid://dsym70gbg4cyp" path="res://resources/terrain/HouseOutline.tres" id="10_aj7hh"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_aj7hh"]
+vertices = PackedVector2Array(950, 950, 10, 950, 10, 10, 950, 10)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(0, 0, 960, 0, 960, 960, 0, 960)])
+source_geometry_mode = 2
+source_geometry_group_name = &"bake"
+agent_radius = 1.0
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_hvwml"]
 noise_type = 0
@@ -25,19 +36,6 @@ shader_parameter/time_scale = 0.02
 shader_parameter/noise_scale = 0.001
 shader_parameter/rotation_strength = 0.1
 shader_parameter/rotation_pivot = Vector2(0.5, 1.75)
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_856wt"]
-load_path = "res://.godot/imported/vegetation.png-eb25d4e1e4daf3b307037fe2fb113f36.ctex"
-
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_eoxb4"]
-texture = SubResource("CompressedTexture2D_856wt")
-texture_region_size = Vector2i(32, 32)
-0:1/0 = 0
-0:0/0 = 0
-
-[sub_resource type="TileSet" id="TileSet_e81nj"]
-tile_size = Vector2i(24, 24)
-sources/0 = SubResource("TileSetAtlasSource_eoxb4")
 
 [sub_resource type="Shader" id="Shader_ipac1"]
 code = "shader_type canvas_item;
@@ -125,128 +123,13 @@ shader_parameter/rotation_strength = 0.5
 shader_parameter/rotation_pivot = Vector2(0.5, 1)
 shader_parameter/distance_cutoff = 1.0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_o8648"]
-texture = ExtResource("7_e81nj")
-texture_region_size = Vector2i(2, 2)
-0:0/size_in_atlas = Vector2i(24, 47)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(2, 42)
-
-[sub_resource type="TileSet" id="TileSet_a6v8k"]
-tile_size = Vector2i(24, 24)
-sources/0 = SubResource("TileSetAtlasSource_o8648")
-
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_e81nj"]
-texture = ExtResource("9_a6v8k")
-texture_region_size = Vector2i(24, 24)
-0:0/size_in_atlas = Vector2i(1, 2)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 12)
-0:0/0/y_sort_origin = 11
-0:2/0 = 0
-0:2/0/y_sort_origin = -99999
-1:0/size_in_atlas = Vector2i(1, 2)
-1:0/0 = 0
-1:0/0/texture_origin = Vector2i(0, 12)
-1:0/0/y_sort_origin = 11
-2:0/size_in_atlas = Vector2i(1, 2)
-2:0/0 = 0
-2:0/0/texture_origin = Vector2i(0, 12)
-2:0/0/y_sort_origin = 11
-3:0/size_in_atlas = Vector2i(1, 2)
-3:0/0 = 0
-3:0/0/texture_origin = Vector2i(0, 12)
-3:0/0/y_sort_origin = 11
-4:0/size_in_atlas = Vector2i(1, 2)
-4:0/0 = 0
-4:0/0/texture_origin = Vector2i(0, 12)
-4:0/0/y_sort_origin = 11
-
-[sub_resource type="TileSet" id="TileSet_44qyl"]
-tile_size = Vector2i(24, 24)
-sources/0 = SubResource("TileSetAtlasSource_e81nj")
-
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_5lkun"]
-texture = ExtResource("9_a6v8k")
-texture_region_size = Vector2i(24, 24)
-0:0/size_in_atlas = Vector2i(1, 2)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 12)
-0:0/0/y_sort_origin = 11
-0:2/0 = 0
-0:2/0/y_sort_origin = -99999
-1:0/size_in_atlas = Vector2i(1, 2)
-1:0/0 = 0
-1:0/0/texture_origin = Vector2i(0, 12)
-1:0/0/y_sort_origin = 11
-2:0/size_in_atlas = Vector2i(1, 2)
-2:0/0 = 0
-2:0/0/texture_origin = Vector2i(0, 12)
-2:0/0/y_sort_origin = 11
-3:0/size_in_atlas = Vector2i(1, 2)
-3:0/0 = 0
-3:0/0/texture_origin = Vector2i(0, 12)
-3:0/0/y_sort_origin = 11
-4:0/size_in_atlas = Vector2i(1, 2)
-4:0/0 = 0
-4:0/0/texture_origin = Vector2i(0, 12)
-4:0/0/y_sort_origin = 11
-
-[sub_resource type="TileSet" id="TileSet_3030x"]
-tile_size = Vector2i(24, 24)
-sources/0 = SubResource("TileSetAtlasSource_5lkun")
-
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_65126"]
-texture = ExtResource("9_a6v8k")
-texture_region_size = Vector2i(24, 24)
-0:0/size_in_atlas = Vector2i(1, 2)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 12)
-0:0/0/y_sort_origin = 11
-0:2/0 = 0
-0:2/0/y_sort_origin = -99999
-
-[sub_resource type="TileSet" id="TileSet_hndgg"]
-tile_size = Vector2i(24, 24)
-sources/0 = SubResource("TileSetAtlasSource_65126")
-
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ylcux"]
-texture = ExtResource("8_44qyl")
-texture_region_size = Vector2i(24, 24)
-0:5/0 = 0
-1:5/0 = 0
-1:6/0 = 0
-0:6/0 = 0
-0:3/0 = 0
-1:3/0 = 0
-2:3/0 = 0
-2:4/0 = 0
-1:4/0 = 0
-0:4/0 = 0
-0:0/size_in_atlas = Vector2i(1, 3)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 24)
-1:0/size_in_atlas = Vector2i(1, 3)
-1:0/0 = 0
-1:0/0/texture_origin = Vector2i(0, 24)
-2:0/size_in_atlas = Vector2i(1, 3)
-2:0/0 = 0
-2:0/0/texture_origin = Vector2i(0, 24)
-2:5/0 = 0
-0:7/0 = 0
-1:7/0 = 0
-
 [sub_resource type="TileSet" id="TileSet_aj7hh"]
-tile_size = Vector2i(24, 24)
-sources/0 = SubResource("TileSetAtlasSource_ylcux")
-
-[sub_resource type="TileSet" id="TileSet_bqd7a"]
 tile_size = Vector2i(24, 24)
 
 [sub_resource type="LabelSettings" id="LabelSettings_e81nj"]
 font_size = 176
 
-[node name="Chunk" type="Node2D" node_paths=PackedStringArray("notifier", "map", "ground", "ground2", "vegetation", "trees", "building", "building_outline", "interiorWall", "exteriorWall", "floor", "roof")]
+[node name="Chunk" type="Node2D" node_paths=PackedStringArray("notifier", "map", "ground", "ground2", "vegetation", "trees", "props", "building", "building_outline", "interiorWall", "exteriorWall", "floor", "roof")]
 y_sort_enabled = true
 script = ExtResource("1_kdh3y")
 tile_size = 24
@@ -256,6 +139,7 @@ ground = NodePath("Map/Ground")
 ground2 = NodePath("Map/Ground2")
 vegetation = NodePath("Map/Vegetation")
 trees = NodePath("Map/Trees")
+props = NodePath("Map/Props")
 building = NodePath("Building")
 building_outline = NodePath("Building/BuildingOutline")
 interiorWall = NodePath("Building/BuildingInteriorWalls")
@@ -263,48 +147,55 @@ exteriorWall = NodePath("Building/BuildingExteriorWalls")
 floor = NodePath("Building/BuildingFloor")
 roof = NodePath("Building/Roof")
 
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_aj7hh")
+
 [node name="Map" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="Ground" type="TileMapLayer" parent="Map"]
+[node name="Ground" type="TileMapLayer" parent="Map" groups=["bake"]]
 tile_set = ExtResource("2_e81nj")
 
-[node name="Ground2" type="TileMapLayer" parent="Map"]
+[node name="Ground2" type="TileMapLayer" parent="Map" groups=["bake"]]
 tile_set = ExtResource("2_e81nj")
 
-[node name="Vegetation" type="TileMapLayer" parent="Map"]
+[node name="Props" type="TileMapLayer" parent="Map" groups=["bake"]]
+y_sort_enabled = true
+tile_set = ExtResource("3_5lkun")
+
+[node name="Vegetation" type="TileMapLayer" parent="Map" groups=["bake"]]
 y_sort_enabled = true
 material = SubResource("ShaderMaterial_eoxb4")
-tile_set = SubResource("TileSet_e81nj")
+tile_set = ExtResource("4_44qyl")
 script = ExtResource("7_5lkun")
 
-[node name="Trees" type="TileMapLayer" parent="Map"]
+[node name="Trees" type="TileMapLayer" parent="Map" groups=["bake"]]
 y_sort_enabled = true
 material = SubResource("ShaderMaterial_44qyl")
-tile_set = SubResource("TileSet_a6v8k")
+tile_set = ExtResource("7_aj7hh")
 
 [node name="Building" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="BuildingInteriorWalls" type="TileMapLayer" parent="Building"]
+[node name="BuildingInteriorWalls" type="TileMapLayer" parent="Building" groups=["bake"]]
 y_sort_enabled = true
-tile_set = SubResource("TileSet_44qyl")
+tile_set = ExtResource("8_aj7hh")
 
-[node name="BuildingExteriorWalls" type="TileMapLayer" parent="Building"]
+[node name="BuildingExteriorWalls" type="TileMapLayer" parent="Building" groups=["bake"]]
 y_sort_enabled = true
-tile_set = SubResource("TileSet_3030x")
+tile_set = ExtResource("8_5lkun")
 
-[node name="BuildingFloor" type="TileMapLayer" parent="Building"]
-tile_set = SubResource("TileSet_hndgg")
+[node name="BuildingFloor" type="TileMapLayer" parent="Building" groups=["bake"]]
+tile_set = ExtResource("8_aj7hh")
 
-[node name="BuildingOutline" type="TileMapLayer" parent="Building"]
+[node name="BuildingOutline" type="TileMapLayer" parent="Building" groups=["bake"]]
 y_sort_enabled = true
-tile_set = SubResource("TileSet_aj7hh")
+tile_set = ExtResource("10_aj7hh")
 
-[node name="Roof" type="TileMapLayer" parent="Building"]
+[node name="Roof" type="TileMapLayer" parent="Building" groups=["bake"]]
 z_index = 1
 y_sort_enabled = true
-tile_set = SubResource("TileSet_bqd7a")
+tile_set = SubResource("TileSet_aj7hh")
 
 [node name="VisibiltyNotifier" type="VisibleOnScreenNotifier2D" parent="."]
 rect = Rect2(0, 0, 960, 960)

@@ -9,6 +9,10 @@ extends Node
 	{ "size": Vector2i(2, 2), "count": 0 },
 	{ "size": Vector2i(4, 2), "count": 0 }
 ]
+
+@export var city_lookup :StructureLookups
+
+
 @onready var big_map_generator: Node2D = $BigMapGenerator
 var map := {}
 var big_map := {
@@ -74,6 +78,7 @@ func populate_map():
 			}
 			placed += 1
 			city_id_counter += 1
+			regions[pos].prefab_id = city_lookup.variants.pick_random()
 
 	# Place multi-tile cities
 	for entry in MULTI_CITIES:

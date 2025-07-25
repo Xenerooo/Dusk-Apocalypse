@@ -3,6 +3,7 @@ class_name Chunk
 @export var tile_size: int = 32
 @export var chunk_tile_size: int = 32
 var chunk_pos: Vector2i
+var world_chunk_pos: Vector2i
 
 @export var notifier: VisibleOnScreenNotifier2D
 @onready var label: Label = $Label
@@ -13,6 +14,8 @@ var chunk_pos: Vector2i
 @export var ground2: TileMapLayer
 @export var vegetation: TileMapLayer
 @export var trees: TileMapLayer
+@export var props: TileMapLayer
+
 
 @export_subgroup("Buildings")
 @export var building: Node2D
@@ -21,6 +24,9 @@ var chunk_pos: Vector2i
 @export var exteriorWall: TileMapLayer
 @export var floor: TileMapLayer
 @export var roof: TileMapLayer
+
+@onready var navigation_region_2d: NavigationRegion2D = $NavigationRegion2D
+
 
 # Frame-sliced generation data
 var pending_layers: Dictionary = {}
@@ -77,6 +83,7 @@ func get_layer_by_name(_name: String) -> TileMapLayer:
 	match _name:
 		"Ground": return ground
 		"Ground2": return ground2
+		"Props": return props
 		"Trees": return trees
 		"Vegetation": return vegetation
 		"BuildingOutline": return building_outline
@@ -92,8 +99,10 @@ func update_notifier():
 	name = str(chunk_pos)
 	label.text = str(chunk_pos)
 
+	navigation_region_2d.bake_navigation_polygon(false)
+
 func reset():
-	for tilemap in [ground,ground2, trees, vegetation, building_outline, exteriorWall, interiorWall, floor, roof]:
+	for tilemap in [ground,ground2,props, trees, vegetation, building_outline, exteriorWall, interiorWall, floor, roof]:
 		tilemap.clear()
 
 func _on_visibilty_notifier_screen_entered() -> void:

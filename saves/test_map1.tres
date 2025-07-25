@@ -1,0 +1,117 @@
+[gd_resource type="Resource" script_class="WorldSaveResource" load_steps=2 format=3 uid="uid://byhvmtlgmiibb"]
+
+[ext_resource type="Script" uid="uid://c1vabcfj4y0a6" path="res://saves/MapSaveResource.gd" id="1_qh1oi"]
+
+[resource]
+script = ExtResource("1_qh1oi")
+map_size = Vector2i(10, 10)
+tile_size = 24
+chunk_size = 200
+chunks = {
+Vector2i(0, 0): {
+"meta_data": {
+"city_id": 2,
+"local": Vector2i(0, 0),
+"root": Vector2i(0, 0)
+},
+"prefab_id": "city_single_1",
+"size": Vector2i(1, 1),
+"type": "city"
+},
+Vector2i(0, 1): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(0, 2): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(0, 3): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(1, 0): {
+"meta_data": {},
+"prefab_id": "road_we",
+"type": "road"
+},
+Vector2i(1, 1): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(1, 2): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(1, 3): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(2, 0): {
+"meta_data": {},
+"prefab_id": "road_sw",
+"type": "road"
+},
+Vector2i(2, 1): {
+"meta_data": {
+"city_id": 3,
+"local": Vector2i(0, 0),
+"root": Vector2i(2, 1)
+},
+"prefab_id": "city_single_2",
+"size": Vector2i(1, 1),
+"type": "city"
+},
+Vector2i(2, 2): {
+"meta_data": {
+"city_id": 1,
+"local": Vector2i(0, 0),
+"root": Vector2i(2, 2)
+},
+"prefab_id": "city_single_2",
+"size": Vector2i(1, 1),
+"type": "city"
+},
+Vector2i(2, 3): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(3, 0): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(3, 1): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(3, 2): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+},
+Vector2i(3, 3): {
+"meta_data": {},
+"prefab_id": "structure_empty",
+"size": Vector2i(1, 1),
+"type": "structure_empty"
+}
+}

@@ -21,6 +21,10 @@ window/size/always_on_top=true
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 
+[global_group]
+
+bake=""
+
 [input]
 
 reset={

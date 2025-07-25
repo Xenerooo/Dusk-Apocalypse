@@ -1,0 +1,47 @@
+[gd_resource type="TileSet" load_steps=3 format=3 uid="uid://c0rqasl3vlxu5"]
+
+[ext_resource type="Texture2D" uid="uid://bupnot5afx7r7" path="res://asset/ground_textures/tileset-prototype-walls.png" id="1_jdonb"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_elqbn"]
+texture = ExtResource("1_jdonb")
+texture_region_size = Vector2i(24, 24)
+0:0/size_in_atlas = Vector2i(1, 2)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 12)
+0:0/0/y_sort_origin = 11
+0:2/0 = 0
+1:0/size_in_atlas = Vector2i(1, 2)
+1:0/0 = 0
+1:0/0/texture_origin = Vector2i(0, 12)
+1:0/0/y_sort_origin = 11
+2:0/size_in_atlas = Vector2i(1, 2)
+2:0/0 = 0
+2:0/0/texture_origin = Vector2i(0, 12)
+2:0/0/y_sort_origin = 11
+3:0/size_in_atlas = Vector2i(1, 2)
+3:0/0 = 0
+3:0/0/texture_origin = Vector2i(0, 12)
+3:0/0/y_sort_origin = 11
+4:0/size_in_atlas = Vector2i(1, 2)
+4:0/0 = 0
+4:0/0/texture_origin = Vector2i(0, 12)
+4:0/0/y_sort_origin = 11
+2:2/0 = 0
+1:2/0 = 0
+5:0/size_in_atlas = Vector2i(1, 2)
+5:0/0 = 0
+5:0/0/texture_origin = Vector2i(0, 12)
+5:0/0/y_sort_origin = 11
+6:0/size_in_atlas = Vector2i(1, 2)
+6:0/0 = 0
+6:0/0/texture_origin = Vector2i(0, 12)
+6:0/0/y_sort_origin = 11
+7:0/size_in_atlas = Vector2i(1, 2)
+7:0/0 = 0
+7:0/0/texture_origin = Vector2i(0, 12)
+7:0/0/y_sort_origin = 11
+3:2/0 = 0
+
+[resource]
+tile_size = Vector2i(24, 24)
+sources/0 = SubResource("TileSetAtlasSource_elqbn")
