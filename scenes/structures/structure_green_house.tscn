@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://dd2angpf8tugg"]
+
+[ext_resource type="PackedScene" uid="uid://6h03nnl67df4" path="res://scenes/structures/Structure.tscn" id="1_sncho"]
+[ext_resource type="Texture2D" uid="uid://vwa4b04545vu" path="res://asset/structures/b_village_green-sheet0.png" id="2_bvvxp"]
+[ext_resource type="Texture2D" uid="uid://i1kbldm6v4mb" path="res://asset/structures/b_village_green_int-sheet0.png" id="3_g8agc"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bvvxp"]
+size = Vector2(118, 63)
+
+[node name="structure_green_house" instance=ExtResource("1_sncho")]
+
+[node name="Exterior" parent="." index="0"]
+position = Vector2(1, 65)
+texture = ExtResource("2_bvvxp")
+offset = Vector2(0.5, -65)
+
+[node name="Interior" parent="." index="1"]
+position = Vector2(1, -10)
+texture = ExtResource("3_g8agc")
+offset = Vector2(0.5, 12)
+
+[node name="CollisionPolygon2D" parent="Structure" index="0"]
+polygon = PackedVector2Array(-7, 60, -7, 64, -23, 64, -23, 57, -61, 57, -61, -11, 64, -11, 64, 57, 27, 57, 27, 64, 11, 64, 11, 60, 24, 60, 24, 53, 60, 53, 60, -8, -56, -8, -56, 16, -41, 16, -41, 53, -23, 53, -23, 13, -19, 13, -19, 60)
+
+[node name="CollisionShape2D" parent="PlayerDetector" index="0"]
+position = Vector2(1, 23.5)
+shape = SubResource("RectangleShape2D_bvvxp")

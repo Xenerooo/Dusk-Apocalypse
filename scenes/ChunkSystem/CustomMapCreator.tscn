@@ -1,0 +1,165 @@
+[gd_scene load_steps=29 format=3 uid="uid://c1fk2htpd53um"]
+
+[ext_resource type="Script" uid="uid://d4j5as2m5mc3f" path="res://scenes/ChunkSystem/CustomMapCreator.gd" id="1_tl7am"]
+[ext_resource type="Script" uid="uid://27u8ky4cbxln" path="res://saves/migrate_saves.gd" id="2_elqbn"]
+[ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://resources/terrain/GroundTiles.tres" id="2_fuwu6"]
+[ext_resource type="Script" uid="uid://bkcpie5crnpfv" path="res://saves/StructureSaveResource.gd" id="3_01ilp"]
+[ext_resource type="Resource" uid="uid://cqf1p63g4hq0p" path="res://resources/structures/city_single_1.res" id="4_3lsd2"]
+[ext_resource type="TileSet" uid="uid://baqvve5g684u7" path="res://resources/terrain/props.tres" id="4_tl7am"]
+[ext_resource type="Shader" uid="uid://n0wmq3uun33u" path="res://foliage.gdshader" id="5_cr3bc"]
+[ext_resource type="Resource" uid="uid://bnhamn0u4ue03" path="res://resources/structures/city_single_2.res" id="5_s10iw"]
+[ext_resource type="TileSet" uid="uid://ddc701j8tin6a" path="res://resources/terrain/Vegetation.tres" id="5_ymqhf"]
+[ext_resource type="Resource" uid="uid://c18ckw6xtem37" path="res://resources/structures/road_ne.res" id="6_4en0f"]
+[ext_resource type="Resource" uid="uid://bjaeo4lfshiad" path="res://resources/structures/road_ns.res" id="7_3idmp"]
+[ext_resource type="Script" uid="uid://biehv4j6l5mqw" path="res://grass.gd" id="7_jbdte"]
+[ext_resource type="Resource" uid="uid://bw3gnin3x35cg" path="res://resources/structures/road_nse.res" id="8_7bmar"]
+[ext_resource type="TileSet" uid="uid://bw2pxa6p1te7a" path="res://resources/terrain/Trees.tres" id="8_nwpk0"]
+[ext_resource type="Resource" uid="uid://f86blbt6jsjt" path="res://resources/structures/road_nsw.res" id="9_u03xg"]
+[ext_resource type="Resource" uid="uid://djlf8xcgsn7x" path="res://resources/structures/road_nswe.res" id="10_kjf0v"]
+[ext_resource type="TileSet" uid="uid://dsym70gbg4cyp" path="res://resources/terrain/HouseOutline.tres" id="11_nwpk0"]
+[ext_resource type="Resource" uid="uid://bg07b4ppckqc2" path="res://resources/structures/road_nw.res" id="11_t6sin"]
+[ext_resource type="Resource" uid="uid://busww8oa8oq12" path="res://resources/structures/road_nwe.res" id="12_tmth5"]
+[ext_resource type="Resource" uid="uid://dxd16xutu8xp4" path="res://resources/structures/road_se.res" id="13_r868s"]
+[ext_resource type="Resource" uid="uid://rxkjbhtjeb6n" path="res://resources/structures/road_sw.res" id="14_6wvd0"]
+[ext_resource type="Resource" uid="uid://bvkd43nv8hjk8" path="res://resources/structures/road_swe.res" id="15_pu6qm"]
+[ext_resource type="Resource" uid="uid://c7ys7qne5syyg" path="res://resources/structures/road_we.res" id="16_vx8gw"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_hvwml"]
+noise_type = 0
+frequency = 0.0208
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_e81nj"]
+seamless = true
+noise = SubResource("FastNoiseLite_hvwml")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vwyad"]
+shader = ExtResource("5_cr3bc")
+shader_parameter/render_noise = false
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_e81nj")
+shader_parameter/amplitude = 0.01
+shader_parameter/time_scale = 0.02
+shader_parameter/noise_scale = 0.001
+shader_parameter/rotation_strength = 0.1
+shader_parameter/rotation_pivot = Vector2(0.5, 1.75)
+
+[sub_resource type="Shader" id="Shader_e81nj"]
+code = "shader_type canvas_item;
+
+uniform bool render_noise = false;
+uniform sampler2D noise_texture : repeat_enable; // set in inspector
+uniform float amplitude : hint_range(0.0, 0.5, 0.01) = 0.2;
+uniform float time_scale : hint_range(0.0, 5.0, 0.01) = 0.04;
+uniform float noise_scale : hint_range(0.0, 2.0, 0.0001) = 0.001;
+uniform float rotation_strength : hint_range(0.0, 1.0, 0.05) = 1;
+uniform vec2 rotation_pivot = vec2(0.5, 1);
+uniform float distance_cutoff : hint_range(0.0, 1.0, 0.05) = 0.3;
+varying vec2 world_position;
+
+void vertex(){
+    world_position = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
+}
+
+vec2 get_sample_pos(vec2 pos, float scale, float offset) {
+	pos *= scale;
+	pos += offset;
+	return pos;
+}
+
+vec2 rotate_vec(vec2 vec, vec2 pivot, float rotation) {
+	float cosa = cos(rotation);
+	float sina = sin(rotation);
+	vec -= pivot;
+	return vec2(
+		cosa * vec.x - sina * vec.y,
+		cosa * vec.y + sina * vec.x
+	) + pivot;
+}
+
+vec2 get_pixelated_uvs(vec2 uv, vec2 texture_pixel_size) {
+    vec2 texture_dimensions = 1.0 / texture_pixel_size;
+    vec2 pixel_coords = uv * texture_dimensions;
+    vec2 snapped_pixel_coords = vec2(round(pixel_coords.x), round(pixel_coords.y));
+    vec2 pixelated_uv = snapped_pixel_coords / texture_dimensions;
+	return pixelated_uv;
+}
+
+void fragment() {
+	vec2 uv = get_pixelated_uvs(UV, TEXTURE_PIXEL_SIZE);
+
+	// get noise from texture
+	vec2 noise_sample_pos = get_sample_pos(uv, noise_scale, TIME * time_scale);
+	float noise_amount = texture(noise_texture, noise_sample_pos).r - 0.5f;
+
+	// get rotation position around a pivot
+	float rotation = amplitude * noise_amount;
+	vec2 rotated_uvs = rotate_vec(uv, rotation_pivot, rotation);
+
+	// blend original uvs and rotated uvs based on distance to pivot
+	float dist = distance(uv, rotation_pivot);
+	dist = clamp(dist, distance_cutoff, 1) * rotation_strength - distance_cutoff;
+	vec2 result_uvs = mix(uv, rotated_uvs, dist);
+
+	// output color
+	COLOR = texture(TEXTURE, result_uvs);
+
+	// optional, preview noise texture for debugging
+	if (render_noise) {
+		vec4 noise_color = texture(noise_texture, noise_sample_pos);
+		COLOR = noise_color;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mvdya"]
+shader = SubResource("Shader_e81nj")
+shader_parameter/render_noise = false
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_e81nj")
+shader_parameter/amplitude = 0.07
+shader_parameter/time_scale = 0.04
+shader_parameter/noise_scale = 0.5293
+shader_parameter/rotation_strength = 0.5
+shader_parameter/rotation_pivot = Vector2(0.5, 1)
+shader_parameter/distance_cutoff = 1.0
+
+[node name="CustomMapCreator" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_tl7am")
+CHUNK_SIZE = 200
+metadata/_edit_horizontal_guides_ = [4800.0]
+metadata/_edit_vertical_guides_ = [4800.0]
+
+[node name="MigrateSaves" type="Node" parent="."]
+script = ExtResource("2_elqbn")
+old_resource_path = "res://resources/structures/structure_test.res"
+new_resource_path = "res://resources/structures/structure_test.res"
+resources = Array[ExtResource("3_01ilp")]([ExtResource("4_3lsd2"), ExtResource("5_s10iw"), ExtResource("6_4en0f"), ExtResource("7_3idmp"), ExtResource("8_7bmar"), ExtResource("9_u03xg"), ExtResource("10_kjf0v"), ExtResource("11_t6sin"), ExtResource("12_tmth5"), ExtResource("13_r868s"), ExtResource("14_6wvd0"), ExtResource("15_pu6qm"), ExtResource("16_vx8gw"), null])
+
+[node name="Map" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Ground" type="TileMapLayer" parent="Map"]
+tile_set = ExtResource("2_fuwu6")
+
+[node name="Ground2" type="TileMapLayer" parent="Map"]
+tile_set = ExtResource("2_fuwu6")
+
+[node name="Props" type="TileMapLayer" parent="Map"]
+y_sort_enabled = true
+tile_set = ExtResource("4_tl7am")
+
+[node name="Vegetation" type="TileMapLayer" parent="Map"]
+y_sort_enabled = true
+material = SubResource("ShaderMaterial_vwyad")
+tile_set = ExtResource("5_ymqhf")
+script = ExtResource("7_jbdte")
+
+[node name="Trees" type="TileMapLayer" parent="Map"]
+y_sort_enabled = true
+material = SubResource("ShaderMaterial_mvdya")
+tile_set = ExtResource("8_nwpk0")
+
+[node name="Building" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Building" type="TileMapLayer" parent="Building"]
+y_sort_enabled = true
+tile_set = ExtResource("11_nwpk0")

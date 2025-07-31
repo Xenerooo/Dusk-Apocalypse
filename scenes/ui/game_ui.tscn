@@ -1,0 +1,76 @@
+[gd_scene load_steps=9 format=3 uid="uid://bfk0mhdjuq5vd"]
+
+[ext_resource type="Script" uid="uid://udu5lcvxef5q" path="res://scenes/ui/game_ui.gd" id="1_bma8u"]
+[ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://scenes/ui/DynamicMargins.gd" id="1_gwk6t"]
+[ext_resource type="PackedScene" uid="uid://dmr0fcamx7t56" path="res://addons/joystick/virtual_joystick.tscn" id="2_xjfbv"]
+[ext_resource type="Script" uid="uid://cd1oc45wde6qo" path="res://scenes/ui/player_controls.gd" id="3_fct72"]
+[ext_resource type="Texture2D" uid="uid://d0hi1m61eaxxb" path="res://icon.svg" id="5_v1bdg"]
+[ext_resource type="Script" uid="uid://4fobfp3r5tpr" path="res://scenes/ui/InteractiveTouchScreenButton.gd" id="6_qrkc0"]
+[ext_resource type="Texture2D" uid="uid://do7dnrov2pyte" path="res://asset/user_interface/Zoom_in.png" id="6_yvtb5"]
+[ext_resource type="Texture2D" uid="uid://bv6pq8alfsrin" path="res://asset/user_interface/Zoom_out.png" id="7_k7elv"]
+
+[node name="GameUi" type="CanvasLayer" node_paths=PackedStringArray("player_controls")]
+script = ExtResource("1_bma8u")
+player_controls = NodePath("AutoMargin/PlayerControls")
+
+[node name="AutoMargin" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_gwk6t")
+
+[node name="PlayerControls" type="Control" parent="AutoMargin" node_paths=PackedStringArray("move_stick")]
+layout_mode = 2
+mouse_filter = 1
+script = ExtResource("3_fct72")
+move_stick = NodePath("MoveStick")
+
+[node name="Buttons" type="GridContainer" parent="AutoMargin/PlayerControls"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.837493
+anchor_right = 1.0
+anchor_bottom = 0.0725309
+offset_left = 0.207947
+grow_horizontal = 0
+columns = 4
+metadata/_edit_use_anchors_ = true
+
+[node name="Reset" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("5_v1bdg")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("6_qrkc0")
+input_action = &"reset"
+metadata/_edit_use_anchors_ = true
+
+[node name="Reset2" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("6_yvtb5")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("6_qrkc0")
+input_action = &"cam_zoom"
+metadata/_edit_use_anchors_ = true
+
+[node name="Reset3" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("7_k7elv")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("6_qrkc0")
+input_action = &"cam_zoom_out"
+metadata/_edit_use_anchors_ = true
+
+[node name="MoveStick" parent="AutoMargin/PlayerControls" instance=ExtResource("2_xjfbv")]
+layout_mode = 1
+active_zone = 2.0

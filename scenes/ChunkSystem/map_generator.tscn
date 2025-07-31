@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://cv48gv828xltm"]
+
+[ext_resource type="Script" uid="uid://41bhxoa14saq" path="res://scenes/ChunkSystem/map_generator.gd" id="1_0r6lh"]
+[ext_resource type="Script" uid="uid://ijqb4nf6b1nr" path="res://scenes/ChunkSystem/big_map_generator.gd" id="2_7kg47"]
+[ext_resource type="Resource" uid="uid://btvmgkqh4r5sj" path="res://resources/structures/lookups/cities.tres" id="2_ej6gg"]
+
+[node name="MapGenerator" type="Node2D"]
+script = ExtResource("1_0r6lh")
+MAP_SIZE = Vector2i(1, 1)
+SINGLE_CITIES = 1
+city_lookup = ExtResource("2_ej6gg")
+
+[node name="BigMapGenerator" type="Node2D" parent="."]
+script = ExtResource("2_7kg47")

@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://cootura1lqlgi"]
+
+[ext_resource type="PackedScene" uid="uid://6h03nnl67df4" path="res://scenes/structures/Structure.tscn" id="1_8stkk"]
+[ext_resource type="Texture2D" uid="uid://dom8dqke2smi5" path="res://asset/structures/b_hostel-sheet0.png" id="2_jhdyb"]
+[ext_resource type="Texture2D" uid="uid://fohgl1plabk4" path="res://asset/structures/b_hostel_int-sheet0.png" id="3_o3ba5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jhdyb"]
+size = Vector2(150, 48)
+
+[node name="Structure_Hostel" instance=ExtResource("1_8stkk")]
+
+[node name="Exterior" parent="." index="0"]
+position = Vector2(0, 51)
+texture = ExtResource("2_jhdyb")
+offset = Vector2(0, -75.5)
+
+[node name="Interior" parent="." index="1"]
+texture = ExtResource("3_o3ba5")
+offset = Vector2(0, 0.5)
+
+[node name="CollisionPolygon2D" parent="Structure" index="0"]
+polygon = PackedVector2Array(-71, 48, -71, 52, -80, 52, -80, -2, 80, -2, 80, 52, -51, 52, -51, 48, 34, 48, 34, 19, 38, 19, 38, 48, 76, 48, 76, 1, -76, 1, -76, 48)
+
+[node name="CollisionShape2D" parent="PlayerDetector" index="0"]
+position = Vector2(0, 26)
+shape = SubResource("RectangleShape2D_jhdyb")

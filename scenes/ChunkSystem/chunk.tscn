@@ -1,0 +1,122 @@
+[gd_scene load_steps=18 format=3 uid="uid://cf70atxem4i7a"]
+
+[ext_resource type="Script" uid="uid://cssq6depb51dw" path="res://scenes/ChunkSystem/chunk.gd" id="1_kdh3y"]
+[ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://resources/terrain/GroundTiles.tres" id="2_e81nj"]
+[ext_resource type="TileSet" uid="uid://baqvve5g684u7" path="res://resources/terrain/props.tres" id="3_5lkun"]
+[ext_resource type="TileSet" uid="uid://ddc701j8tin6a" path="res://resources/terrain/Vegetation.tres" id="4_44qyl"]
+[ext_resource type="Shader" uid="uid://n0wmq3uun33u" path="res://foliage.gdshader" id="5_eoxb4"]
+[ext_resource type="Shader" uid="uid://dty8osef5o6pi" path="res://wind.gdshader" id="6_lkuu7"]
+[ext_resource type="TileSet" uid="uid://bw2pxa6p1te7a" path="res://resources/terrain/Trees.tres" id="7_aj7hh"]
+[ext_resource type="TileSet" uid="uid://dsym70gbg4cyp" path="res://resources/terrain/HouseOutline.tres" id="10_aj7hh"]
+[ext_resource type="Script" uid="uid://b8tts3ha60wr0" path="res://scenes/ChunkSystem/runtime_testing.gd" id="10_mavbk"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_aj7hh"]
+vertices = PackedVector2Array(950, 950, 10, 950, 10, 10, 950, 10)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(0, 0, 960, 0, 960, 960, 0, 960)])
+source_geometry_mode = 2
+source_geometry_group_name = &"bake"
+agent_radius = 1.0
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_hvwml"]
+noise_type = 0
+frequency = 0.0208
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_e81nj"]
+seamless = true
+noise = SubResource("FastNoiseLite_hvwml")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eoxb4"]
+shader = ExtResource("5_eoxb4")
+shader_parameter/render_noise = false
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_e81nj")
+shader_parameter/amplitude = 0.01
+shader_parameter/time_scale = 0.02
+shader_parameter/noise_scale = 0.001
+shader_parameter/rotation_strength = 0.1
+shader_parameter/rotation_pivot = Vector2(0.5, 1.75)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gwnt5"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_e3cq7"]
+seamless = true
+noise = SubResource("FastNoiseLite_gwnt5")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_t1wfo"]
+shader = ExtResource("6_lkuu7")
+shader_parameter/render_noise = false
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_e3cq7")
+shader_parameter/amplitude = 0.05
+shader_parameter/time_scale = 0.04
+shader_parameter/noise_scale = 0.6533
+shader_parameter/rotation_strength = 1.0
+shader_parameter/rotation_pivot = Vector2(0.5, 1)
+shader_parameter/distance_cutoff = 0.4
+
+[sub_resource type="LabelSettings" id="LabelSettings_e81nj"]
+font_size = 176
+
+[node name="Chunk" type="Node2D" node_paths=PackedStringArray("notifier", "map", "ground", "ground2", "vegetation", "trees", "props", "building", "building_container")]
+y_sort_enabled = true
+script = ExtResource("1_kdh3y")
+tile_size = 24
+notifier = NodePath("VisibiltyNotifier")
+map = NodePath("Map")
+ground = NodePath("Map/Ground")
+ground2 = NodePath("Map/Ground2")
+vegetation = NodePath("Map/Vegetation")
+trees = NodePath("Map/Trees")
+props = NodePath("Map/Props")
+building = NodePath("Building")
+building_container = NodePath("Building")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_aj7hh")
+
+[node name="Map" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Ground" type="TileMapLayer" parent="Map" groups=["bake"]]
+tile_set = ExtResource("2_e81nj")
+
+[node name="Ground2" type="TileMapLayer" parent="Map" groups=["bake"]]
+tile_set = ExtResource("2_e81nj")
+
+[node name="Vegetation" type="TileMapLayer" parent="Map" groups=["bake"]]
+y_sort_enabled = true
+material = SubResource("ShaderMaterial_eoxb4")
+tile_set = ExtResource("4_44qyl")
+
+[node name="Trees" type="TileMapLayer" parent="Map" groups=["bake"]]
+y_sort_enabled = true
+material = SubResource("ShaderMaterial_t1wfo")
+tile_set = ExtResource("7_aj7hh")
+script = ExtResource("10_mavbk")
+
+[node name="Props" type="TileMapLayer" parent="Map" groups=["bake"]]
+y_sort_enabled = true
+tile_set = ExtResource("3_5lkun")
+
+[node name="Building" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Building" type="TileMapLayer" parent="Building" groups=["bake"]]
+y_sort_enabled = true
+tile_set = ExtResource("10_aj7hh")
+
+[node name="VisibiltyNotifier" type="VisibleOnScreenNotifier2D" parent="."]
+rect = Rect2(0, 0, 960, 960)
+
+[node name="Label" type="Label" parent="."]
+visible = false
+offset_left = 18.0
+offset_top = 23.0
+offset_right = 956.0
+offset_bottom = 958.0
+text = "Awwww"
+label_settings = SubResource("LabelSettings_e81nj")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="screen_entered" from="VisibiltyNotifier" to="." method="_on_visibilty_notifier_screen_entered"]
+[connection signal="screen_exited" from="VisibiltyNotifier" to="." method="_on_visibilty_notifier_screen_exited"]

@@ -1,0 +1,100 @@
+[gd_resource type="TileSet" load_steps=5 format=3 uid="uid://c0rqasl3vlxu5"]
+
+[ext_resource type="Texture2D" uid="uid://ib0huh3vwfo4" path="res://asset/ground_textures/house_exterior.png" id="1_sqcde"]
+[ext_resource type="Texture2D" uid="uid://bga1f5otkamho" path="res://asset/ground_textures/house_exterior_2.png" id="2_itgor"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_kkcdr"]
+texture = ExtResource("1_sqcde")
+texture_region_size = Vector2i(24, 24)
+0:0/size_in_atlas = Vector2i(1, 2)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 12)
+0:0/0/y_sort_origin = 11
+1:0/size_in_atlas = Vector2i(1, 2)
+1:0/0 = 0
+1:0/0/texture_origin = Vector2i(0, 12)
+1:0/0/y_sort_origin = 11
+2:0/size_in_atlas = Vector2i(1, 2)
+2:0/0 = 0
+2:0/0/texture_origin = Vector2i(0, 12)
+2:0/0/y_sort_origin = 11
+3:0/size_in_atlas = Vector2i(1, 2)
+3:0/0 = 0
+3:0/0/texture_origin = Vector2i(0, 12)
+3:0/0/y_sort_origin = 11
+4:0/size_in_atlas = Vector2i(1, 2)
+4:0/0 = 0
+4:0/0/texture_origin = Vector2i(0, 12)
+4:0/0/y_sort_origin = 11
+5:0/size_in_atlas = Vector2i(1, 2)
+5:0/0 = 0
+5:0/0/texture_origin = Vector2i(0, 12)
+5:0/0/y_sort_origin = 11
+6:0/size_in_atlas = Vector2i(1, 2)
+6:0/0 = 0
+6:0/0/texture_origin = Vector2i(0, 12)
+6:0/0/y_sort_origin = 11
+7:0/size_in_atlas = Vector2i(1, 2)
+7:0/0 = 0
+7:0/0/texture_origin = Vector2i(0, 12)
+7:0/0/y_sort_origin = 11
+0:2/size_in_atlas = Vector2i(1, 2)
+0:2/0 = 0
+0:2/0/texture_origin = Vector2i(0, 12)
+0:2/0/y_sort_origin = 11
+1:2/size_in_atlas = Vector2i(1, 2)
+1:2/0 = 0
+1:2/0/texture_origin = Vector2i(0, 12)
+1:2/0/y_sort_origin = 11
+2:2/size_in_atlas = Vector2i(1, 2)
+2:2/0 = 0
+2:2/0/texture_origin = Vector2i(0, 12)
+2:2/0/y_sort_origin = 11
+3:2/size_in_atlas = Vector2i(1, 2)
+3:2/0 = 0
+3:2/0/texture_origin = Vector2i(0, 12)
+3:2/0/y_sort_origin = 11
+4:2/size_in_atlas = Vector2i(1, 2)
+4:2/0 = 0
+4:2/0/texture_origin = Vector2i(0, 12)
+4:2/0/y_sort_origin = 11
+5:2/size_in_atlas = Vector2i(1, 2)
+5:2/0 = 0
+5:2/0/texture_origin = Vector2i(0, 12)
+5:2/0/y_sort_origin = 11
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hiyio"]
+texture = ExtResource("2_itgor")
+texture_region_size = Vector2i(24, 24)
+0:0/size_in_atlas = Vector2i(1, 4)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 36)
+0:0/0/y_sort_origin = 11
+1:0/size_in_atlas = Vector2i(1, 4)
+1:0/0 = 0
+1:0/0/texture_origin = Vector2i(0, 36)
+1:0/0/y_sort_origin = 11
+2:0/size_in_atlas = Vector2i(1, 4)
+2:0/0 = 0
+2:0/0/texture_origin = Vector2i(0, 36)
+2:0/0/y_sort_origin = 11
+3:0/size_in_atlas = Vector2i(1, 4)
+3:0/0 = 0
+3:0/0/texture_origin = Vector2i(0, 36)
+3:0/0/y_sort_origin = 11
+4:0/size_in_atlas = Vector2i(1, 4)
+4:0/0 = 0
+4:0/0/texture_origin = Vector2i(0, 36)
+4:0/0/y_sort_origin = 11
+5:0/size_in_atlas = Vector2i(1, 4)
+5:0/0 = 0
+5:0/0/texture_origin = Vector2i(0, 36)
+5:0/0/y_sort_origin = 11
+6:0/size_in_atlas = Vector2i(1, 4)
+6:0/0 = 0
+6:0/0/texture_origin = Vector2i(0, 35)
+
+[resource]
+tile_size = Vector2i(24, 24)
+sources/0 = SubResource("TileSetAtlasSource_kkcdr")
+sources/2 = SubResource("TileSetAtlasSource_hiyio")

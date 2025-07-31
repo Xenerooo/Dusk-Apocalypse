@@ -1,0 +1,80 @@
+[gd_scene load_steps=5 format=3 uid="uid://dmr0fcamx7t56"]
+
+[ext_resource type="Script" uid="uid://bknx473hgx7s" path="res://addons/joystick/virtual_joystick.gd" id="1_8x4dy"]
+[ext_resource type="Texture2D" uid="uid://c6i6c4yo72gek" path="res://addons/joystick/joystick_2_12.png" id="2_tr1we"]
+[ext_resource type="Texture2D" uid="uid://wd740oh3xseh" path="res://addons/joystick/joystickX_20.png" id="3_27sfs"]
+[ext_resource type="Texture2D" uid="uid://dj2k6s0p1gnbj" path="res://asset/user_interface/inventory_outline.png" id="4_sw4a1"]
+
+[node name="Virtual Joystick" type="Control"]
+layout_mode = 3
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 59.0
+offset_top = -272.0
+offset_right = 259.0
+offset_bottom = -72.0
+grow_vertical = 0
+pivot_offset = Vector2(100, 100)
+focus_mode = 1
+script = ExtResource("1_8x4dy")
+_scale = 1.0
+
+[node name="Base" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(100, 100)
+mouse_force_pass_scroll_events = false
+texture = ExtResource("2_tr1we")
+stretch_mode = 4
+
+[node name="Tip" type="TextureRect" parent="Base"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.25
+anchor_top = 0.25
+anchor_right = 0.75
+anchor_bottom = 0.75
+offset_right = -1.52588e-05
+offset_bottom = -1.52588e-05
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(50, 50)
+texture = ExtResource("3_27sfs")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Panel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UIOutline" type="NinePatchRect" parent="."]
+visible = false
+modulate = Color(0.368627, 0.913725, 0, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_sw4a1")
+region_rect = Rect2(1, 1, 22, 22)
+patch_margin_left = 6
+patch_margin_top = 6
+patch_margin_right = 6
+patch_margin_bottom = 6
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[connection signal="resized" from="." to="." method="_on_resized"]

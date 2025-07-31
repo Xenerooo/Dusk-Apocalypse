@@ -15,11 +15,25 @@ run/main_scene="uid://xw0rgdcs8rf0"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+GameUI="*res://scenes/ui/game_ui.tscn"
+GlobalOccluder="*res://scenes/ChunkSystem/GlobalOccluder.gd"
+
 [display]
 
 window/size/always_on_top=true
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
+
+[file_customization]
+
+folder_colors={
+"res://asset/": "orange",
+"res://resources/": "orange",
+"res://saves/": "red",
+"res://scenes/": "green"
+}
 
 [global_group]
 
@@ -43,6 +57,14 @@ cam_zoom_out={
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
+
+[layer_names]
+
+2d_physics/layer_1="world"
+2d_physics/layer_2="hitbox"
+2d_physics/layer_3="hurtbox"
+2d_physics/layer_10="player"
+2d_physics/layer_11="zed"
 
 [rendering]
 

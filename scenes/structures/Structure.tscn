@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://6h03nnl67df4"]
+
+[ext_resource type="Script" uid="uid://b8clhyv5lnoty" path="res://scenes/structures/structure.gd" id="1_5foph"]
+
+[node name="Structure" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_5foph")
+
+[node name="Exterior" type="Sprite2D" parent="."]
+
+[node name="Interior" type="Sprite2D" parent="."]
+
+[node name="Structure" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Structure"]
+
+[node name="PlayerDetector" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 512
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerDetector"]
+
+[connection signal="body_entered" from="PlayerDetector" to="." method="_on_player_detector_body_entered"]
+[connection signal="body_exited" from="PlayerDetector" to="." method="_on_player_detector_body_exited"]
