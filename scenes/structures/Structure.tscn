@@ -10,7 +10,7 @@ script = ExtResource("1_5foph")
 
 [node name="Interior" type="Sprite2D" parent="."]
 
-[node name="Structure" type="StaticBody2D" parent="."]
+[node name="Structure" type="StaticBody2D" parent="." groups=["bake"]]
 collision_mask = 0
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Structure"]

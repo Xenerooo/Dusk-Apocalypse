@@ -1,8 +1,10 @@
-[gd_resource type="TileSet" load_steps=6 format=3 uid="uid://dsym70gbg4cyp"]
+[gd_resource type="TileSet" load_steps=8 format=3 uid="uid://dsym70gbg4cyp"]
 
-[ext_resource type="Texture2D" uid="uid://ur25humjvhv" path="res://asset/ground_textures/tileset-prototype.png" id="1_yp8tk"]
+[ext_resource type="Texture2D" uid="uid://ur25humjvhv" path="res://asset/environment/tileset-prototype.png" id="1_yp8tk"]
 [ext_resource type="PackedScene" uid="uid://cootura1lqlgi" path="res://scenes/structures/structure_hostel.tscn" id="2_wu5l1"]
 [ext_resource type="PackedScene" uid="uid://dd2angpf8tugg" path="res://scenes/structures/structure_green_house.tscn" id="3_v15cp"]
+[ext_resource type="PackedScene" uid="uid://catmi3niwxu3i" path="res://scenes/structures/container_office_1.tscn" id="4_ymwp7"]
+[ext_resource type="PackedScene" uid="uid://bwp53l3u38l4f" path="res://scenes/structures/container_office_2.tscn" id="5_e81k7"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t673m"]
 texture = ExtResource("1_yp8tk")
@@ -73,6 +75,8 @@ texture_region_size = Vector2i(24, 24)
 resource_name = "structures"
 scenes/1/scene = ExtResource("2_wu5l1")
 scenes/2/scene = ExtResource("3_v15cp")
+scenes/3/scene = ExtResource("4_ymwp7")
+scenes/4/scene = ExtResource("5_e81k7")
 
 [resource]
 tile_size = Vector2i(24, 24)

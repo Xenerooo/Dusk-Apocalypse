@@ -30,6 +30,10 @@ var current_layer_name: String = ""
 var tiles_done := 0
 var total_tiles := 0
 
+func _ready() -> void:
+	map.hide()
+	building_container.hide()
+
 # === Tile data loading ===
 func set_tile_data(layer_data: Dictionary):
 	pending_layers = layer_data.duplicate(true)
@@ -94,6 +98,7 @@ func update_notifier():
 	label.text = str(chunk_pos)
 
 	navigation_region_2d.bake_navigation_polygon(false)
+	
 
 func reset():
 	for tilemap in [ground,ground2,props, trees, vegetation, building]:
@@ -123,14 +128,3 @@ func get_tile_data(global_pos: Vector2, layer:String):
 	ground.set_cell(tile_pos, 0, Vector2(0,3))
 	tilemap.set_cell(tile_pos, -1, Vector2(-1,-1))
 	return "Layer %s data: %s" %[layer, data]
-
-func visibility_toggle():
-	#$Building/BuildingExteriorWalls.notify_runtime_tile_data_update()
-	$Building/Roof.rdy()
-	$Building/BuildingExteriorWalls.rdy()
-	
-#func _use_tile_data_runtime_update(layer: int, coords: Vector2i) -> bool:
-	#return modulated_cells.has(coords)
-#
-#func _tile_data_runtime_update(layer: int, coords: Vector2i, tile_data: TileData) -> void:
-	#tile_data.modulate = modulated_cells.get(coords, Color(1, 1, 1, 1))

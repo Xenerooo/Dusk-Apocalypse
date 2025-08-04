@@ -246,6 +246,7 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 
 	var result := {}
 	var claimed_positions := {}
+	##OH GOD PLEASE RE DO THIS (TEST)
 
 	for layer_name in task.prefab.layers.keys():
 		var layer_data = task.prefab.layers[layer_name]
@@ -266,11 +267,12 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 					"source_id": source_ids[i],
 					"atlas_coords": Vector2i(atlas_coords[i]),
 					"alt_tile": alt_tiles[i]
-					
 				})
-
+				
+		
 		if not tiles.is_empty():
 			result[layer_name] = tiles
+
 
 	# === Procedural Generation ===
 	for x in range(tile_origin.x, tile_end.x):
@@ -297,8 +299,9 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 					"atlas_coords": lookup["atlas_coords"],
 					"alt_tile": 0
 				})
-
+	
 	task.result = result
+
 	task.is_done = true
 
 

@@ -2,18 +2,19 @@
 
 [ext_resource type="Script" uid="uid://cssq6depb51dw" path="res://scenes/ChunkSystem/chunk.gd" id="1_kdh3y"]
 [ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://resources/terrain/GroundTiles.tres" id="2_e81nj"]
-[ext_resource type="TileSet" uid="uid://baqvve5g684u7" path="res://resources/terrain/props.tres" id="3_5lkun"]
+[ext_resource type="TileSet" uid="uid://baqvve5g684u7" path="res://asset/environment/props.tres" id="3_5lkun"]
 [ext_resource type="TileSet" uid="uid://ddc701j8tin6a" path="res://resources/terrain/Vegetation.tres" id="4_44qyl"]
-[ext_resource type="Shader" uid="uid://n0wmq3uun33u" path="res://foliage.gdshader" id="5_eoxb4"]
-[ext_resource type="Shader" uid="uid://dty8osef5o6pi" path="res://wind.gdshader" id="6_lkuu7"]
+[ext_resource type="Shader" uid="uid://n0wmq3uun33u" path="res://resources/foliage.gdshader" id="5_eoxb4"]
+[ext_resource type="Shader" uid="uid://dty8osef5o6pi" path="res://resources/wind.gdshader" id="6_lkuu7"]
 [ext_resource type="TileSet" uid="uid://bw2pxa6p1te7a" path="res://resources/terrain/Trees.tres" id="7_aj7hh"]
 [ext_resource type="TileSet" uid="uid://dsym70gbg4cyp" path="res://resources/terrain/HouseOutline.tres" id="10_aj7hh"]
 [ext_resource type="Script" uid="uid://b8tts3ha60wr0" path="res://scenes/ChunkSystem/runtime_testing.gd" id="10_mavbk"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_aj7hh"]
-vertices = PackedVector2Array(950, 950, 10, 950, 10, 10, 950, 10)
+vertices = PackedVector2Array(959, 959, 1, 959, 1, 1, 959, 1)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(0, 0, 960, 0, 960, 960, 0, 960)])
+parsed_collision_mask = 1
 source_geometry_mode = 2
 source_geometry_group_name = &"bake"
 agent_radius = 1.0
@@ -67,10 +68,11 @@ ground2 = NodePath("Map/Ground2")
 vegetation = NodePath("Map/Vegetation")
 trees = NodePath("Map/Trees")
 props = NodePath("Map/Props")
-building = NodePath("Building")
+building = NodePath("Building/Building")
 building_container = NodePath("Building")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+visible = false
 navigation_polygon = SubResource("NavigationPolygon_aj7hh")
 
 [node name="Map" type="Node2D" parent="."]
@@ -78,9 +80,11 @@ y_sort_enabled = true
 
 [node name="Ground" type="TileMapLayer" parent="Map" groups=["bake"]]
 tile_set = ExtResource("2_e81nj")
+rendering_quadrant_size = 64
 
 [node name="Ground2" type="TileMapLayer" parent="Map" groups=["bake"]]
 tile_set = ExtResource("2_e81nj")
+rendering_quadrant_size = 64
 
 [node name="Vegetation" type="TileMapLayer" parent="Map" groups=["bake"]]
 y_sort_enabled = true

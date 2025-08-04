@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://bwp53l3u38l4f"]
+
+[ext_resource type="PackedScene" uid="uid://6h03nnl67df4" path="res://scenes/structures/Structure.tscn" id="1_dcp6j"]
+[ext_resource type="Texture2D" uid="uid://4dx5mi4djuea" path="res://asset/structures/Container_Office2.png" id="2_dcp6j"]
+[ext_resource type="Texture2D" uid="uid://i3744lf6knqn" path="res://asset/structures/Container_Office2_Int.png" id="3_dcp6j"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cho5s"]
+size = Vector2(172, 51)
+
+[node name="container_office2" instance=ExtResource("1_dcp6j")]
+
+[node name="Exterior" parent="." index="0"]
+position = Vector2(8, 19)
+texture = ExtResource("2_dcp6j")
+offset = Vector2(0, -51)
+
+[node name="Interior" parent="." index="1"]
+position = Vector2(8, -32)
+texture = ExtResource("3_dcp6j")
+
+[node name="CollisionPolygon2D" parent="Structure" index="0"]
+polygon = PackedVector2Array(-74, 16, -74, 19, -91, 19, -91, -37, 87, -37, 87, 19, -56, 19, -56, 16, 83, 16, 83, -6, 67, -6, 67, -34, -46, -34, -46, -29, -68, -29, -68, -16, -88, -16, -88, 16)
+
+[node name="CollisionShape2D" parent="PlayerDetector" index="0"]
+position = Vector2(-3, -8.5)
+shape = SubResource("RectangleShape2D_cho5s")
