@@ -14,7 +14,7 @@ Vector2i(0, 0): {
 "local": Vector2i(0, 0),
 "root": Vector2i(0, 0)
 },
-"prefab_id": "city_single_1",
+"prefab_id": "city_single_2",
 "size": Vector2i(1, 1),
 "type": "city"
 }
