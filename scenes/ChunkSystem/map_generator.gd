@@ -12,10 +12,9 @@ extends Node
 
 @export var city_lookup :StructureLookups
 
-
-@onready var big_map_generator: Node2D = $BigMapGenerator
 var map := {}
 var big_map := {
+	"seed": 0,
 	"map_size": MAP_SIZE,
 	"chunk_size": 200,
 	"tile_size": 24,
@@ -24,29 +23,32 @@ var big_map := {
 
 @export_tool_button("Generate Map", "🔨")
 var tool_gen = generate_map
-func generate_map():
-	randomize()
-	populate_map()
+func generate_map(seed:String)->Dictionary:
+	var rng :RandomNumberGenerator= RandomNumberGenerator.new()
+	rng.seed = hash(seed)
+	big_map.seed = rng.seed
+	populate_map(rng)
 	connect_roads()
 	assign_road_variants()
 	debug_print_map()
-	save_world_save_resource(big_map,  "res://saves/test_map.tres" )
-	
+
+	#serialize_map_data(big_map)
+	#save_world_as_json(serialize_map_data(big_map),  "res://saves/test_map.json")
+	#save_world_save_resource(big_map,  "res://saves/test_map.tres" )
+	return big_map
 	print("✅ Generation Done")
 	
-func _ready():
-	randomize()
-	#var t := ResourceLoader.load("res://saves/test_map.tres")
+@export_category("Loading")
+@export var json_directory := ""
+@export_tool_button("Import") var tool_import_json = import_map
+func import_map():
+	var data := load_world_from_json(json_directory)
+	var deserialized := deserialize_map_data(data)
+	print(deserialized)
 	
-	#breakpoint
-	populate_map()
-	connect_roads()
-	assign_road_variants()
-	debug_print_map()
-	save_world_save_resource(big_map,  "res://saves/test_map.tres" )
 
 # Step 1: Generate map and place cities
-func populate_map():
+func populate_map(rng:RandomNumberGenerator):
 	var regions = {}
 	var city_id_counter := 1
 
@@ -64,7 +66,7 @@ func populate_map():
 	## Place single cities
 	var placed := 0
 	while placed < SINGLE_CITIES:
-		var pos = Vector2i(randi() % MAP_SIZE.x, randi() % MAP_SIZE.y)
+		var pos = Vector2i(rng.randi() % MAP_SIZE.x, rng.randi() % MAP_SIZE.y)
 		if regions[pos]["type"] == "structure_empty":
 			regions[pos] = {
 				"type": "city",
@@ -87,7 +89,7 @@ func populate_map():
 		var done := 0
 
 		while done < count:
-			var origin = Vector2i(randi() % (MAP_SIZE.x - size.x + 1), randi() % (MAP_SIZE.y - size.y + 1))
+			var origin = Vector2i(rng.randi() % (MAP_SIZE.x - size.x + 1), rng.randi() % (MAP_SIZE.y - size.y + 1))
 			var valid = true
 
 			for y in size.y:
@@ -254,3 +256,61 @@ func save_world_save_resource(save_data: Dictionary, save_path: String):
 		push_error("❌ Failed to save world: " + save_path)
 	else:
 		print("✅ World saved to: ", save_path)
+
+func save_world_as_json(save_data: Dictionary, save_path: String):
+	var file = FileAccess.open(save_path, FileAccess.WRITE)
+	if not file:
+		push_error("❌ Failed to open file for writing: " + save_path)
+		return
+
+	# Convert data to JSON string
+	var json_string = JSON.stringify(save_data, "\t") # Indented for readability
+	file.store_string(json_string)
+	file.close()
+	print("✅ World saved as JSON to: ", save_path)
+
+func serialize_map_data(data: Dictionary) -> Dictionary:
+	var output := {}
+	for key in data:
+		var val = data[key]
+		if val is Vector2i:
+			output[str(key)] = [val.x, val.y]
+		elif val is Dictionary:
+			output[str(key)] = serialize_map_data(val)
+		else:
+			output[str(key)] = val
+	return output
+
+
+func load_world_from_json(json_path: String) -> Dictionary:
+	if not FileAccess.file_exists(json_path):
+		push_error("❌ JSON file does not exist: " + json_path)
+		return {}
+
+	var file = FileAccess.open(json_path, FileAccess.READ)
+	if not file:
+		push_error("❌ Failed to open file: " + json_path)
+		return {}
+
+	var json_string = file.get_as_text()
+	file.close()
+
+	var result = JSON.parse_string(json_string)
+	if result == null:
+		push_error("❌ Failed to parse JSON: " + json_path)
+		return {}
+
+	return result
+
+func deserialize_map_data(data: Dictionary) -> Dictionary:
+	var output := {}
+	for key in data:
+		var val = data[key]
+		# Attempt to re-interpret list values as Vector2i if valid
+		if typeof(val) == TYPE_ARRAY and val.size() == 2 and val[0] is int and val[1] is int:
+			output[key] = Vector2i(val[0], val[1])
+		elif typeof(val) == TYPE_DICTIONARY:
+			output[key] = deserialize_map_data(val)
+		else:
+			output[key] = val
+	return output

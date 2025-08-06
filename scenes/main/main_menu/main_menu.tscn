@@ -1,0 +1,181 @@
+[gd_scene load_steps=4 format=3 uid="uid://dfhixqica5ri"]
+
+[ext_resource type="Script" uid="uid://cx18d2kjqst55" path="res://scenes/main/world_selector.gd" id="1_2tvpl"]
+[ext_resource type="Script" uid="uid://ct03ex4slwijr" path="res://scenes/main/main_menu/main_menu.gd" id="1_y8u07"]
+[ext_resource type="Script" uid="uid://eyp5vwys740f" path="res://scenes/main/main_menu/join_menu.gd" id="3_0kd0q"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_y8u07")
+metadata/_edit_use_anchors_ = true
+
+[node name="MainButtons" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -192.0
+offset_top = 52.0
+offset_right = 204.0
+offset_bottom = 216.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="PlayButton" type="Button" parent="MainButtons"]
+layout_mode = 2
+focus_mode = 0
+text = "Play"
+
+[node name="JoinButton" type="Button" parent="MainButtons"]
+layout_mode = 2
+focus_mode = 0
+text = "Join
+"
+
+[node name="OptionButton" type="Button" parent="MainButtons"]
+layout_mode = 2
+focus_mode = 0
+text = "Option"
+
+[node name="Exit" type="Button" parent="MainButtons"]
+layout_mode = 2
+focus_mode = 0
+text = "Exit
+"
+
+[node name="WorldSelector" type="Control" parent="." node_paths=PackedStringArray("world_list", "create_button", "back_button")]
+visible = false
+layout_mode = 1
+anchor_left = 0.134549
+anchor_top = 0.108025
+anchor_right = 0.865451
+anchor_bottom = 0.891975
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2tvpl")
+world_list = NodePath("VBoxContainer/ScrollContainer/WorldList")
+create_button = NodePath("VBoxContainer/HBoxContainer/CreateWorldButton")
+back_button = NodePath("VBoxContainer/HBoxContainer/BackButton")
+
+[node name="Panel" type="Panel" parent="WorldSelector"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_lock_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="WorldSelector"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 16.0
+offset_right = -12.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="WorldSelector/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+metadata/_edit_use_anchors_ = true
+
+[node name="WorldList" type="VBoxContainer" parent="WorldSelector/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="WorldSelector/VBoxContainer"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="CreateWorldButton" type="Button" parent="WorldSelector/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Create World"
+
+[node name="BackButton" type="Button" parent="WorldSelector/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Back
+"
+
+[node name="joinMenu" type="Control" parent="." node_paths=PackedStringArray("ip_edit")]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -245.0
+offset_top = -45.0
+offset_right = 245.0
+offset_bottom = 45.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_0kd0q")
+ip_edit = NodePath("VBoxContainer/IPLineEdit")
+
+[node name="Panel" type="Panel" parent="joinMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+metadata/_edit_lock_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="joinMenu"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0163265
+anchor_top = 0.1
+anchor_right = 0.983673
+anchor_bottom = 0.9
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="IPLineEdit" type="LineEdit" parent="joinMenu/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "192.168.1"
+placeholder_text = "Enter IP Address"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="joinMenu/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="JoinButton" type="Button" parent="joinMenu/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Join
+"
+
+[node name="backButton" type="Button" parent="joinMenu/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back
+"
+
+[connection signal="pressed" from="MainButtons/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="MainButtons/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="joinMenu/VBoxContainer/HBoxContainer/JoinButton" to="joinMenu" method="_on_join_button_pressed"]
+[connection signal="toggled" from="joinMenu/VBoxContainer/HBoxContainer/JoinButton" to="joinMenu" method="_on_join_button_toggled"]
+[connection signal="pressed" from="joinMenu/VBoxContainer/HBoxContainer/backButton" to="joinMenu" method="_on_back_button_pressed"]

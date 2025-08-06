@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://bppufu613l4f2"]
+
+[ext_resource type="Script" uid="uid://v8yx75v8b6oc" path="res://resources/autoloads/game_session.gd" id="1_50flp"]
+
+[node name="GameSessionNode" type="Node"]
+script = ExtResource("1_50flp")
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://c7p4yb8qo842k")

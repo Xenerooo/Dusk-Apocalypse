@@ -29,9 +29,10 @@ func get_save_chunk_info_from_mouse() -> Dictionary:
 	}
 
 func _unhandled_input(event):
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var info = get_save_chunk_info_from_mouse()
-		print("🧭 Clicked World Chunk: %s, Clicked Mouse Position: %s" % [info["world_chunk_coords"], info.mouse_pos])
-		print("🧩 Tile Pos: ", info["tile_coords"], " in ChunkManager Chunk: ", info["chunk_manager_chunk"], info["node"])
-		if info.node != null:
-			print("📃 %s \n" % [info.node.get_tile_data(info.mouse_pos, "Ground2")])
+	pass
+	#if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		#var info = get_save_chunk_info_from_mouse()
+		#print("🧭 Clicked World Chunk: %s, Clicked Mouse Position: %s" % [info["world_chunk_coords"], info.mouse_pos])
+		#print("🧩 Tile Pos: ", info["tile_coords"], " in ChunkManager Chunk: ", info["chunk_manager_chunk"], info["node"])
+		#if info.node != null:
+			#print("📃 %s \n" % [info.node.get_tile_data(info.mouse_pos, "Ground2")])

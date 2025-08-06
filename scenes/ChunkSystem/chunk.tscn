@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://cf70atxem4i7a"]
+[gd_scene load_steps=17 format=3 uid="uid://cf70atxem4i7a"]
 
 [ext_resource type="Script" uid="uid://cssq6depb51dw" path="res://scenes/ChunkSystem/chunk.gd" id="1_kdh3y"]
 [ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://resources/terrain/GroundTiles.tres" id="2_e81nj"]
@@ -8,7 +8,6 @@
 [ext_resource type="Shader" uid="uid://dty8osef5o6pi" path="res://resources/wind.gdshader" id="6_lkuu7"]
 [ext_resource type="TileSet" uid="uid://bw2pxa6p1te7a" path="res://resources/terrain/Trees.tres" id="7_aj7hh"]
 [ext_resource type="TileSet" uid="uid://dsym70gbg4cyp" path="res://resources/terrain/HouseOutline.tres" id="10_aj7hh"]
-[ext_resource type="Script" uid="uid://b8tts3ha60wr0" path="res://scenes/ChunkSystem/runtime_testing.gd" id="10_mavbk"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_aj7hh"]
 vertices = PackedVector2Array(959, 959, 1, 959, 1, 1, 959, 1)
@@ -95,7 +94,6 @@ tile_set = ExtResource("4_44qyl")
 y_sort_enabled = true
 material = SubResource("ShaderMaterial_t1wfo")
 tile_set = ExtResource("7_aj7hh")
-script = ExtResource("10_mavbk")
 
 [node name="Props" type="TileMapLayer" parent="Map" groups=["bake"]]
 y_sort_enabled = true

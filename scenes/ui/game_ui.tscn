@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bv6pq8alfsrin" path="res://asset/user_interface/Zoom_out.png" id="7_k7elv"]
 
 [node name="GameUi" type="CanvasLayer" node_paths=PackedStringArray("player_controls")]
+visible = false
 script = ExtResource("1_bma8u")
 player_controls = NodePath("AutoMargin/PlayerControls")
 

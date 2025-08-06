@@ -1,4 +1,5 @@
 extends MarginContainer
+class_name DynamicMargin
 
 func _ready() -> void:
 	_handle_screen_resize()

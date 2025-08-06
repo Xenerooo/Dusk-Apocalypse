@@ -1,0 +1,60 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1kba2uj7bt3x"]
+
+[ext_resource type="Script" uid="uid://d0aqkctqowjn2" path="res://resources/autoloads/network_connector.gd" id="1_sa1la"]
+[ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://scenes/ui/DynamicMargins.gd" id="2_4el6f"]
+
+[node name="CanvasLayer" type="CanvasLayer" node_paths=PackedStringArray("ip_address")]
+layer = 10
+visible = false
+script = ExtResource("1_sa1la")
+ip_address = NodePath("DynamicMargin/NetworkConnector/PanelContainer/MarginContainer/VBoxContainer/ip")
+
+[node name="DynamicMargin" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_4el6f")
+metadata/_custom_type_script = "uid://byo46vcpfe6m2"
+
+[node name="NetworkConnector" type="Control" parent="DynamicMargin"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="DynamicMargin/NetworkConnector"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.237847
+anchor_top = 0.214506
+anchor_right = 0.762153
+anchor_bottom = 0.785494
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="DynamicMargin/NetworkConnector/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DynamicMargin/NetworkConnector/PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="ip" type="LineEdit" parent="DynamicMargin/NetworkConnector/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "192.168.1.41"
+
+[node name="Join" type="Button" parent="DynamicMargin/NetworkConnector/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Join
+"
+
+[node name="Host" type="Button" parent="DynamicMargin/NetworkConnector/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Host
+"
+
+[connection signal="pressed" from="DynamicMargin/NetworkConnector/PanelContainer/MarginContainer/VBoxContainer/Join" to="." method="_on_join_pressed"]
+[connection signal="pressed" from="DynamicMargin/NetworkConnector/PanelContainer/MarginContainer/VBoxContainer/Host" to="." method="_on_host_pressed"]

@@ -1,0 +1,61 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1y5vp0ssm8wa"]
+
+[ext_resource type="Script" uid="uid://cbdh8a8co6m3y" path="res://resources/autoloads/player_name_prompt.gd" id="1_2geyx"]
+[ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://scenes/ui/DynamicMargins.gd" id="1_6bu4b"]
+
+[node name="PlayerNamePrompt" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1_2geyx")
+
+[node name="DynamicMargin" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_6bu4b")
+metadata/_custom_type_script = "uid://byo46vcpfe6m2"
+
+[node name="Prompt" type="Control" parent="DynamicMargin"]
+layout_mode = 2
+
+[node name="prompt" type="Panel" parent="DynamicMargin/Prompt"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -136.0
+offset_top = -40.0
+offset_right = 136.0
+offset_bottom = 41.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="MarginContainer" parent="DynamicMargin/Prompt/prompt"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DynamicMargin/Prompt/prompt/Panel"]
+layout_mode = 2
+alignment = 1
+
+[node name="LineEdit" type="LineEdit" parent="DynamicMargin/Prompt/prompt/Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "Enter Name"
+
+[node name="Button" type="Button" parent="DynamicMargin/Prompt/prompt/Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Accept
+"

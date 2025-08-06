@@ -1,9 +1,20 @@
-[gd_scene load_steps=7 format=3 uid="uid://c7p4yb8qo842k"]
+[gd_scene load_steps=10 format=3 uid="uid://c7p4yb8qo842k"]
 
 [ext_resource type="Script" uid="uid://c8ksb2nbbe7tf" path="res://player.gd" id="1_dovo2"]
 [ext_resource type="Texture2D" uid="uid://wandk0jlox88" path="res://human_sample.png" id="2_gmlin"]
 [ext_resource type="Script" uid="uid://iourc46v7n1i" path="res://scenes/player/movement.gd" id="2_lvxji"]
+[ext_resource type="Script" uid="uid://bwqyi7dfpbbvc" path="res://scenes/player/input_sync.gd" id="3_p47bc"]
 [ext_resource type="Shader" uid="uid://iqyjuvyem112" path="res://scenes/player/silhouette.gdshader" id="4_lvxji"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_p47bc"]
+properties/0/path = NodePath(".:sync_position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_lvxji"]
+properties/0/path = NodePath(".:local_move_input")
+properties/0/spawn = true
+properties/0/replication_mode = 2
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bcbcq"]
 radius = 6.08276
@@ -13,23 +24,24 @@ shader = ExtResource("4_lvxji")
 shader_parameter/silhouette_color = Color(0, 0, 0, 0.5)
 shader_parameter/color_tolerance = 0.01
 
-[node name="Node2D" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D"]
 collision_layer = 512
 script = ExtResource("1_dovo2")
-SPEED = 50000.0
 
 [node name="Movement" type="Node" parent="."]
 script = ExtResource("2_lvxji")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-visible = false
-offset_left = -3.0
-offset_top = -3.0
-offset_right = 3.0
-offset_bottom = 3.0
+[node name="HostSync" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 0.2
+replication_config = SubResource("SceneReplicationConfig_p47bc")
+
+[node name="InputSync" type="MultiplayerSynchronizer" parent="."]
+root_path = NodePath(".")
+replication_config = SubResource("SceneReplicationConfig_lvxji")
+script = ExtResource("3_p47bc")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(0.3, 0.3)
+enabled = false
 position_smoothing_enabled = true
 position_smoothing_speed = 12.0
 
@@ -49,3 +61,14 @@ position = Vector2(-1, -28)
 texture = ExtResource("2_gmlin")
 hframes = 10
 vframes = 10
+
+[node name="Label" type="Label" parent="."]
+offset_left = -273.0
+offset_top = -54.0
+offset_right = 273.0
+offset_bottom = -31.0
+text = "test"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="tree_entered" from="." to="." method="_on_tree_entered"]

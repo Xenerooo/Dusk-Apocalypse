@@ -38,7 +38,7 @@ const CHUNKS_PER_FRAME := 1
 const UNLOAD_COOLDOWN := 1.0
 var time_elapsed := 0.0
 
-var world_save: Resource
+var world_save: = {}
 var prefab_cache: Dictionary = {}
 
 class ChunkSliceTask:
@@ -54,7 +54,8 @@ var active_task: ChunkSliceTask = null
 var slice_thread := Thread.new()
 
 
-func _ready():
+
+func warm_up(data:Dictionary):
 	for i in range(pool_initial_size):
 		var chunk = chunk_scene.instantiate()
 		chunk.hide()
@@ -64,10 +65,12 @@ func _ready():
 	terrain_logic_ref = get_node(terrain_logic_path)
 	tile_generator_ref = get_node(tile_generator_path)
 	_update_chunk_pixel_size()
-
-	world_save = load(save_path)
+	
+	world_save = data
+	#world_save = load(save_path)
 	if world_save == null:
 		push_error("❌ Could not load WorldSaveResource at %s" % save_path)
+		set_process(false)
 		return
 
 	_cache_all_prefabs()
@@ -75,6 +78,7 @@ func _ready():
 
 func _process(delta):
 	time_elapsed += delta
+	
 	_process_chunks()
 	_process_chunk_slicing()
 	_generate_chunks_step()
@@ -165,11 +169,9 @@ func _queue_new_chunks(chunks: Array[Vector2i]):
 			floor(pos.x / TILES_PER_PREFAB),
 			floor(pos.y / TILES_PER_PREFAB)
 		) #+ world_origin_chunk  # if you're using an offset
-
 		# Skip if not present in save
-		if not world_save.chunks.has(world_chunk_pos):
+		if not world_save.chunks.has(str(world_chunk_pos)):
 			continue  # 🛑 Skip this chunk entirely
-
 		chunk_load_queue.append(pos)
 
 
@@ -202,9 +204,10 @@ func _queue_slice_task(chunk_pos: Vector2i):
 	var TILES_PER_PREFAB := 200 / chunk_tile_size
 	var world_chunk_pos = chunk_pos / TILES_PER_PREFAB
 
-	var world_chunk = world_save.chunks.get(world_chunk_pos)
+	var world_chunk = world_save.chunks.get(str(world_chunk_pos))
 
 	if world_chunk == null:
+		print("⚠️ Chunk Non-existent: ", chunk_pos)
 		return
 
 	var prefab_id = world_chunk.get("prefab_id", "")
@@ -269,10 +272,8 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 					"alt_tile": alt_tiles[i]
 				})
 				
-		
 		if not tiles.is_empty():
 			result[layer_name] = tiles
-
 
 	# === Procedural Generation ===
 	for x in range(tile_origin.x, tile_end.x):
@@ -301,7 +302,6 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 				})
 	
 	task.result = result
-
 	task.is_done = true
 
 
@@ -429,7 +429,29 @@ func get_chunk_from_pos(pos:Vector2i) -> Chunk:
 	var chunk_manager_chunk = pos / chunk_tile_size
 	return get_node_or_null(str(chunk_manager_chunk))
 
-	
+func load_json_to_dict(json_path: String) -> Dictionary:
+	if not FileAccess.file_exists(json_path):
+		push_error("❌ File does not exist: " + json_path)
+		return {}
+
+	var file = FileAccess.open(json_path, FileAccess.READ)
+	if file == null:
+		push_error("❌ Could not open file: " + json_path)
+		return {}
+
+	var json_string = file.get_as_text()
+	file.close()
+
+	var result = JSON.parse_string(json_string)
+	if result == null:
+		push_error("❌ JSON parsing failed: " + json_path)
+		return {}
+
+	# Optional: print raw data to verify structure
+	# print(result)
+
+	return result
+
 
 func _exit_tree() -> void:
 	slice_thread.wait_to_finish()
