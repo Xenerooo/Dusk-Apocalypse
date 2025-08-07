@@ -1,8 +1,9 @@
-[gd_scene load_steps=15 format=3 uid="uid://c1fk2htpd53um"]
+[gd_scene load_steps=16 format=3 uid="uid://c1fk2htpd53um"]
 
 [ext_resource type="Script" uid="uid://d4j5as2m5mc3f" path="res://scenes/ChunkSystem/CustomMapCreator.gd" id="1_tl7am"]
 [ext_resource type="Script" uid="uid://27u8ky4cbxln" path="res://saves/migrate_saves.gd" id="2_elqbn"]
 [ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://resources/terrain/GroundTiles.tres" id="2_fuwu6"]
+[ext_resource type="Script" uid="uid://bkcpie5crnpfv" path="res://saves/StructureSaveResource.gd" id="3_3idmp"]
 [ext_resource type="TileSet" uid="uid://baqvve5g684u7" path="res://asset/environment/props.tres" id="4_tl7am"]
 [ext_resource type="Shader" uid="uid://n0wmq3uun33u" path="res://resources/foliage.gdshader" id="5_cr3bc"]
 [ext_resource type="TileSet" uid="uid://ddc701j8tin6a" path="res://resources/terrain/Vegetation.tres" id="5_ymqhf"]
@@ -117,6 +118,7 @@ metadata/_edit_vertical_guides_ = [4800.0]
 script = ExtResource("2_elqbn")
 old_resource_path = "res://resources/structures/structure_test.res"
 new_resource_path = "res://resources/structures/structure_test.res"
+resources = Array[ExtResource("3_3idmp")]([null, null, null, null, null, null, null, null, null, null, null, null, null, null, null])
 
 [node name="Map" type="Node2D" parent="."]
 y_sort_enabled = true
