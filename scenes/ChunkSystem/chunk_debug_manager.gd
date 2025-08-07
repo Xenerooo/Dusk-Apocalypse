@@ -1,6 +1,6 @@
 extends Node2D
 
-@onready var chunk_manager := get_parent()
+@onready var chunk_manager :ChunkManagerMP= get_parent()
 @export var world_chunk_size :=200
 
 func get_save_chunk_info_from_mouse() -> Dictionary:
@@ -29,9 +29,19 @@ func get_save_chunk_info_from_mouse() -> Dictionary:
 	}
 
 func _unhandled_input(event):
-	pass
-	#if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		#var info = get_save_chunk_info_from_mouse()
+	#pass
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		var info = get_save_chunk_info_from_mouse()
+		
+		if multiplayer.is_server():
+			if info.node != null:
+				var tile_data := {
+						"source_id": -1,
+						"atlas_coords": Vector2i(4, 1),
+						"alt_tile": 0
+					}
+				#print("📃 %s \n" % [info.node.get_tile_data(info.mouse_pos, "Ground2")])
+				chunk_manager.set_tile_override(info["tile_coords"], "Ground", tile_data)
 		#print("🧭 Clicked World Chunk: %s, Clicked Mouse Position: %s" % [info["world_chunk_coords"], info.mouse_pos])
 		#print("🧩 Tile Pos: ", info["tile_coords"], " in ChunkManager Chunk: ", info["chunk_manager_chunk"], info["node"])
 		#if info.node != null:

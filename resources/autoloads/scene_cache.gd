@@ -20,7 +20,6 @@ func warm_up_folder(folder_path: String):
 				add_child(instance)
 				instance.visible = false
 				instance.queue_free()
-				print("✅ Scene cached.")
 		filename = dir.get_next()
 
 	dir.list_dir_end()

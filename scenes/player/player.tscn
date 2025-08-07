@@ -32,7 +32,6 @@ script = ExtResource("1_dovo2")
 script = ExtResource("2_lvxji")
 
 [node name="HostSync" type="MultiplayerSynchronizer" parent="."]
-replication_interval = 0.2
 replication_config = SubResource("SceneReplicationConfig_p47bc")
 
 [node name="InputSync" type="MultiplayerSynchronizer" parent="."]
@@ -63,6 +62,7 @@ hframes = 10
 vframes = 10
 
 [node name="Label" type="Label" parent="."]
+z_index = 10
 offset_left = -273.0
 offset_top = -54.0
 offset_right = 273.0

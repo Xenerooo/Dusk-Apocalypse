@@ -1,3 +1,4 @@
+#PlayerManager
 extends Node
 
 var players := {}              # token → player data
@@ -7,7 +8,7 @@ func _ready():
 	print("PlayerManager initialized")
 
 func add_or_update_player(token: String, _name: String, peer_id: int, secret: String = ""):
-	print("🚶 Player: %s, Token: %s, peer id: %s" % [_name, token, peer_id])
+	#print("🚶 Player: %s, Token: %s, peer id: %s" % [_name, token, peer_id])
 	if not players.has(token):
 		players[token] = {
 			"name": _name,

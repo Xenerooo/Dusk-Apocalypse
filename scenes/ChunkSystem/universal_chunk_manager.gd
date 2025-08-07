@@ -63,9 +63,19 @@ var slice_thread := Thread.new()
 var generation_queue: Array[ChunkBuildTask] = []
 var received_chunks: Dictionary = {}
 
+func set_seed(_seed:int):
+	terrain_logic_ref = get_node(terrain_logic_path)
+	tile_generator_ref = get_node(tile_generator_path)
+	
+	terrain_logic_ref.biome_noise.seed = _seed
+	tile_generator_ref.ground_variation.seed =_seed
+	tile_generator_ref.vegetation_variation.seed =_seed
+	tile_generator_ref.tree_variation.seed =_seed
+	tile_generator_ref.noise_variation.seed =_seed
+
 func _ready():
+	_cache_all_prefabs()
 	is_host = multiplayer.is_server()
-	player_ref = get_node(player_path)
 
 	if is_host:
 		terrain_logic_ref = get_node(terrain_logic_path)
@@ -81,8 +91,6 @@ func _ready():
 
 func warm_up(data: Dictionary):
 	world_save = data
-	if is_host:
-		_cache_all_prefabs()
 	set_process(true)
 
 func _process(delta):
@@ -153,6 +161,7 @@ func _process_client_chunks():
 
 	_unload_old_chunks(_get_chunks_in_radius(player_chunk, unload_radius))
 	_load_queued_chunks()
+	_process_chunk_slicing()
 
 
 func _get_chunk_coords(pos: Vector2) -> Vector2i:
@@ -248,16 +257,26 @@ func _load_queued_chunks():
 		else:
 			# ✅ CLIENT: only proceed if we've received data from host
 			if received_chunks.has(chunk_pos):
-				
 				chunk_load_queue.pop_front()
-				#print("🧱 [Client] Spawning received chunk: ", chunk_pos)
-				_spawn_chunk_with_data(chunk_pos, received_chunks[chunk_pos])
+				_queue_client_slice_task(chunk_pos, received_chunks[chunk_pos])
 				i += 1
 			else:
-				# 🚧 Wait for host to send the chunk before popping
 				break
 				
 
+func _queue_client_slice_task(chunk_pos: Vector2i, chunk_data: Dictionary):
+	var prefab_id = chunk_data.get("prefab_id", "")
+	if prefab_id == "" or not prefab_cache.has(prefab_id):
+		return
+
+	var prefab = prefab_cache[prefab_id]
+
+	var task := ChunkSliceTask.new()
+	task.chunk_pos = chunk_pos
+	task.prefab = prefab
+	task.terrain_logic = terrain_logic_ref
+	task.tile_generator = tile_generator_ref
+	slice_queue.append(task)
 
 
 func _queue_slice_task(chunk_pos: Vector2i):
@@ -283,22 +302,39 @@ func _queue_slice_task(chunk_pos: Vector2i):
 
 func _process_chunk_slicing():
 	if active_task != null and active_task.is_done:
+		
 		slice_thread.wait_to_finish()
 
 		if active_task.is_network:
-			# ✅ Send to client who requested it
-			var raw = var_to_bytes(active_task.result)
-			var compressed:= raw.compress(2)
-			var original_size := raw.size()
-			rpc_id(active_task.rpc_target, "receive_chunk_data_compressed", active_task.chunk_pos, compressed, original_size)
+			if is_host:
+				# ✅ Host is sending prefab_id + overrides (not full prefab data)
+				var overrides := active_task.result
+				var prefab_id := active_task.prefab.resource_path.get_file().get_basename()
+
+				var payload := {
+					"prefab_id": prefab_id,
+					"overrides": {},
+				}
+				var raw = var_to_bytes(payload)
+				var compressed := raw.compress(2)
+				var original_size := raw.size()
+				rpc_id(active_task.rpc_target, "receive_chunk_data_compressed", active_task.chunk_pos, compressed, original_size)
+				
+
+			else:
+				# ✅ Client finished slicing the prefab locally
+				_spawn_chunk_with_data(active_task.chunk_pos, active_task.result)
+				print("✅ [Client] Client finished slicing:", active_task.result)
+
 		else:
-			# ✅ Spawn chunk locally
+			# ✅ Local (host or client) chunk spawn
 			_spawn_chunk_with_data(active_task.chunk_pos, active_task.result)
 
 		active_task = null
 
-	# Start next task if available
+	# Start next task if none active
 	if active_task == null and not slice_queue.is_empty():
+		#print("🧵 [Client] Starting slice thread for:", slice_queue[0].chunk_pos)
 		active_task = slice_queue.pop_front()
 		slice_thread.start(Callable(self, "_threaded_slice_prefab").bind(active_task))
 
@@ -344,6 +380,30 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 		if not tiles.is_empty():
 			result[layer_name] = tiles
 
+	# === Apply Overrides (if any) ===
+	var world_chunk_data :Dictionary= world_save.chunks.get(str(world_chunk_pos), null)
+	if world_chunk_data and world_chunk_data.has("overrides"):
+		var overrides = world_chunk_data["overrides"]
+		for layer_name in overrides.keys():
+			if not result.has(layer_name):
+				result[layer_name] = []
+
+			var layer_tiles = result[layer_name]
+			var override_tiles = overrides[layer_name]
+
+			for override_tile in override_tiles:
+				var local_pos = override_tile["position"]
+				var replaced := false
+
+				for i in range(layer_tiles.size()):
+					if layer_tiles[i]["position"] == local_pos:
+						layer_tiles[i] = override_tile  # Replace existing tile
+						replaced = true
+						break
+
+				if not replaced:
+					layer_tiles.append(override_tile)  # Add new tile
+
 	# === Procedural Generation ===
 	for x in range(tile_origin.x, tile_end.x):
 		for y in range(tile_origin.y, tile_end.y):
@@ -374,8 +434,11 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 	task.is_done = true
 
 
+
 func _spawn_chunk_with_data(chunk_pos: Vector2i, chunk_data: Dictionary):
-	#print("🧩 %s" % [chunk_pos])
+
+	#if is_host:
+		# Host behavior (already sliced)
 	var chunk = chunk_pool.pop_back() if chunk_pool.size() > 0 else chunk_scene.instantiate()
 	chunk.chunk_tile_size = chunk_tile_size
 	chunk.tile_size = tile_size
@@ -390,6 +453,28 @@ func _spawn_chunk_with_data(chunk_pos: Vector2i, chunk_data: Dictionary):
 	generation_queue.append(build_task)
 	loaded_chunks[chunk_pos] = chunk
 	chunk_last_keep_time[chunk_pos] = time_elapsed
+
+	#else:
+		# === Client: queue a slicing task using prefab + overrides ===
+
+func client_slice_task(chunk_pos: Vector2i, chunk_data: Dictionary):
+	var prefab_id: String = chunk_data.get("prefab_id", "")
+	var overrides: Dictionary = chunk_data.get("overrides", {})
+	
+	var prefab: MapStructureResource = prefab_cache.get(prefab_id)
+	
+	if prefab == null:
+		push_error("❌ Missing prefab on client: '%s'" % prefab_id)
+		return
+	var slice_task := ChunkSliceTask.new()
+	slice_task.chunk_pos = chunk_pos
+	slice_task.prefab = prefab
+	slice_task.terrain_logic = terrain_logic_ref
+	slice_task.tile_generator = tile_generator_ref
+	slice_task.is_network = true  # Flag as network-originated
+	slice_task.result = overrides  # Save for post-slice merge
+
+	slice_queue.append(slice_task)
 
 func _generate_chunks_step():
 	var tiles_this_frame := 0
@@ -420,16 +505,36 @@ func _generate_chunks_step():
 			task.current_layer_index += 1
 
 func _cache_all_prefabs():
-	var used_prefabs := {}
-	for chunk_data in world_save.chunks.values():
-		var id = chunk_data.get("prefab_id", "")
-		if id != "" and not used_prefabs.has(id):
-			used_prefabs[id] = true
-			var path = "%s%s.res" % [prefab_folder_path, id]
-			if ResourceLoader.exists(path):
-				var prefab = load(path)
-				if prefab:
-					prefab_cache[id] = prefab
+	var dir := DirAccess.open(prefab_folder_path)
+	if dir == null:
+		push_error("Failed to open prefab folder: %s" % prefab_folder_path)
+		return
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+
+	while file_name != "":
+		if file_name.begins_with("."):
+			file_name = dir.get_next()
+			continue
+
+		if dir.current_is_dir():
+			# Skip all folders
+			file_name = dir.get_next()
+			continue
+
+		if file_name.ends_with(".res") or file_name.ends_with(".tres"):
+			var file_path := prefab_folder_path.path_join(file_name)
+			if ResourceLoader.exists(file_path):
+				var resource := load(file_path)
+				if resource is MapStructureResource:
+					var id := file_name.get_basename()
+					prefab_cache[id] = resource
+
+		file_name = dir.get_next()
+
+	dir.list_dir_end()
+
+
 
 @rpc("any_peer")
 func request_chunk_data(chunk_pos: Vector2i):
@@ -442,30 +547,28 @@ func request_chunk_data(chunk_pos: Vector2i):
 		return
 
 	var prefab_id = world_chunk.get("prefab_id", "")
-	var prefab: MapStructureResource = prefab_cache.get(prefab_id)
-	if prefab == null:
-		print("❌ Prefab not cached: ", prefab_id)
+	if prefab_id == "":
+		print("❌ Prefab ID missing at: ", world_chunk_pos)
 		return
 
-	# ✅ Queue it like any other slice task
-	var task := ChunkSliceTask.new()
-	task.chunk_pos = chunk_pos
-	task.prefab = prefab
-	task.terrain_logic = terrain_logic_ref
-	task.tile_generator = tile_generator_ref
-	task.is_network = true
-	task.rpc_target = multiplayer.get_remote_sender_id()
+	# Only send the prefab_id and optional overrides
+	rpc_id(multiplayer.get_remote_sender_id(), "receive_chunk_data", chunk_pos, {
+		"prefab_id": prefab_id,
+		"overrides": world_chunk.get("overrides", {})
+	})
 
-	slice_queue.append(task)
 
 @rpc("authority")
 func receive_chunk_data(chunk_pos: Vector2i, chunk_data: Dictionary):
-	#print("📦 Received chunk. .  total: %s" % [received_chunks.size()])
-	received_chunks[chunk_pos] = chunk_data
+	var prefab_id = chunk_data.get("prefab_id", "")
+	if prefab_id == "" or not prefab_cache.has(prefab_id):
+		print("❌ Invalid prefab ID or not cached: ", prefab_id)
+		return
 
-	# ✅ Mark request as complete
+	# Save the prefab_id + overrides
+	received_chunks[chunk_pos] = chunk_data
 	pending_requests.erase(chunk_pos)
-	
+
 	if not chunk_load_queue.has(chunk_pos):
 		chunk_load_queue.append(chunk_pos)
 
@@ -483,6 +586,51 @@ func receive_chunk_data_compressed(chunk_pos: Vector2i, compressed: PackedByteAr
 	
 	if not chunk_load_queue.has(chunk_pos):
 		chunk_load_queue.append(chunk_pos)
+
+func set_tile_override(world_tile_pos: Vector2i, layer_name: String, tile_data: Dictionary) -> void:
+	var PREFAB_TILE_SIZE := 200
+
+	# 🧭 1. Get the world chunk pos this tile belongs to
+	var world_chunk_pos := world_tile_pos / PREFAB_TILE_SIZE
+	var chunk_key := str(world_chunk_pos)
+
+	# ❌ If chunk doesn't exist in save, skip
+	if not world_save.chunks.has(chunk_key):
+		push_warning("Cannot set override: chunk %s not found." % chunk_key)
+		return
+
+	# 📦 2. Get or create overrides container
+	var chunk_data :Dictionary= world_save.chunks[chunk_key]
+	if not chunk_data.has("overrides"):
+		chunk_data["overrides"] = {}
+
+	var overrides :Dictionary= chunk_data["overrides"]
+
+	# 📂 3. Get or create layer override
+	if not overrides.has(layer_name):
+		overrides[layer_name] = []
+
+	var layer_overrides :Array= overrides[layer_name]
+
+	# 🎯 4. Convert world tile pos to prefab-local tile pos (0–199 range)
+	var local_tile_pos := world_tile_pos - (world_chunk_pos * PREFAB_TILE_SIZE)
+
+	# 🧹 5. Remove any existing override at same local position
+	for i in range(layer_overrides.size() - 1, -1, -1):
+		if Vector2i(layer_overrides[i].get("position", Vector2i.ZERO)) == local_tile_pos:
+			layer_overrides.remove_at(i)
+
+	# ✅ 6. Add the new override tile data
+	var new_override := tile_data.duplicate()
+	new_override["position"] = local_tile_pos
+	layer_overrides.append(new_override)
+
+	# 💾 Save it back
+	overrides[layer_name] = layer_overrides
+	chunk_data["overrides"] = overrides
+	world_save.chunks[chunk_key] = chunk_data
+	print("success")
+
 
 func _update_chunk_pixel_size():
 	chunk_pixel_size = chunk_tile_size * tile_size

@@ -25,8 +25,8 @@ func join_world():
 	scene_root.add_child(world_scene)
 	scene_root.get_node("MenuMargins").queue_free()
 	
-	world_scene.chunk_manager.warm_up({})
-	
+	MultiplayerManager.request_world_setup.rpc_id(1)
+	#world_scene.chunk_manager.warm_up({})
 	GameUI.show()
 
 #@rpc()
@@ -49,8 +49,7 @@ func load_world(path: String) -> void:
 	var meta_data = SaveHelper.load_json(path.path_join("meta.json"))
 
 	# 3. Pass to managers
-	WorldManager.load_data(world_data)
-	PlayerManager.load_data(players_data)
+
 	#StorageManager.load_data(storages_data)
 	# MultiplayerManager will also be notified if needed
 
@@ -60,7 +59,11 @@ func load_world(path: String) -> void:
 	var scene_root = get_node("/root/Main/SceneRoot")
 	scene_root.add_child(world_scene)
 	scene_root.get_node("MenuMargins").queue_free()
-	world_scene.chunk_manager.warm_up(WorldManager.get_world_data())
+	
+	
+	WorldManager.load_data(world_data)
+	PlayerManager.load_data(players_data)
+	#world_scene.chunk_manager.warm_up(WorldManager.get_world_data())
 	
 	# 5. Set world state
 	world_scene.load_world_data()  # optional

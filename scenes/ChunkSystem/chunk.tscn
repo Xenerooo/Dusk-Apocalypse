@@ -107,7 +107,7 @@ y_sort_enabled = true
 tile_set = ExtResource("10_aj7hh")
 
 [node name="VisibiltyNotifier" type="VisibleOnScreenNotifier2D" parent="."]
-rect = Rect2(0, 0, 960, 960)
+rect = Rect2(-200, -200, 1160, 1160)
 
 [node name="Label" type="Label" parent="."]
 visible = false

@@ -47,7 +47,7 @@ texture_normal = ExtResource("5_v1bdg")
 ignore_texture_size = true
 stretch_mode = 5
 script = ExtResource("6_qrkc0")
-input_action = &"reset"
+input_action = &"cycle_debug_menu"
 metadata/_edit_use_anchors_ = true
 
 [node name="Reset2" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]

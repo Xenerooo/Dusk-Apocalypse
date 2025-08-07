@@ -1,4 +1,4 @@
-#multiplayer Manager
+#MultiplayerManager
 extends Node
 
 var port := 7777  # You can make this configurable if needed
@@ -15,7 +15,7 @@ func start_host():
 
 	var profile = PlayerProfile
 	MultiplayerManager.register_host_identity(
-		profile.name,
+		profile._name,
 		profile.token,
 		profile.secret
 	)
@@ -30,15 +30,20 @@ func join_game(ip: String = "127.0.0.1"):
 	multiplayer.connected_to_server.connect(_on_connected)
 	multiplayer.connection_failed.connect(_on_failed)
 	
+@rpc("any_peer")
+func request_world_setup():
+	var peer_id := multiplayer.get_remote_sender_id()
 	
+	var seed := WorldManager.seed
+	WorldManager.setup_world.rpc_id(peer_id, seed)
+	
+
 func _on_connected():
 	var profile = PlayerProfile
 	MultiplayerManager.rpc_id(1, "register_player_identity",
-		profile.name, profile.token, profile.secret)
-	
+		profile._name, profile.token, profile.secret)
 
 	GameSession.join_world()
-	#emit_signal("connected_to_host")
 	
 
 func _on_failed():
