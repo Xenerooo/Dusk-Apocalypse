@@ -29,7 +29,7 @@ func populate_world_list():
 	var folder = dir.get_next()
 	while folder != "":
 		if dir.current_is_dir() and folder != "." and folder != "..":
-			var world_path = base_path.path_join(folder).path_join("world.json")
+			var world_path = base_path.path_join(folder).path_join("world.bin")
 			if FileAccess.file_exists(world_path):
 				var btn = Button.new()
 				btn.text = folder
@@ -63,8 +63,9 @@ func create_new_world(world_name: String):
 		"chunks": world_data.chunks,
 		"seed": world_data.seed
 	}
-
-	SaveHelper.save_json(path.path_join("world.json"), world_dict)
+	
+	SaveHelper.save_dict_to_file(world_dict, path.path_join("world.bin"))
+	#SaveHelper.save_json(path.path_join("world.json"), world_dict)
 	SaveHelper.save_json(path.path_join("players.json"), {})   # Empty players
 	SaveHelper.save_json(path.path_join("storages.json"), {})  # Empty storages
 	SaveHelper.save_json(path.path_join("meta.json"), {

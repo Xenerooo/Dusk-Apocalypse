@@ -58,26 +58,29 @@ func process_tiles_step(max_tiles: int) -> bool:
 		_start_next_layer()
 		return false
 
-	var data: Array = pending_layers[current_layer_name]
-	var tiles_this_frame = 0
-	while tiles_done < total_tiles and tiles_this_frame < max_tiles:
-		var tile_info = data[tiles_done]
+	var data: Dictionary = pending_layers[current_layer_name]
+	var keys := data.keys()
+	var tiles_this_frame := 0
+
+	while tiles_done < keys.size() and tiles_this_frame < max_tiles:
+		var key :Vector2i= keys[tiles_done]
+		var tile_info = data[key]
 		tiles_done += 1
 		tiles_this_frame += 1
 
-		# ✅ Already local to this chunk
-		var local_pos = Vector2i(tile_info.position[0], tile_info.position[1])
-		var source_id = tile_info.source_id
-		
-		var atlas_coords = Vector2i(tile_info.atlas_coords[0], tile_info.atlas_coords[1])
-		var alt_tile = tile_info.alt_tile
+		var local_pos: Vector2i = key
+		var source_id = tile_info.get("source_id", -1)
+		var atlas_coords = tile_info.get("atlas_coords", Vector2i.ZERO)
+		var alt_tile = tile_info.get("alt_tile", 0)
+
 		layer.set_cell(local_pos, source_id, atlas_coords, alt_tile)
 
-	if tiles_done >= total_tiles:
+	if tiles_done >= keys.size():
 		pending_layers.erase(current_layer_name)
 		_start_next_layer()
 
 	return pending_layers.is_empty()
+
 
 
 func get_layer_by_name(_name: String) -> TileMapLayer:
@@ -94,13 +97,13 @@ func get_layer_by_name(_name: String) -> TileMapLayer:
 func update_notifier():
 	var size := tile_size * chunk_tile_size
 	notifier.rect = Rect2(Vector2.ZERO, Vector2(size, size))
-	name = str(chunk_pos)
 	label.text = str(chunk_pos)
 
 	navigation_region_2d.bake_navigation_polygon(false)
 	
 
 func reset():
+	name = "reserve"
 	for tilemap in [ground,ground2,props, trees, vegetation, building]:
 		tilemap.clear()
 

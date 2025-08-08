@@ -102,7 +102,8 @@ func _process(delta):
 	if is_host:
 		_process_host_chunks()
 	else:
-		_process_client_chunks()
+		#_process_client_chunks()
+		pass
 
 	if generation_queue.size() > 0:
 		_generate_chunks_step()
@@ -155,7 +156,7 @@ func _process_client_chunks():
 
 		if not already_have and not already_queued and not already_pending:
 			pending_requests[chunk_pos] = true
-			print("📡 Requesting chunk: ", chunk_pos)
+			#print("📡 Requesting chunk: ", chunk_pos)
 			rpc_id(1, "request_chunk_data", chunk_pos)
 
 
@@ -213,7 +214,7 @@ func _queue_new_chunks(chunks: Array[Vector2i]):
 			)
 		#print("🧩 Host: checking world pos: %s" %[world_chunk_pos])
 		
-		if not world_save.chunks.has(str(world_chunk_pos)):
+		if not world_save.chunks.has(world_chunk_pos):
 			#print("🧩 Skipping missing chunk: %s" % [world_chunk_pos])
 			continue
 		#print("🧩 queueng chunk: %s" % [pos])
@@ -276,13 +277,14 @@ func _queue_client_slice_task(chunk_pos: Vector2i, chunk_data: Dictionary):
 	task.prefab = prefab
 	task.terrain_logic = terrain_logic_ref
 	task.tile_generator = tile_generator_ref
+	task.result = chunk_data.get("overrides", {}) # ✅ STORE THE OVERRIDES HERE
 	slice_queue.append(task)
 
 
 func _queue_slice_task(chunk_pos: Vector2i):
 	var TILES_PER_PREFAB := 200 / chunk_tile_size
 	var world_chunk_pos = chunk_pos / TILES_PER_PREFAB
-	var chunk_data = world_save.chunks.get(str(world_chunk_pos))
+	var chunk_data = world_save.chunks.get(world_chunk_pos)
 
 	if chunk_data == null:
 		return
@@ -297,6 +299,7 @@ func _queue_slice_task(chunk_pos: Vector2i):
 	task.prefab = prefab
 	task.terrain_logic = terrain_logic_ref
 	task.tile_generator = tile_generator_ref
+	task.result = chunk_data.get("overrides", {}) # ✅ STORE THE OVERRIDES HERE
 	slice_queue.append(task)
 	#print("🧩 Host queueing slice task: %s" % [chunk_pos])
 
@@ -329,6 +332,7 @@ func _process_chunk_slicing():
 		else:
 			# ✅ Local (host or client) chunk spawn
 			_spawn_chunk_with_data(active_task.chunk_pos, active_task.result)
+			
 
 		active_task = null
 
@@ -339,7 +343,6 @@ func _process_chunk_slicing():
 		slice_thread.start(Callable(self, "_threaded_slice_prefab").bind(active_task))
 
 
-# Use your original slicing logic here!
 func _threaded_slice_prefab(task: ChunkSliceTask):
 	var PREFAB_TILE_SIZE := 200
 	var TILE_CHUNK_SIZE := chunk_tile_size
@@ -352,66 +355,58 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 	var tile_origin = chunk_offset * TILE_CHUNK_SIZE
 	var tile_end = tile_origin + Vector2i(TILE_CHUNK_SIZE, TILE_CHUNK_SIZE)
 
-	var result := {}
-	var claimed_positions := {}
-
+	var result: Dictionary = {}
+	var claimed_positions: Dictionary = {}
 	# === Prefab Layer Extraction ===
 	for layer_name in task.prefab.layers.keys():
-		var layer_data = task.prefab.layers[layer_name]
-		var positions: PackedVector2Array = layer_data["positions"]
-		var source_ids: PackedInt32Array = layer_data["source_ids"]
-		var alt_tiles: PackedInt32Array = layer_data["alt_tile"]
-		var atlas_coords: PackedVector2Array = layer_data["atlas_coords"]
+		var layer_data: Dictionary = task.prefab.layers[layer_name]
 
-		var tiles := []
+		for key in layer_data:
+			var tile_pos: Vector2i = key
+			if tile_pos.x >= tile_origin.x and tile_pos.x < tile_end.x and tile_pos.y >= tile_origin.y and tile_pos.y < tile_end.y:
+				var local_pos: Vector2i = tile_pos - tile_origin
+				var tile_info: Dictionary = layer_data[key]
 
-		for i in positions.size():
-			var pos = Vector2i(positions[i])
-			if pos.x >= tile_origin.x and pos.x < tile_end.x and pos.y >= tile_origin.y and pos.y < tile_end.y:
-				var local_pos = pos - tile_origin
-				claimed_positions[local_pos] = true
-				tiles.append({
-					"position": local_pos,
-					"source_id": source_ids[i],
-					"atlas_coords": Vector2i(atlas_coords[i]),
-					"alt_tile": alt_tiles[i]
-				})
+				if not result.has(layer_name):
+					result[layer_name] = {}
 
-		if not tiles.is_empty():
-			result[layer_name] = tiles
+				var local_key = local_pos
+				result[layer_name][local_key] = tile_info
+				claimed_positions[local_key] = true
 
-	# === Apply Overrides (if any) ===
-	var world_chunk_data :Dictionary= world_save.chunks.get(str(world_chunk_pos), null)
-	if world_chunk_data and world_chunk_data.has("overrides"):
-		var overrides = world_chunk_data["overrides"]
-		for layer_name in overrides.keys():
-			if not result.has(layer_name):
-				result[layer_name] = []
+	# === Overrides Merge ===
+	if task.result is Dictionary:
+		for layer_name in task.result:
+			var layer_data: Dictionary = task.result[layer_name]
 
-			var layer_tiles = result[layer_name]
-			var override_tiles = overrides[layer_name]
+			for world_local_key in layer_data:
+				if typeof(world_local_key) != TYPE_VECTOR2I:
+					continue
 
-			for override_tile in override_tiles:
-				var local_pos = override_tile["position"]
-				var replaced := false
+				var world_local_pos: Vector2i = world_local_key
 
-				for i in range(layer_tiles.size()):
-					if layer_tiles[i]["position"] == local_pos:
-						layer_tiles[i] = override_tile  # Replace existing tile
-						replaced = true
-						break
+				# Only take overrides within this chunk's region
+				if world_local_pos.x >= tile_origin.x and world_local_pos.x < tile_end.x \
+				and world_local_pos.y >= tile_origin.y and world_local_pos.y < tile_end.y:
 
-				if not replaced:
-					layer_tiles.append(override_tile)  # Add new tile
+					var tile_info: Dictionary = layer_data[world_local_pos]
+					var local_pos :Vector2i= world_local_pos - tile_origin
 
+					if not result.has(layer_name):
+						result[layer_name] = {}
+
+					result[layer_name][local_pos] = tile_info
+					claimed_positions[local_pos] = true
+	
 	# === Procedural Generation ===
 	for x in range(tile_origin.x, tile_end.x):
 		for y in range(tile_origin.y, tile_end.y):
 			var world_pos = world_chunk_start_pos + Vector2i(x, y)
 			var local_pos = Vector2i(x, y) - tile_origin
+			var local_key = local_pos
 
-			if claimed_positions.has(local_pos):
-				continue  # already handled by prefab
+			if claimed_positions.has(local_key):
+				continue
 
 			var lookups := task.tile_generator.generate_tiles(world_pos, task.terrain_logic)
 
@@ -419,20 +414,19 @@ func _threaded_slice_prefab(task: ChunkSliceTask):
 				if not lookup.has("layer") or not lookup.has("source_id") or not lookup.has("atlas_coords"):
 					continue
 
-				var layer_name = lookup["layer"]
-				if not result.has(layer_name):
-					result[layer_name] = []
+				var layer_name: String = lookup["layer"]
 
-				result[layer_name].append({
-					"position": local_pos,
+				if not result.has(layer_name):
+					result[layer_name] = {}
+
+				result[layer_name][local_key] = {
 					"source_id": lookup["source_id"],
 					"atlas_coords": lookup["atlas_coords"],
 					"alt_tile": 0
-				})
+				}
 
 	task.result = result
 	task.is_done = true
-
 
 
 func _spawn_chunk_with_data(chunk_pos: Vector2i, chunk_data: Dictionary):
@@ -444,6 +438,8 @@ func _spawn_chunk_with_data(chunk_pos: Vector2i, chunk_data: Dictionary):
 	chunk.tile_size = tile_size
 	chunk.chunk_pos = chunk_pos
 	chunk.position = chunk_pos * chunk_pixel_size
+	chunk.name = str(chunk_pos)
+
 	add_child(chunk)
 
 	var build_task := ChunkBuildTask.new()
@@ -541,7 +537,7 @@ func request_chunk_data(chunk_pos: Vector2i):
 	var TILES_PER_PREFAB := 200 / chunk_tile_size
 	var world_chunk_pos = chunk_pos / TILES_PER_PREFAB
 
-	var world_chunk = world_save.chunks.get(str(world_chunk_pos), null)
+	var world_chunk = world_save.chunks.get(world_chunk_pos, null)
 	if world_chunk == null:
 		print("❌ No chunk exists at: ", world_chunk_pos)
 		return
@@ -589,47 +585,34 @@ func receive_chunk_data_compressed(chunk_pos: Vector2i, compressed: PackedByteAr
 
 func set_tile_override(world_tile_pos: Vector2i, layer_name: String, tile_data: Dictionary) -> void:
 	var PREFAB_TILE_SIZE := 200
+	var TILES_PER_PREFAB := PREFAB_TILE_SIZE  # This is because world tile size is equal to prefab tile size
 
-	# 🧭 1. Get the world chunk pos this tile belongs to
-	var world_chunk_pos := world_tile_pos / PREFAB_TILE_SIZE
-	var chunk_key := str(world_chunk_pos)
+	var world_chunk_pos := world_tile_pos / TILES_PER_PREFAB
+	var local_tile_pos := world_tile_pos - world_chunk_pos * PREFAB_TILE_SIZE
+	var local_key := local_tile_pos
 
-	# ❌ If chunk doesn't exist in save, skip
+	var chunk_key := world_chunk_pos
 	if not world_save.chunks.has(chunk_key):
-		push_warning("Cannot set override: chunk %s not found." % chunk_key)
-		return
+		world_save.chunks[chunk_key] = {
+			"prefab_id": "",  # You may need to set this depending on use case
+			"overrides": {}
+		}
 
-	# 📦 2. Get or create overrides container
 	var chunk_data :Dictionary= world_save.chunks[chunk_key]
+
+	# Make sure overrides exist
 	if not chunk_data.has("overrides"):
 		chunk_data["overrides"] = {}
 
-	var overrides :Dictionary= chunk_data["overrides"]
+	if not chunk_data["overrides"].has(layer_name):
+		chunk_data["overrides"][layer_name] = {}
 
-	# 📂 3. Get or create layer override
-	if not overrides.has(layer_name):
-		overrides[layer_name] = []
+	# Set or replace the override
+	chunk_data["overrides"][layer_name][local_key] = tile_data
 
-	var layer_overrides :Array= overrides[layer_name]
-
-	# 🎯 4. Convert world tile pos to prefab-local tile pos (0–199 range)
-	var local_tile_pos := world_tile_pos - (world_chunk_pos * PREFAB_TILE_SIZE)
-
-	# 🧹 5. Remove any existing override at same local position
-	for i in range(layer_overrides.size() - 1, -1, -1):
-		if Vector2i(layer_overrides[i].get("position", Vector2i.ZERO)) == local_tile_pos:
-			layer_overrides.remove_at(i)
-
-	# ✅ 6. Add the new override tile data
-	var new_override := tile_data.duplicate()
-	new_override["position"] = local_tile_pos
-	layer_overrides.append(new_override)
-
-	# 💾 Save it back
-	overrides[layer_name] = layer_overrides
-	chunk_data["overrides"] = overrides
+	# ✅ Optional: mark the chunk as dirty for saving
 	world_save.chunks[chunk_key] = chunk_data
-	print("success")
+	print("uhh")
 
 
 func _update_chunk_pixel_size():

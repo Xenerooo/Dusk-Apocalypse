@@ -51,6 +51,11 @@ metadata/_preview_in_3d_space_ = true
 y_sort_enabled = true
 script = ExtResource("1_eu7l1")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+visible = false
+offset_right = 27443.0
+offset_bottom = 11519.0
+
 [node name="ChunkManager" type="Node2D" parent="." node_paths=PackedStringArray("label_chunk")]
 y_sort_enabled = true
 script = ExtResource("2_wygdx")

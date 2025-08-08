@@ -43,7 +43,7 @@ func load_world(path: String) -> void:
 		current_world_node = null
 
 	# 2. Load JSON files
-	var world_data = SaveHelper.load_json(path.path_join("world.json"))
+	var world_data = SaveHelper.load_dict_from_file(path.path_join("world.bin"))
 	var players_data = SaveHelper.load_json(path.path_join("players.json"))
 	var storages_data = SaveHelper.load_json(path.path_join("storages.json"))
 	var meta_data = SaveHelper.load_json(path.path_join("meta.json"))

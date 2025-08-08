@@ -52,8 +52,10 @@ func migrate_resources():
 		
 		
 		var res :MapStructureResource= resources[r]
-		convert_prefab_arrays_to_dict(res)
+		convert_prefab_arrays_to_dict(res, r)
 		resources[r] = null
+		await get_tree().process_frame
+		
 		#var res_path = res.resource_path
 		#var old_res := load(res_path)
 		#var temp_path : = "res://resources/structures/to_delete_%s" % [r]
@@ -96,13 +98,12 @@ func migrate_resources():
 		#else:
 			#print("❌ Migration failed with error: ", err)
 		
-		await get_tree().process_frame
 
 
-func convert_prefab_arrays_to_dict(prefab: MapStructureResource):
+func convert_prefab_arrays_to_dict(prefab: MapStructureResource, iteration:int):
 	var original_path := prefab.resource_path
 	
-	prefab.resource_path = "res://resources/structures/temp1.res"
+	prefab.resource_path = "res://temp%s.res" % [iteration]
 	
 	var new_prefab := MapStructureResource.new()
 	new_prefab.chunk_id = prefab.chunk_id
@@ -111,13 +112,13 @@ func convert_prefab_arrays_to_dict(prefab: MapStructureResource):
 		var old = prefab.layers[layer_name]
 		var new_layer := {}
 
-		for i in old["positions"].size():
-			var pos = Vector2i(old["positions"][i])
-			var key = str(pos)
+		for tile in old.keys():
+			var pos :Vector2i= str_to_var("Vector2i" + tile)
+			var key = pos
 			new_layer[key] = {
-				"source_id": old["source_ids"][i],
-				"atlas_coords": Vector2i(old["atlas_coords"][i]),
-				"alt_tile": old["alt_tile"][i],
+				"source_id": old[tile]["source_id"],
+				"atlas_coords": old[tile]["atlas_coords"],
+				"alt_tile": old[tile]["alt_tile"],
 			}
 
 		new_prefab.layers[layer_name] = new_layer
@@ -126,6 +127,6 @@ func convert_prefab_arrays_to_dict(prefab: MapStructureResource):
 	if err == OK:
 		print("Successfully migrated")
 
-	if FileAccess.file_exists("res://resources/structures/temp1.res"):
-		print("🚮 removed %s" % ["res://resources/structures/temp1.res"])
-		DirAccess.remove_absolute("res://resources/structures/temp1.res")
+	if FileAccess.file_exists("res://temp%s.res" % [iteration]):
+		DirAccess.remove_absolute("res://temp%s.res" % [iteration])
+		print("🚮 removed %s" % ["res://temp%s.res" % [iteration]])

@@ -7,7 +7,7 @@ var seed := 0
 var chunks := {}  # Dictionary<Vector2i, Dictionary>
 
 func load_data(world_dict: Dictionary):
-	map_size = SaveHelper.string_to_vector2(world_dict.map_size)
+	map_size = world_dict.map_size
 	tile_size = world_dict.tile_size
 	chunk_size = world_dict.chunk_size
 	seed = world_dict.get("seed", 0)
@@ -27,8 +27,10 @@ func get_world_data() -> Dictionary:
 	}
 
 func save_data(path: String):
-	var data = get_world_data()
-	SaveHelper.save_json(path.path_join("world.json"), data)
+	var manager:ChunkManagerMP = GameSession.current_world_node.chunk_manager
+	if manager :
+		var data = manager.world_save
+		SaveHelper.save_dict_to_file(data, path.path_join("world.bin"))
 
 @rpc("authority")
 func setup_world(_seed: int):

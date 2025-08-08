@@ -48,3 +48,46 @@ static func string_to_vector2(vector_string: String) -> Vector2:
 		# You could print an error or return Vector2.ZERO
 		print("Error: Invalid Vector2 string format: ", vector_string)
 		return Vector2.ZERO
+
+## Save a dictionary to a compressed binary file
+const COMPRESSION_MODE := FileAccess.COMPRESSION_ZSTD
+static func save_dict_to_file(data: Dictionary, path: String) -> void:
+	var bytes := var_to_bytes(data)
+	var original_size := bytes.size()
+	var compressed := bytes.compress(COMPRESSION_MODE)
+
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file:
+		file.store_32(original_size)  # Save original size
+		file.store_buffer(compressed)
+		file.close()
+		print("💾 Saved: %d bytes → %d bytes compressed" % [original_size, compressed.size()])
+	else:
+		push_error("❌ Could not open file for writing: %s" % path)
+
+static func load_dict_from_file(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		push_error("❌ File does not exist: %s" % path)
+		return {}
+
+	var file := FileAccess.open(path, FileAccess.READ)
+	if not file:
+		push_error("❌ Could not open file for reading: %s" % path)
+		return {}
+
+	var original_size = file.get_32()
+	var compressed = file.get_buffer(file.get_length() - 4)
+	file.close()
+
+	var decompressed := compressed.decompress(original_size, COMPRESSION_MODE)
+	if decompressed.size() != original_size:
+		push_error("❌ Decompressed size mismatch: expected %d, got %d" % [original_size, decompressed.size()])
+		return {}
+
+	var result = bytes_to_var(decompressed)
+	if typeof(result) != TYPE_DICTIONARY:
+		push_error("❌ Loaded data is not a Dictionary.")
+		return {}
+
+	print("📥 Loaded dict from compressed file (%d bytes decompressed)." % decompressed.size())
+	return result
