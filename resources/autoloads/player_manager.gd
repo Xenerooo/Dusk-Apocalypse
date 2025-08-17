@@ -113,3 +113,8 @@ func load_data(data: Dictionary):
 			"health": p.get("health", 100),
 			"scene": null
 		}
+
+
+func reset_manager():
+	players = {}
+	peer_to_token = {}

@@ -3,9 +3,9 @@ extends Node
 var player :CharacterBody2D
 var move_vector:= Vector2.ZERO
 @export var SPEED := 12000.0
-
-#func _ready() -> void:
-		#set_physics_process(true)
+#
+func _ready() -> void:
+	set_physics_process(false)
 	#else:
 		#set_physics_process(false)
 

@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://ci5cbxgs7wrbg"]
+
+[ext_resource type="Script" uid="uid://8k6chhxr3ldv" path="res://scenes/main/main_menu/list_container.gd" id="1_lk6ee"]
+
+[node name="ListContainer" type="HBoxContainer"]
+anchors_preset = -1
+anchor_right = 0.368924
+anchor_bottom = 0.109568
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+script = ExtResource("1_lk6ee")
+metadata/_edit_use_anchors_ = true
+
+[node name="JoinWorld" type="Button" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+mouse_filter = 1
+
+[node name="deleteWorld" type="Button" parent="."]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 1
+text = "Delete"

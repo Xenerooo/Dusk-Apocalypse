@@ -1,6 +1,9 @@
 #GameSession
 extends Node
 
+const MAIN_MENU = preload("res://scenes/main/main_menu/main_menu.tscn")
+
+
 var active_players := {}  # token → scene reference
 var local_player :Player
 
@@ -8,7 +11,9 @@ var current_world_path : String
 var current_world_node: Node2D
 
 var player_container:Node2D = null
+
 @onready var spawner :MultiplayerSpawner= $PlayerSpawner
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action("save"):
@@ -23,11 +28,11 @@ func join_world():
 	current_world_node = world_scene
 	var scene_root = get_node("/root/Main/SceneRoot")
 	scene_root.add_child(world_scene)
-	scene_root.get_node("MenuMargins").queue_free()
+	scene_root.get_node("MenuMargins/MainMenu").queue_free()
 	
 	MultiplayerManager.request_world_setup.rpc_id(1)
 	#world_scene.chunk_manager.warm_up({})
-	GameUI.show()
+	GameUI.show_controls()
 
 #@rpc()
 #func instance_client_world():
@@ -56,19 +61,22 @@ func load_world(path: String) -> void:
 	# 4. Instance world scene
 	var world_scene = preload("res://World.tscn").instantiate()
 	current_world_node = world_scene
+	
+	
 	var scene_root = get_node("/root/Main/SceneRoot")
+	scene_root.get_node("MenuMargins/MainMenu").queue_free()
 	scene_root.add_child(world_scene)
-	scene_root.get_node("MenuMargins").queue_free()
+
 	
 	
 	WorldManager.load_data(world_data)
 	PlayerManager.load_data(players_data)
-	#world_scene.chunk_manager.warm_up(WorldManager.get_world_data())
+
+	MultiplayerManager.start_host()
 	
 	# 5. Set world state
 	world_scene.load_world_data()  # optional
-	MultiplayerManager.start_host()
-	GameUI.show()
+	GameUI.show_controls()
 
 func _on_spawn_entity(data:Dictionary) -> Node:
 	if data.type_key == "Player":
@@ -142,3 +150,47 @@ func save_world():
 	SaveHelper.save_json(current_world_path.path_join("meta.json"), meta)
 
 	print("✅ World save complete")
+
+func pause_game():
+	if MultiplayerManager.is_host():
+		get_tree().paused = true
+	
+	GameUI.show_pause_menu()
+	GameUI.hide_controls()
+	
+
+func resume_game():
+	if MultiplayerManager.is_host():
+		get_tree().paused = false
+	GameUI.hide_pause_menu()
+	GameUI.show_controls()
+	
+
+func reset_session():
+	if MultiplayerManager.is_host():
+		get_tree().paused = false
+		
+	MultiplayerManager.reset_manager()
+	
+	var game_world = get_node_or_null("/root/Main/SceneRoot/World")
+	if game_world != null:
+		game_world.queue_free()
+
+	current_world_node = null
+	current_world_path = ""
+	local_player = null
+	active_players = {}
+	
+	await get_tree().process_frame
+	PlayerManager.reset_manager()
+	WorldManager.reset_manager()
+	#MultiplayerManager.reset_manager()
+	
+	GameUI.hide_controls()
+	GameUI.hide_pause_menu()
+
+	var menu = MAIN_MENU.instantiate()
+	var menu_margins := get_node("/root/Main/SceneRoot/MenuMargins")
+	menu_margins.add_child(menu)
+	
+	pass

@@ -12,6 +12,11 @@ class_name ChunkManagerMP
 @export var load_radius: int = 2
 @export var unload_radius: int = 3
 @export var pool_initial_size := 20
+@export var CHUNKS_PER_PLAYER_PER_FRAME := 2
+
+
+var _player_index := 0
+@export var players_per_frame := 1
 
 @export var label_chunk: Label
 @export_node_path("Node2D") var player_path
@@ -34,6 +39,7 @@ var pending_requests := {}
 const CHUNKS_PER_FRAME := 1
 const UNLOAD_COOLDOWN := 1.0
 var time_elapsed := 0.0
+
 
 var is_host := false
 var world_save := {}
@@ -75,7 +81,9 @@ func set_seed(_seed:int):
 
 func _ready():
 	_cache_all_prefabs()
+	print("Universal Chunk:", multiplayer.multiplayer_peer)
 	is_host = multiplayer.is_server()
+
 
 	if is_host:
 		terrain_logic_ref = get_node(terrain_logic_path)
@@ -102,7 +110,7 @@ func _process(delta):
 	if is_host:
 		_process_host_chunks()
 	else:
-		#_process_client_chunks()
+		_process_client_chunks()
 		pass
 
 	if generation_queue.size() > 0:
@@ -111,17 +119,36 @@ func _process(delta):
 	_update_debug_label()
 
 func _process_host_chunks():
-	var chunks_to_load :Array[Vector2i]= []
-	var chunks_to_unload :Array[Vector2i]= []
+	var chunks_to_load :Array[Vector2i] = []
+	var chunks_to_unload :Array[Vector2i] = []
 
-	# 👥 Loop over all players (including host's own player)
-	for token in PlayerManager.get_all_tokens():
+	# Convert dict keys to an array once per frame
+	var tokens := PlayerManager.get_all_tokens()
+
+	if tokens.is_empty():
+		return
+
+	var players_done := 0
+	while players_done < players_per_frame and not tokens.is_empty():
+		# Wrap index if we exceed available players
+		if _player_index >= tokens.size():
+			_player_index = 0
+
+		var token = tokens[_player_index]
+		_player_index += 1
+		players_done += 1
+
 		var player_node = PlayerManager.get_player_node(token)
 		if player_node == null:
 			continue
 
 		var chunk = _get_chunk_coords(player_node.global_position)
 		var area = _get_chunks_in_radius(chunk, load_radius)
+
+		# ✅ Prioritize nearest chunks
+		area.sort_custom(func(a, b):
+			return a.distance_to(chunk) < b.distance_to(chunk)
+		)
 
 		for pos in area:
 			if not chunks_to_load.has(pos):
@@ -132,14 +159,12 @@ func _process_host_chunks():
 			if not chunks_to_unload.has(pos):
 				chunks_to_unload.append(pos)
 
-	# ✅ Standard host behavior
 	_update_chunk_keep_times(chunks_to_load)
 	_prune_load_queue(chunks_to_load)
 	_queue_new_chunks(chunks_to_load)
 	_unload_old_chunks(chunks_to_unload)
 	_load_queued_chunks()
 	_process_chunk_slicing()
-
 
 func _process_client_chunks():
 	var player_chunk = _get_chunk_coords(player_ref.global_position)
@@ -219,6 +244,37 @@ func _queue_new_chunks(chunks: Array[Vector2i]):
 			continue
 		#print("🧩 queueng chunk: %s" % [pos])
 		chunk_load_queue.append(pos)
+
+func _queue_new_chunks_progressive(chunks: Array[Vector2i], player_node: Node2D):
+	var TILES_PER_PREFAB := 200.0 / chunk_tile_size
+	var queued_this_player := 0
+
+	# Sort chunks by distance to player
+	chunks.sort_custom(func(a, b):
+		var pa = (a * chunk_pixel_size).distance_squared_to(player_node.global_position)
+		var pb = (b * chunk_pixel_size).distance_squared_to(player_node.global_position)
+		return pa < pb
+	)
+
+	for pos in chunks:
+		if queued_this_player >= CHUNKS_PER_PLAYER_PER_FRAME:
+			break
+
+		if _is_chunk_pending_or_loaded(pos) or chunk_load_queue.has(pos):
+			continue
+
+		var world_chunk_pos = Vector2i(
+			floor(pos.x / TILES_PER_PREFAB),
+			floor(pos.y / TILES_PER_PREFAB)
+		)
+
+		if not world_save.chunks.has(world_chunk_pos):
+			continue
+
+		chunk_load_queue.append(pos)
+		queued_this_player += 1
+
+
 
 func _unload_old_chunks(valid_chunks: Array[Vector2i]):
 	var keep_map := {}
@@ -623,4 +679,5 @@ func _update_debug_label():
 		label_chunk.text = "Chunks: %d\nFPS: %d\nReceived chunks: %s" % [chunk_last_keep_time.size(), Engine.get_frames_per_second(), received_chunks.size()]
 
 func _exit_tree():
-	slice_thread.wait_to_finish()
+	if slice_thread.is_started() :
+		slice_thread.wait_to_finish()

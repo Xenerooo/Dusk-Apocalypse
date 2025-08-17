@@ -1,0 +1,107 @@
+[gd_scene load_steps=8 format=3 uid="uid://bbl0ecp85cxbo"]
+
+[ext_resource type="FontFile" uid="uid://cfmoyehtuns8q" path="res://asset/fonts/DungGeunMoRegular.woff.ttf" id="1_f6eus"]
+[ext_resource type="Texture2D" uid="uid://cyujpbv1mmk0a" path="res://asset/user_interface/sub_menu-sheet0.png" id="2_8uki6"]
+[ext_resource type="Script" uid="uid://ete0mxamix66" path="res://scenes/ui/pause_menu.gd" id="3_0bnpd"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ow5a4"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.3)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_b1x3f"]
+texture = ExtResource("2_8uki6")
+texture_margin_left = 5.35117
+texture_margin_top = 3.56745
+texture_margin_right = 6.04979
+texture_margin_bottom = 4.31066
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bxde6"]
+texture = ExtResource("2_8uki6")
+texture_margin_left = 5.35117
+texture_margin_top = 3.56745
+texture_margin_right = 6.04979
+texture_margin_bottom = 4.31066
+modulate_color = Color(0.42, 0.42, 0.42, 1)
+
+[sub_resource type="Theme" id="Theme_opxtl"]
+default_font = ExtResource("1_f6eus")
+default_font_size = 20
+Button/colors/font_color = Color(1, 1, 1, 1)
+Button/colors/font_disabled_color = Color(0.875, 0.875, 0.875, 0.5)
+Button/colors/font_focus_color = Color(0.95, 0.95, 0.95, 1)
+Button/colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
+Button/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+Button/colors/font_outline_color = Color(0, 0, 0, 1)
+Button/colors/font_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_disabled_color = Color(1, 1, 1, 0.4)
+Button/colors/icon_focus_color = Color(1, 1, 1, 1)
+Button/colors/icon_hover_color = Color(1, 1, 1, 1)
+Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_normal_color = Color(1, 1, 1, 1)
+Button/colors/icon_pressed_color = Color(1, 1, 1, 1)
+Button/constants/align_to_largest_stylebox = 0
+Button/constants/h_separation = 4
+Button/constants/icon_max_width = 0
+Button/constants/outline_size = 0
+Button/font_sizes/font_size = 23
+Button/fonts/font = ExtResource("1_f6eus")
+Button/styles/disabled = SubResource("StyleBoxFlat_ow5a4")
+Button/styles/focus = SubResource("StyleBoxTexture_b1x3f")
+Button/styles/hover = SubResource("StyleBoxTexture_b1x3f")
+Button/styles/normal = SubResource("StyleBoxTexture_b1x3f")
+Button/styles/pressed = SubResource("StyleBoxTexture_bxde6")
+
+[node name="PauseMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_opxtl")
+script = ExtResource("3_0bnpd")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -128.0
+offset_top = 52.0
+offset_right = 128.0
+offset_bottom = 128.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="resume" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+focus_mode = 0
+text = "Resume"
+
+[node name="exit" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+focus_mode = 0
+text = "Exit"
+
+[connection signal="pressed" from="VBoxContainer/resume" to="." method="_on_resume_pressed"]
+[connection signal="pressed" from="VBoxContainer/exit" to="." method="_on_exit_pressed"]

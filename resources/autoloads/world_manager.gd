@@ -37,3 +37,15 @@ func setup_world(_seed: int):
 	var chunk_manager :ChunkManagerMP= GameSession.current_world_node.chunk_manager
 	chunk_manager.set_seed(_seed)
 	chunk_manager.warm_up(get_world_data())
+
+
+func reset_manager():
+	map_size = Vector2i()
+	tile_size = 0.0
+	chunk_size = 0.0
+	seed = 0
+	chunks = {}  # Dictionary<Vector2i, Dictionary>
+
+
+func set_visual_tile():
+	pass

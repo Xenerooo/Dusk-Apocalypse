@@ -67,27 +67,27 @@ func save_as_resource():
 	var chunk_resource := MapStructureResource.new()
 
 	#chunk_resource.chunk_id = chunk_id
-
-	for layer_name in chunk_map.keys():
-		var tiles = chunk_map[layer_name]
-
-		var positions := PackedVector2Array()
-		var source_ids := PackedInt32Array()
-		var atlas_coords := PackedVector2Array()
-		var alt_tile := PackedInt32Array()
-
-		for tile in tiles:
-			positions.append(Vector2(tile["position"][0], tile["position"][1]))
-			source_ids.append(tile["source_id"])
-			alt_tile.append(tile["alt_tile"])
-			atlas_coords.append(Vector2(tile["atlas_coords"][0], tile["atlas_coords"][1]))
-
-		chunk_resource.layers[layer_name] = {
-			"positions": positions,
-			"source_ids": source_ids,
-			"atlas_coords": atlas_coords,
-			"alt_tile": alt_tile
-		}
+	chunk_resource.layers = chunk_map
+	#for layer_name in chunk_map.keys():
+		#var tiles = chunk_map[layer_name]
+#
+		#var positions := PackedVector2Array()
+		#var source_ids := PackedInt32Array()
+		#var atlas_coords := PackedVector2Array()
+		#var alt_tile := PackedInt32Array()
+#
+		#for tile in tiles:
+			#positions.append(Vector2(tile["position"][0], tile["position"][1]))
+			#source_ids.append(tile["source_id"])
+			#alt_tile.append(tile["alt_tile"])
+			#atlas_coords.append(Vector2(tile["atlas_coords"][0], tile["atlas_coords"][1]))
+#
+		#chunk_resource.layers[layer_name] = {
+			#"positions": positions,
+			#"source_ids": source_ids,
+			#"atlas_coords": atlas_coords,
+			#"alt_tile": alt_tile
+		#}
 
 	if resource_save_name.is_empty():
 		print("❌ Failed to save, need resource name")
@@ -141,20 +141,29 @@ func load_prefab_to_tilemaps(_resource: MapStructureResource, target_chunk_pos: 
 			continue
 
 		var tilemap: TileMapLayer = tilemap_layers[layer_name]
-		var layer_data = _resource.layers[layer_name]
+		var layer_data :Dictionary= _resource.layers[layer_name]
 
-		var positions: PackedVector2Array = layer_data["positions"]
-		var source_ids: PackedInt32Array = layer_data["source_ids"]
-		var atlas_coords: PackedVector2Array = layer_data["atlas_coords"]
-		var alt_tiles: PackedInt32Array = layer_data["alt_tile"]
+		#var positions: PackedVector2Array = layer_data["positions"]
+		#var source_ids: PackedInt32Array = layer_data["source_ids"]
+		#var atlas_coords: PackedVector2Array = layer_data["atlas_coords"]
+		#var alt_tiles: PackedInt32Array = layer_data["alt_tile"]
 
 		tilemap.clear()
-		for j in positions.size():
-			var tile_pos: Vector2i = Vector2i(positions[j]) + offset
-			var source_id = source_ids[j]
-			var alt_tile = alt_tiles[j]
-			var atlas_coord = Vector2i(atlas_coords[j])
+		#print(layer_data.size())
+		
+		for tile in layer_data.keys():
+			var tile_pos : Vector2i = tile + offset
+			var source_id :int= layer_data[tile].source_id
+			var alt_tile :int= layer_data[tile].alt_tile
+			var atlas_coord :Vector2= layer_data[tile].atlas_coords
+			
 			tilemap.set_cell(tile_pos, source_id, atlas_coord, alt_tile)
+		#for j in positions.size():
+			#var tile_pos: Vector2i = Vector2i(positions[j]) + offset
+			#var source_id = source_ids[j]
+			#var alt_tile = alt_tiles[j]
+			#var atlas_coord = Vector2i(atlas_coords[j])
+			#tilemap.set_cell(tile_pos, source_id, atlas_coord, alt_tile)
 
 
 func get_chunk_id_from_cell(cell: Vector2i) -> Vector2i:
@@ -166,13 +175,12 @@ func get_chunk_id_from_cell(cell: Vector2i) -> Vector2i:
 
 func group_tiles_by_chunk(layers: Dictionary) -> Dictionary:
 	var chunk_map := {}
-	chunk_map = {}
 
 	for layer_name in layers.keys():
 		var tilemap: TileMapLayer = layers[layer_name]
 		var used_cells := tilemap.get_used_cells()
 
-		chunk_map[layer_name] = []
+		chunk_map[layer_name] = {}
 
 		for cell in used_cells:
 			var chunk_id := get_chunk_id_from_cell(cell)
@@ -181,11 +189,10 @@ func group_tiles_by_chunk(layers: Dictionary) -> Dictionary:
 			var atlas_coords = tilemap.get_cell_atlas_coords(cell)
 			var alt_tile = tilemap.get_cell_alternative_tile(cell)
 
-			chunk_map[layer_name].append({
-				"position": [cell.x, cell.y],
+			chunk_map[layer_name][cell] = {
 				"source_id": source_id,
-				"atlas_coords": [atlas_coords.x, atlas_coords.y],
+				"atlas_coords": atlas_coords,
 				"alt_tile": alt_tile
-			})
+				}
 
 	return chunk_map

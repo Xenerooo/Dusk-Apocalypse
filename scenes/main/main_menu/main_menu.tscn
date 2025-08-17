@@ -1,8 +1,66 @@
-[gd_scene load_steps=4 format=3 uid="uid://dfhixqica5ri"]
+[gd_scene load_steps=11 format=3 uid="uid://dfhixqica5ri"]
 
-[ext_resource type="Script" uid="uid://cx18d2kjqst55" path="res://scenes/main/world_selector.gd" id="1_2tvpl"]
+[ext_resource type="FontFile" uid="uid://cfmoyehtuns8q" path="res://asset/fonts/DungGeunMoRegular.woff.ttf" id="1_k0ycp"]
 [ext_resource type="Script" uid="uid://ct03ex4slwijr" path="res://scenes/main/main_menu/main_menu.gd" id="1_y8u07"]
-[ext_resource type="Script" uid="uid://eyp5vwys740f" path="res://scenes/main/main_menu/join_menu.gd" id="3_0kd0q"]
+[ext_resource type="Texture2D" uid="uid://cyujpbv1mmk0a" path="res://asset/user_interface/sub_menu-sheet0.png" id="2_svxau"]
+[ext_resource type="PackedScene" uid="uid://bx7mxk03dhpfe" path="res://scenes/ui/world_selector.tscn" id="4_k0ycp"]
+[ext_resource type="Texture2D" uid="uid://dnda3jc8ychq6" path="res://asset/environment/TX_Highway_A.png" id="4_svxau"]
+[ext_resource type="PackedScene" uid="uid://di5l3yh6k5cb5" path="res://scenes/ui/join_menu.tscn" id="5_k0ycp"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ow5a4"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.3)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_b1x3f"]
+texture = ExtResource("2_svxau")
+texture_margin_left = 5.35117
+texture_margin_top = 3.56745
+texture_margin_right = 6.04979
+texture_margin_bottom = 4.31066
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6q06x"]
+texture = ExtResource("2_svxau")
+texture_margin_left = 5.35117
+texture_margin_top = 3.56745
+texture_margin_right = 6.04979
+texture_margin_bottom = 4.31066
+modulate_color = Color(0.400698, 0.400698, 0.400698, 1)
+
+[sub_resource type="Theme" id="Theme_scmgr"]
+default_font = ExtResource("1_k0ycp")
+default_font_size = 20
+Button/colors/font_color = Color(1, 1, 1, 1)
+Button/colors/font_disabled_color = Color(0.875, 0.875, 0.875, 0.5)
+Button/colors/font_focus_color = Color(0.95, 0.95, 0.95, 1)
+Button/colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
+Button/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+Button/colors/font_outline_color = Color(0, 0, 0, 1)
+Button/colors/font_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_disabled_color = Color(1, 1, 1, 0.4)
+Button/colors/icon_focus_color = Color(1, 1, 1, 1)
+Button/colors/icon_hover_color = Color(1, 1, 1, 1)
+Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_normal_color = Color(1, 1, 1, 1)
+Button/colors/icon_pressed_color = Color(1, 1, 1, 1)
+Button/constants/align_to_largest_stylebox = 0
+Button/constants/h_separation = 4
+Button/constants/icon_max_width = 0
+Button/constants/outline_size = 0
+Button/font_sizes/font_size = 23
+Button/fonts/font = ExtResource("1_k0ycp")
+Button/styles/disabled = SubResource("StyleBoxFlat_ow5a4")
+Button/styles/focus = SubResource("StyleBoxTexture_b1x3f")
+Button/styles/hover = SubResource("StyleBoxTexture_b1x3f")
+Button/styles/normal = SubResource("StyleBoxTexture_b1x3f")
+Button/styles/pressed = SubResource("StyleBoxTexture_6q06x")
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -11,8 +69,26 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = SubResource("Theme_scmgr")
 script = ExtResource("1_y8u07")
 metadata/_edit_use_anchors_ = true
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -328.0
+offset_top = -348.0
+offset_right = 328.0
+offset_bottom = 348.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_svxau")
+expand_mode = 1
+stretch_mode = 1
 
 [node name="MainButtons" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -51,131 +127,13 @@ focus_mode = 0
 text = "Exit
 "
 
-[node name="WorldSelector" type="Control" parent="." node_paths=PackedStringArray("world_list", "create_button", "back_button")]
+[node name="WorldSelector" parent="." instance=ExtResource("4_k0ycp")]
 visible = false
 layout_mode = 1
-anchor_left = 0.134549
-anchor_top = 0.108025
-anchor_right = 0.865451
-anchor_bottom = 0.891975
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1_2tvpl")
-world_list = NodePath("VBoxContainer/ScrollContainer/WorldList")
-create_button = NodePath("VBoxContainer/HBoxContainer/CreateWorldButton")
-back_button = NodePath("VBoxContainer/HBoxContainer/BackButton")
 
-[node name="Panel" type="Panel" parent="WorldSelector"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-metadata/_edit_lock_ = true
-
-[node name="VBoxContainer" type="VBoxContainer" parent="WorldSelector"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 12.0
-offset_top = 16.0
-offset_right = -12.0
-offset_bottom = -16.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="ScrollContainer" type="ScrollContainer" parent="WorldSelector/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-metadata/_edit_use_anchors_ = true
-
-[node name="WorldList" type="VBoxContainer" parent="WorldSelector/VBoxContainer/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="HBoxContainer" type="HBoxContainer" parent="WorldSelector/VBoxContainer"]
-custom_minimum_size = Vector2(0, 64)
-layout_mode = 2
-
-[node name="CreateWorldButton" type="Button" parent="WorldSelector/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-focus_mode = 0
-text = "Create World"
-
-[node name="BackButton" type="Button" parent="WorldSelector/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-focus_mode = 0
-text = "Back
-"
-
-[node name="joinMenu" type="Control" parent="." node_paths=PackedStringArray("ip_edit")]
+[node name="joinMenu" parent="." instance=ExtResource("5_k0ycp")]
 visible = false
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -245.0
-offset_top = -45.0
-offset_right = 245.0
-offset_bottom = 45.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("3_0kd0q")
-ip_edit = NodePath("VBoxContainer/IPLineEdit")
-
-[node name="Panel" type="Panel" parent="joinMenu"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-metadata/_edit_use_anchors_ = true
-metadata/_edit_lock_ = true
-
-[node name="VBoxContainer" type="VBoxContainer" parent="joinMenu"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.0163265
-anchor_top = 0.1
-anchor_right = 0.983673
-anchor_bottom = 0.9
-grow_horizontal = 2
-grow_vertical = 2
-metadata/_edit_use_anchors_ = true
-
-[node name="IPLineEdit" type="LineEdit" parent="joinMenu/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-text = "192.168.1"
-placeholder_text = "Enter IP Address"
-
-[node name="HBoxContainer" type="HBoxContainer" parent="joinMenu/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-alignment = 1
-
-[node name="JoinButton" type="Button" parent="joinMenu/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Join
-"
-
-[node name="backButton" type="Button" parent="joinMenu/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Back
-"
 
 [connection signal="pressed" from="MainButtons/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="MainButtons/JoinButton" to="." method="_on_join_button_pressed"]
-[connection signal="pressed" from="joinMenu/VBoxContainer/HBoxContainer/JoinButton" to="joinMenu" method="_on_join_button_pressed"]
-[connection signal="toggled" from="joinMenu/VBoxContainer/HBoxContainer/JoinButton" to="joinMenu" method="_on_join_button_toggled"]
-[connection signal="pressed" from="joinMenu/VBoxContainer/HBoxContainer/backButton" to="joinMenu" method="_on_back_button_pressed"]

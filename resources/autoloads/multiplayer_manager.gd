@@ -2,9 +2,9 @@
 extends Node
 
 var port := 7777  # You can make this configurable if needed
+var ClientPeer: ENetMultiplayerPeer
 
 func start_host():
-
 	var peer := ENetMultiplayerPeer.new()
 	var error := peer.create_server(port, 10)
 	if error != OK:
@@ -12,7 +12,8 @@ func start_host():
 		return
 
 	multiplayer.multiplayer_peer = peer
-
+	ClientPeer = peer
+	print("start host: " ,multiplayer.is_server())
 	var profile = PlayerProfile
 	MultiplayerManager.register_host_identity(
 		profile._name,
@@ -27,8 +28,7 @@ func join_game(ip: String = "127.0.0.1"):
 	peer.create_client(ip, 7777)
 	multiplayer.multiplayer_peer = peer
 
-	multiplayer.connected_to_server.connect(_on_connected)
-	multiplayer.connection_failed.connect(_on_failed)
+
 	
 @rpc("any_peer")
 func request_world_setup():
@@ -51,6 +51,9 @@ func _on_failed():
 
 func _ready():
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	multiplayer.connected_to_server.connect(_on_connected)
+	multiplayer.connection_failed.connect(_on_failed)
 	print("MultiplayerManager initialized")
 
 @rpc("any_peer")
@@ -91,8 +94,22 @@ func _on_peer_disconnected(peer_id: int):
 	PlayerManager.set_peer_id(token, 0)
 	GameSession.despawn_player(token)
 
+func _on_server_disconnected():
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+	GameSession.reset_session()
+
 func is_host() -> bool:
 	return multiplayer.is_server()
 
 func network_is_connected() -> bool:
 	return multiplayer.multiplayer_peer != null
+
+func reset_manager():
+	if multiplayer.is_server():
+		for peer_id in multiplayer.get_peers():
+			multiplayer.multiplayer_peer.disconnect_peer(peer_id)
+	
+	multiplayer.multiplayer_peer.close()
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+	
+	ClientPeer = null

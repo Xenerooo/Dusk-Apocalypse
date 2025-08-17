@@ -1,3 +1,4 @@
+
 extends CharacterBody2D
 class_name Player
 var token := ""
@@ -9,7 +10,10 @@ var token := ""
 @onready var HostSsync: MultiplayerSynchronizer = $HostSync
 @onready var camera_2d: Camera2D = $Camera2D
 
-var sync_position: = Vector2.ZERO
+@export var lerp_speed := 10.0
+
+@export var sync_position: = Vector2.ZERO
+@export var client_position := Vector2.ZERO
 
 func _on_tree_entered() -> void:
 	pass # Replace with function body.
@@ -28,9 +32,13 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if !multiplayer.is_server():
-		global_position = global_position.lerp(sync_position, .5)
+		client_position = client_position.lerp(sync_position, lerp_speed * delta)
+		global_position = client_position
 	else:
+		velocity = get_input() * SPEED * delta
+		move_and_slide()
 		sync_position = global_position
+
 
 func get_input()-> Vector2:
 	return InputSync.local_move_input
@@ -43,3 +51,4 @@ func request_player_name_setup():
 @rpc("authority", "call_local")
 func setup_name(_name: String):
 	label.text = _name
+	

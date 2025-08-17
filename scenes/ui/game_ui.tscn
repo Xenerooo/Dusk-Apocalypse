@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bfk0mhdjuq5vd"]
+[gd_scene load_steps=10 format=3 uid="uid://bfk0mhdjuq5vd"]
 
 [ext_resource type="Script" uid="uid://udu5lcvxef5q" path="res://scenes/ui/game_ui.gd" id="1_bma8u"]
 [ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://scenes/ui/DynamicMargins.gd" id="1_gwk6t"]
@@ -8,11 +8,13 @@
 [ext_resource type="Script" uid="uid://4fobfp3r5tpr" path="res://scenes/ui/InteractiveTouchScreenButton.gd" id="6_qrkc0"]
 [ext_resource type="Texture2D" uid="uid://do7dnrov2pyte" path="res://asset/user_interface/Zoom_in.png" id="6_yvtb5"]
 [ext_resource type="Texture2D" uid="uid://bv6pq8alfsrin" path="res://asset/user_interface/Zoom_out.png" id="7_k7elv"]
+[ext_resource type="PackedScene" uid="uid://bbl0ecp85cxbo" path="res://scenes/ui/pause_menu.tscn" id="9_k7elv"]
 
-[node name="GameUi" type="CanvasLayer" node_paths=PackedStringArray("player_controls")]
-visible = false
+[node name="GameUi" type="CanvasLayer" node_paths=PackedStringArray("player_controls", "pause_menu")]
+process_mode = 3
 script = ExtResource("1_bma8u")
 player_controls = NodePath("AutoMargin/PlayerControls")
+pause_menu = NodePath("PauseMenu")
 
 [node name="AutoMargin" type="MarginContainer" parent="."]
 anchors_preset = 15
@@ -20,6 +22,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_gwk6t")
 
 [node name="PlayerControls" type="Control" parent="AutoMargin" node_paths=PackedStringArray("move_stick")]
@@ -72,6 +75,19 @@ script = ExtResource("6_qrkc0")
 input_action = &"cam_zoom_out"
 metadata/_edit_use_anchors_ = true
 
+[node name="Pause" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("5_v1bdg")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("6_qrkc0")
+input_action = &"pause"
+metadata/_edit_use_anchors_ = true
+
 [node name="MoveStick" parent="AutoMargin/PlayerControls" instance=ExtResource("2_xjfbv")]
 layout_mode = 1
 active_zone = 2.0
+
+[node name="PauseMenu" parent="." instance=ExtResource("9_k7elv")]

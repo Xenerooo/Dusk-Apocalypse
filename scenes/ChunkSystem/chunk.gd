@@ -21,7 +21,6 @@ var world_chunk_pos: Vector2i
 @export var building: TileMapLayer
 @export var building_container : Node2D
 
-
 @onready var navigation_region_2d: NavigationRegion2D = $NavigationRegion2D
 
 # Frame-sliced generation data
@@ -31,6 +30,8 @@ var tiles_done := 0
 var total_tiles := 0
 
 func _ready() -> void:
+	map.modulate = Color(1,1,1,0)
+	building_container.modulate = Color(1,1,1,0)
 	map.hide()
 	building_container.hide()
 
@@ -98,21 +99,32 @@ func update_notifier():
 	var size := tile_size * chunk_tile_size
 	notifier.rect = Rect2(Vector2.ZERO, Vector2(size, size))
 	label.text = str(chunk_pos)
-
-	navigation_region_2d.bake_navigation_polygon(false)
+	
+	var tween1 := get_tree().create_tween()
+	var tween2 := get_tree().create_tween()
+	
+	tween1.tween_property(map, "modulate",  Color(1,1,1,1), .5).set_ease(Tween.EASE_IN)
+	tween2.tween_property(building_container, "modulate",  Color(1,1,1,1), .5).set_ease(Tween.EASE_IN)
+	#map.modulate = Color(1,1,1,0)
+	#building_container.modulate = Color(1,1,1,0)
+	#navigation_region_2d.bake_navigation_polygon(false)
 	
 
 func reset():
 	name = "reserve"
 	for tilemap in [ground,ground2,props, trees, vegetation, building]:
 		tilemap.clear()
+	map.modulate = Color(1,1,1,0)
+	building_container.modulate = Color(1,1,1,0)
 
 func _on_visibilty_notifier_screen_entered() -> void:
+	#modulate.lerp(Color(1,1,1,1), .5)
 	map.show()
 	building_container.show()
 	#print("Chunk %s visible" % [chunk_pos])
 
 func _on_visibilty_notifier_screen_exited() -> void:
+	#modulate.lerp(Color(1,1,1,0), .5)
 	map.hide()
 	building_container.hide()
 

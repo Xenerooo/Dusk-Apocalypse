@@ -48,6 +48,7 @@ domain_warp_type = 1
 metadata/_preview_in_3d_space_ = true
 
 [node name="World" type="Node2D"]
+process_mode = 1
 y_sort_enabled = true
 script = ExtResource("1_eu7l1")
 
@@ -62,8 +63,8 @@ script = ExtResource("2_wygdx")
 chunk_scene = ExtResource("2_2dftf")
 tile_size = 24
 load_radius = 1
-unload_radius = 1
 pool_initial_size = 100
+CHUNKS_PER_PLAYER_PER_FRAME = 1
 label_chunk = NodePath("CanvasLayer/MarginContainer/Control/Panel/VBoxContainer/ChunkN")
 player_path = NodePath("../PlayerContainer/Marker2D")
 terrain_logic_path = NodePath("TerrainLogic")

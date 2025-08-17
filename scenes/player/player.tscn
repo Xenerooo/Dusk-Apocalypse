@@ -27,7 +27,7 @@ shader_parameter/color_tolerance = 0.01
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 512
 script = ExtResource("1_dovo2")
-SPEED = 50000.0
+lerp_speed = 20.0
 
 [node name="Movement" type="Node" parent="."]
 script = ExtResource("2_lvxji")

@@ -1,0 +1,64 @@
+[gd_scene load_steps=2 format=3 uid="uid://bx7mxk03dhpfe"]
+
+[ext_resource type="Script" uid="uid://cx18d2kjqst55" path="res://scenes/main/world_selector.gd" id="1_w1djx"]
+
+[node name="WorldSelector" type="Control" node_paths=PackedStringArray("world_list", "create_button", "back_button")]
+layout_mode = 3
+anchor_left = 0.134549
+anchor_top = 0.108025
+anchor_right = 0.865451
+anchor_bottom = 0.891975
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_w1djx")
+world_list = NodePath("VBoxContainer/ScrollContainer/WorldList")
+create_button = NodePath("VBoxContainer/HBoxContainer/CreateWorldButton")
+back_button = NodePath("VBoxContainer/HBoxContainer/BackButton")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_lock_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 16.0
+offset_right = -12.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+metadata/_edit_use_anchors_ = true
+
+[node name="WorldList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="CreateWorldButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Create World"
+
+[node name="BackButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Back
+"

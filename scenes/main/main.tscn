@@ -1,64 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://berots3gu8cpw"]
+[gd_scene load_steps=3 format=3 uid="uid://berots3gu8cpw"]
 
 [ext_resource type="PackedScene" uid="uid://dfhixqica5ri" path="res://scenes/main/main_menu/main_menu.tscn" id="1_hyk8p"]
 [ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://scenes/ui/DynamicMargins.gd" id="1_iuonh"]
-[ext_resource type="FontFile" uid="uid://cfmoyehtuns8q" path="res://asset/fonts/DungGeunMoRegular.woff.ttf" id="3_l3cfh"]
-[ext_resource type="Texture2D" uid="uid://cyujpbv1mmk0a" path="res://asset/user_interface/sub_menu-sheet0.png" id="4_6q06x"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ow5a4"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.1, 0.1, 0.1, 0.3)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-corner_detail = 5
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_b1x3f"]
-texture = ExtResource("4_6q06x")
-texture_margin_left = 5.35117
-texture_margin_top = 3.56745
-texture_margin_right = 6.04979
-texture_margin_bottom = 4.31066
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6q06x"]
-texture = ExtResource("4_6q06x")
-texture_margin_left = 5.35117
-texture_margin_top = 3.56745
-texture_margin_right = 6.04979
-texture_margin_bottom = 4.31066
-modulate_color = Color(0.400698, 0.400698, 0.400698, 1)
-
-[sub_resource type="Theme" id="Theme_ouso4"]
-default_font = ExtResource("3_l3cfh")
-default_font_size = 20
-Button/colors/font_color = Color(1, 1, 1, 1)
-Button/colors/font_disabled_color = Color(0.875, 0.875, 0.875, 0.5)
-Button/colors/font_focus_color = Color(0.95, 0.95, 0.95, 1)
-Button/colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
-Button/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
-Button/colors/font_outline_color = Color(0, 0, 0, 1)
-Button/colors/font_pressed_color = Color(1, 1, 1, 1)
-Button/colors/icon_disabled_color = Color(1, 1, 1, 0.4)
-Button/colors/icon_focus_color = Color(1, 1, 1, 1)
-Button/colors/icon_hover_color = Color(1, 1, 1, 1)
-Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
-Button/colors/icon_normal_color = Color(1, 1, 1, 1)
-Button/colors/icon_pressed_color = Color(1, 1, 1, 1)
-Button/constants/align_to_largest_stylebox = 0
-Button/constants/h_separation = 4
-Button/constants/icon_max_width = 0
-Button/constants/outline_size = 0
-Button/font_sizes/font_size = 23
-Button/fonts/font = ExtResource("3_l3cfh")
-Button/styles/disabled = SubResource("StyleBoxFlat_ow5a4")
-Button/styles/focus = SubResource("StyleBoxTexture_b1x3f")
-Button/styles/hover = SubResource("StyleBoxTexture_b1x3f")
-Button/styles/normal = SubResource("StyleBoxTexture_b1x3f")
-Button/styles/pressed = SubResource("StyleBoxTexture_6q06x")
 
 [node name="Main" type="Node"]
 
@@ -75,4 +18,3 @@ metadata/_custom_type_script = "uid://byo46vcpfe6m2"
 
 [node name="MainMenu" parent="SceneRoot/MenuMargins" instance=ExtResource("1_hyk8p")]
 layout_mode = 2
-theme = SubResource("Theme_ouso4")
