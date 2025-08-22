@@ -62,6 +62,7 @@ y_sort_enabled = true
 script = ExtResource("2_wygdx")
 chunk_scene = ExtResource("2_2dftf")
 tile_size = 24
+TILES_PER_FRAME = 512
 load_radius = 1
 pool_initial_size = 100
 CHUNKS_PER_PLAYER_PER_FRAME = 1

@@ -1,5 +1,5 @@
 extends MultiplayerSynchronizer
-var player :Player
+var player :PlayerCharacter
 
 @export var local_move_input :Vector2 
 

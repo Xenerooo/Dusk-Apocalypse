@@ -6,7 +6,6 @@ extends Control
 
 func _on_play_button_pressed() -> void:
 	world_selector.show()
-	print_debug()
 
 func _on_join_button_pressed() -> void:
 	join_menu.show()

@@ -13,7 +13,7 @@ func start_host():
 
 	multiplayer.multiplayer_peer = peer
 	ClientPeer = peer
-	print("start host: " ,multiplayer.is_server())
+	
 	var profile = PlayerProfile
 	MultiplayerManager.register_host_identity(
 		profile._name,
@@ -21,15 +21,13 @@ func start_host():
 		profile.secret
 	)
 	
-	print("✅ Host server started on port %d" % port)
+	print("✅ Host server started on port %d \n" % port)
 
 func join_game(ip: String = "127.0.0.1"):
 	var peer = ENetMultiplayerPeer.new()
 	peer.create_client(ip, 7777)
 	multiplayer.multiplayer_peer = peer
 
-
-	
 @rpc("any_peer")
 func request_world_setup():
 	var peer_id := multiplayer.get_remote_sender_id()

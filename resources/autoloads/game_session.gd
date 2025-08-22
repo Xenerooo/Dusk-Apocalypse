@@ -3,9 +3,8 @@ extends Node
 
 const MAIN_MENU = preload("res://scenes/main/main_menu/main_menu.tscn")
 
-
 var active_players := {}  # token → scene reference
-var local_player :Player
+var local_player :PlayerCharacter
 
 var current_world_path : String
 var current_world_node: Node2D
@@ -115,6 +114,7 @@ func _spawn_player_scene(token: String) -> Node:
 
 
 func despawn_player(player_token: String):
+	print("despawn player requested: ", player_token)
 	if not active_players.has(player_token):
 		return
 
@@ -149,7 +149,7 @@ func save_world():
 	}
 	SaveHelper.save_json(current_world_path.path_join("meta.json"), meta)
 
-	print("✅ World save complete")
+	print("✅ World save complete \n")
 
 func pause_game():
 	if MultiplayerManager.is_host():

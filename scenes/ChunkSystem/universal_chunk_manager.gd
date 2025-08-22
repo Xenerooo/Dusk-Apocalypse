@@ -81,7 +81,6 @@ func set_seed(_seed:int):
 
 func _ready():
 	_cache_all_prefabs()
-	print("Universal Chunk:", multiplayer.multiplayer_peer)
 	is_host = multiplayer.is_server()
 
 

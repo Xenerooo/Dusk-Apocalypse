@@ -15,22 +15,15 @@ func _input(event: InputEvent) -> void:
 
 func show_pause_menu():
 	pause_menu.show()
-	print("pause shown")
 
 func hide_pause_menu():
 	pause_menu.hide()
-	print("pause hidden")
-	
 
 func show_controls():
 	player_controls.show()
-	print("contols shown")
-	
 
 func hide_controls():
 	player_controls.hide()
-	print("contols hidden")
-
 
 func pause_game():
 	pass

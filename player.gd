@@ -1,6 +1,6 @@
-
 extends CharacterBody2D
-class_name Player
+class_name PlayerCharacter
+
 var token := ""
 @export var SPEED := 12000.0
 
