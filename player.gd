@@ -10,10 +10,17 @@ var token := ""
 @onready var HostSsync: MultiplayerSynchronizer = $HostSync
 @onready var camera_2d: Camera2D = $Camera2D
 
+var is_local:= false
+var is_inside_structure: =false
+
 @export var lerp_speed := 10.0
 
 @export var sync_position: = Vector2.ZERO
 @export var client_position := Vector2.ZERO
+
+@export var animation_tree: AnimationTree
+@export var state_machine: FiniteStateMachine
+@export var audios: Node2D 
 
 func _on_tree_entered() -> void:
 	pass # Replace with function body.
@@ -24,21 +31,19 @@ func host_setup():
 	camera_2d.enabled = InputSync.is_multiplayer_authority()
 
 func _ready() -> void:
-	#if multiplayer.is_server() :
 	host_setup()
 	movement.player = self
-	#label.text = token
 	request_player_name_setup.rpc_id(1)
+	audios.set_as_current(is_local)
 
 func _physics_process(delta: float) -> void:
 	if !multiplayer.is_server():
 		client_position = client_position.lerp(sync_position, lerp_speed * delta)
 		global_position = client_position
 	else:
-		velocity = get_input() * SPEED * delta
-		move_and_slide()
+		#velocity = get_input() * SPEED * delta
+		#move_and_slide()
 		sync_position = global_position
-
 
 func get_input()-> Vector2:
 	return InputSync.local_move_input
@@ -51,4 +56,6 @@ func request_player_name_setup():
 @rpc("authority", "call_local")
 func setup_name(_name: String):
 	label.text = _name
-	
+
+func play_footstep():
+	audios.footstep(self)

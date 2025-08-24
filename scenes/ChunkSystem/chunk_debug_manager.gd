@@ -13,7 +13,7 @@ func get_save_chunk_info_from_mouse() -> Dictionary:
 	var tile_coords = Vector2i(mouse_pos / tile_size)
 	
 	# 2. Get ChunkManager chunk coords
-	var chunk_manager_chunk = tile_coords / chunk_tile_size
+	var chunk_manager_chunk = chunk_manager._get_chunk_coords(mouse_pos)#tile_coords / chunk_tile_size
 	
 	# 3. Convert to save world chunk
 	var PREFAB_TILE_SIZE := 200  # must match your save format
@@ -41,7 +41,8 @@ func _unhandled_input(event):
 						"alt_tile": 0
 					}
 				#print("📃 %s \n" % [info.node.get_tile_data(info.mouse_pos, "Ground2")])
-				chunk_manager.set_tile_override(info["tile_coords"], "Ground", tile_data)
+				#chunk_manager.set_tile_override(info["tile_coords"], "Ground", tile_data)
+				print(info.node)
 		#print("🧭 Clicked World Chunk: %s, Clicked Mouse Position: %s" % [info["world_chunk_coords"], info.mouse_pos])
 		#print("🧩 Tile Pos: ", info["tile_coords"], " in ChunkManager Chunk: ", info["chunk_manager_chunk"], info["node"])
 		#if info.node != null:

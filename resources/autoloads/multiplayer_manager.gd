@@ -1,10 +1,23 @@
 #MultiplayerManager
 extends Node
 
+signal join_timeout
+
 var port := 7777  # You can make this configurable if needed
-var ClientPeer: ENetMultiplayerPeer
+var ClientPeer: MultiplayerPeer
+var timer: Timer
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_accept"):
+		#print(multiplayer.is_server())
+		#print(multiplayer.get_unique_id())
+		#reset_manager()
+		print(multiplayer.has_multiplayer_peer())
 
 func start_host():
+	timer.stop()
+	reset_manager()
+	
 	var peer := ENetMultiplayerPeer.new()
 	var error := peer.create_server(port, 10)
 	if error != OK:
@@ -12,7 +25,7 @@ func start_host():
 		return
 
 	multiplayer.multiplayer_peer = peer
-	ClientPeer = peer
+	ClientPeer = multiplayer.multiplayer_peer
 	
 	var profile = PlayerProfile
 	MultiplayerManager.register_host_identity(
@@ -23,10 +36,19 @@ func start_host():
 	
 	print("✅ Host server started on port %d \n" % port)
 
-func join_game(ip: String = "127.0.0.1"):
+func join_game(ip: String = "127.0.0.1") -> bool:
 	var peer = ENetMultiplayerPeer.new()
-	peer.create_client(ip, 7777)
-	multiplayer.multiplayer_peer = peer
+	if peer.create_client(ip, 7777) == OK:
+	
+		multiplayer.multiplayer_peer = peer
+		ClientPeer = multiplayer.multiplayer_peer
+		timer.start(10.0)
+		return true
+	return false
+
+func cancel_join():
+	reset_manager()
+	timer.stop()
 
 @rpc("any_peer")
 func request_world_setup():
@@ -40,14 +62,22 @@ func _on_connected():
 	var profile = PlayerProfile
 	MultiplayerManager.rpc_id(1, "register_player_identity",
 		profile._name, profile.token, profile.secret)
-
+	
 	GameSession.join_world()
+	timer.stop()
 	
 
 func _on_failed():
 	print("Connection failed.")
 
 func _ready():
+	timer = Timer.new()
+	add_child( timer)
+	timer.autostart = false
+	timer.one_shot = true
+	timer.timeout.connect(on_join_timeout)
+	
+	ClientPeer = multiplayer.multiplayer_peer
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected)
@@ -103,6 +133,7 @@ func network_is_connected() -> bool:
 	return multiplayer.multiplayer_peer != null
 
 func reset_manager():
+	
 	if multiplayer.is_server():
 		for peer_id in multiplayer.get_peers():
 			multiplayer.multiplayer_peer.disconnect_peer(peer_id)
@@ -110,4 +141,10 @@ func reset_manager():
 	multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 	
-	ClientPeer = null
+	ClientPeer = multiplayer.multiplayer_peer
+
+	print("multiplayer manager: reset")
+
+func on_join_timeout():
+	cancel_join()
+	emit_signal("join_timeout")

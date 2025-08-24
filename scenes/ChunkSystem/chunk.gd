@@ -108,7 +108,9 @@ func update_notifier():
 	#map.modulate = Color(1,1,1,0)
 	#building_container.modulate = Color(1,1,1,0)
 	#navigation_region_2d.bake_navigation_polygon(false)
-	
+
+func get_current_ground_type()-> int:
+	return 0
 
 func reset():
 	name = "reserve"
@@ -143,3 +145,26 @@ func get_tile_data(global_pos: Vector2, layer:String):
 	ground.set_cell(tile_pos, 0, Vector2(0,3))
 	tilemap.set_cell(tile_pos, -1, Vector2(-1,-1))
 	return "Layer %s data: %s" %[layer, data]
+
+func get_audio_data(global_pos: Vector2, layer:String) -> int:
+	var tilemap: TileMapLayer 
+	match layer:
+		"Ground": tilemap = ground
+		"Ground2": tilemap = ground2
+		"Vegetation": tilemap = vegetation
+		"Trees": tilemap = trees
+	
+	var translated_pos:= ground.to_local(global_pos)
+	var tile_pos:= ground.local_to_map(translated_pos)
+
+	var vegetation_data := vegetation.get_cell_tile_data(tile_pos)
+
+	var ground_data := ground.get_cell_tile_data(tile_pos)
+	var ground_2_data := ground2.get_cell_tile_data(tile_pos)
+	
+	if ground_2_data :
+		return ground_2_data.get_custom_data("audio")
+	else:
+		return ground_data.get_custom_data("audio")
+	
+	return -1

@@ -23,6 +23,7 @@ GameSession="*res://resources/autoloads/game_session_node.tscn"
 MultiplayerManager="*res://resources/autoloads/multiplayer_manager.gd"
 WorldManager="*res://resources/autoloads/world_manager.gd"
 PlayerManager="*res://resources/autoloads/player_manager.gd"
+SoundManager="*res://resources/autoloads/sound_manager.gd"
 GameUI="*res://scenes/ui/game_ui.tscn"
 uuid="*res://addons/uuid/uuid.gd"
 DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
@@ -35,7 +36,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg", "res://addons/uuid/plugin.cfg")
+enabled=PackedStringArray("res://addons/behaviour_toolkit/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/uuid/plugin.cfg")
 
 [file_customization]
 

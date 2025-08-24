@@ -66,12 +66,13 @@ func load_world(path: String) -> void:
 	scene_root.get_node("MenuMargins/MainMenu").queue_free()
 	scene_root.add_child(world_scene)
 
-	
-	
-	WorldManager.load_data(world_data)
 	PlayerManager.load_data(players_data)
-
+	
 	MultiplayerManager.start_host()
+
+	WorldManager.load_data(world_data)
+	
+	#print(multiplayer.multiplayer_peer)
 	
 	# 5. Set world state
 	world_scene.load_world_data()  # optional
@@ -97,12 +98,14 @@ func _spawn_player_scene(token: String) -> Node:
 	player.name = str(peer_id)
 	if PlayerProfile.token == token:
 		local_player = player
+		player.is_local = true
 		
 		#TEST make a seperate function for this.
 		var chunk_manager :ChunkManagerMP= get_node_or_null( "/root/Main/SceneRoot/World/ChunkManager")
 		if chunk_manager :
 			chunk_manager.player_ref = local_player
 		#print("🌐 I am who i am")
+		
 	if multiplayer.is_server() :
 		player.global_position = PlayerManager.get_position(token)
 

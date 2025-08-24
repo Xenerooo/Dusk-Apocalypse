@@ -33,11 +33,10 @@ func save_data(path: String):
 		SaveHelper.save_dict_to_file(data, path.path_join("world.bin"))
 
 @rpc("authority")
-func setup_world(_seed: int):
+func setup_world(_seed: int = seed):
 	var chunk_manager :ChunkManagerMP= GameSession.current_world_node.chunk_manager
 	chunk_manager.set_seed(_seed)
 	chunk_manager.warm_up(get_world_data())
-
 
 func reset_manager():
 	map_size = Vector2i()
@@ -46,6 +45,20 @@ func reset_manager():
 	seed = 0
 	chunks = {}  # Dictionary<Vector2i, Dictionary>
 
-
 func set_visual_tile():
 	pass
+
+func get_player_current_audio(player:PlayerCharacter) -> int:
+	var chunk_manager :ChunkManagerMP= GameSession.current_world_node.chunk_manager
+	var player_pos = player.global_position
+	
+	var chunk :Chunk= chunk_manager.get_current_chunk_node(player_pos)
+	
+	if chunk:
+		var data :int = chunk.get_audio_data(player_pos, "Ground")
+		
+		return data
+
+	return -1
+	#chunk_manager.get_current_chunk_node()
+	

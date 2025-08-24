@@ -2,6 +2,8 @@
 extends Node2D
 class_name ChunkManagerMP
 
+var running := false
+
 @export var chunk_scene: PackedScene
 @export var tile_size: int = 32:
 	set(value): tile_size = value; _update_chunk_pixel_size()
@@ -98,6 +100,7 @@ func _ready():
 
 func warm_up(data: Dictionary):
 	world_save = data
+	running = true
 	set_process(true)
 
 func _process(delta):
@@ -110,7 +113,6 @@ func _process(delta):
 		_process_host_chunks()
 	else:
 		_process_client_chunks()
-		pass
 
 	if generation_queue.size() > 0:
 		_generate_chunks_step()
@@ -587,7 +589,7 @@ func _cache_all_prefabs():
 
 
 
-@rpc("any_peer")
+@rpc("any_peer", "call_local")
 func request_chunk_data(chunk_pos: Vector2i):
 	var TILES_PER_PREFAB := 200 / chunk_tile_size
 	var world_chunk_pos = chunk_pos / TILES_PER_PREFAB
@@ -669,6 +671,10 @@ func set_tile_override(world_tile_pos: Vector2i, layer_name: String, tile_data: 
 	world_save.chunks[chunk_key] = chunk_data
 	print("uhh")
 
+func get_current_chunk_node(pos:Vector2) -> Chunk:
+	var chunk_coord :Vector2i= _get_chunk_coords(pos)
+	var chunk = get_node_or_null(str(chunk_coord))
+	return chunk
 
 func _update_chunk_pixel_size():
 	chunk_pixel_size = chunk_tile_size * tile_size
