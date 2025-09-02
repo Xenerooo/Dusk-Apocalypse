@@ -11,7 +11,10 @@ var current_world_node: Node2D
 
 var player_container:Node2D = null
 
+var on_session:=false
+
 @onready var spawner :MultiplayerSpawner= $PlayerSpawner
+@onready var shadow: Polygon2D = $Node2D/Shadow
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -19,6 +22,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		save_world()
 
 func _ready():
+	if OS.request_permissions() == false:
+		OS.request_permission("android.permission.READ_EXTERNAL_STORAGE")
+		OS.request_permission("android.permission.MANAGE_EXTERNAL_STORAGE")
+	
+	
 	spawner.spawn_function = _on_spawn_entity  # Custom handler
 	print("GameSession ready")
 
@@ -49,7 +57,7 @@ func load_world(path: String) -> void:
 	# 2. Load JSON files
 	var world_data = SaveHelper.load_dict_from_file(path.path_join("world.bin"))
 	var players_data = SaveHelper.load_json(path.path_join("players.json"))
-	var storages_data = SaveHelper.load_json(path.path_join("storages.json"))
+	var inventory_data = SaveHelper.load_json(path.path_join("inventory.json"))
 	var meta_data = SaveHelper.load_json(path.path_join("meta.json"))
 
 	# 3. Pass to managers
@@ -67,7 +75,7 @@ func load_world(path: String) -> void:
 	scene_root.add_child(world_scene)
 
 	PlayerManager.load_data(players_data)
-	
+	InventoryManager.load_data(inventory_data)
 	MultiplayerManager.start_host()
 
 	WorldManager.load_data(world_data)
@@ -76,6 +84,7 @@ func load_world(path: String) -> void:
 	
 	# 5. Set world state
 	world_scene.load_world_data()  # optional
+	on_session = true
 	GameUI.show_controls()
 
 func _on_spawn_entity(data:Dictionary) -> Node:
@@ -144,6 +153,7 @@ func save_world():
 
 	WorldManager.save_data(current_world_path)
 	PlayerManager.save_data(current_world_path)
+	InventoryManager.save_data(current_world_path)
 	#StorageManager.save_data(current_world_path)
 
 	# Save meta if needed
@@ -172,7 +182,7 @@ func resume_game():
 func reset_session():
 	if MultiplayerManager.is_host():
 		get_tree().paused = false
-		
+	
 	MultiplayerManager.reset_manager()
 	
 	var game_world = get_node_or_null("/root/Main/SceneRoot/World")
@@ -186,8 +196,8 @@ func reset_session():
 	
 	await get_tree().process_frame
 	PlayerManager.reset_manager()
+	InventoryManager.reset_manager()
 	WorldManager.reset_manager()
-	#MultiplayerManager.reset_manager()
 	
 	GameUI.hide_controls()
 	GameUI.hide_pause_menu()
@@ -195,5 +205,51 @@ func reset_session():
 	var menu = MAIN_MENU.instantiate()
 	var menu_margins := get_node("/root/Main/SceneRoot/MenuMargins")
 	menu_margins.add_child(menu)
-	
+	on_session = false
 	pass
+
+
+func create_world(world_name):
+	var path = "user://worlds/%s" % world_name
+	DirAccess.make_dir_recursive_absolute(path)
+	
+	var _map_gen := preload("res://scenes/ChunkSystem/map_generator.tscn").instantiate()
+	var world_data = _map_gen.generate_map(world_name)
+	var world_dict = {
+		"world_name": world_name,
+		"map_size": world_data.map_size,
+		"tile_size": world_data.tile_size,
+		"chunk_size": world_data.chunk_size,
+		"chunks": world_data.chunks,
+		"seed": world_data.seed
+	}
+	var player_dict := {}
+	var inventory_dict := {}
+	
+	var local_player :Dictionary= PlayerManager.create_local_player()
+	player_dict[local_player.token] = local_player.player_dict
+	
+	inventory_dict[local_player.token] = InventoryManager.get_inventory_base()
+	var item :ItemEquipment= ItemDatabase.get_spawn_item("bag_mountainbp")
+	item.slots[1] = ItemDatabase.get_spawn_item("food_rice", 2)
+	item.slots[0] = ItemDatabase.get_spawn_item("head_motohelmet")
+	item.slots[3] = ItemDatabase.get_spawn_item("gun_akm")
+	item.slots[5] = ItemDatabase.get_spawn_item("melee_axe")
+	item.slots[4] = ItemDatabase.get_spawn_item("vest_swat")
+	item.slots[8] = ItemDatabase.get_spawn_item("set_farmer")
+	item.slots[9] = ItemDatabase.get_spawn_item("gun_remington")
+	inventory_dict[local_player.token].bag = item.to_dict()
+	
+	SaveHelper.save_dict_to_file(world_dict, path.path_join("world.bin"))
+	SaveHelper.save_json(path.path_join("players.json"), player_dict)   # Empty players
+	SaveHelper.save_json(path.path_join("inventory.json"), inventory_dict)  # Empty storages
+	SaveHelper.save_json(path.path_join("meta.json"), {
+		"created_at": Time.get_datetime_string_from_system(),
+		"seed": world_data.seed
+	})
+	
+	_map_gen.queue_free()
+	print("💾 saved!")
+
+func get_shadow()->Polygon2D:
+	return current_world_node.shadow

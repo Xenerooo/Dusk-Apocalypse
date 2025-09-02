@@ -59,6 +59,12 @@ func get_peer_id(token: String) -> int:
 func get_all_tokens()-> Array:
 	return players.keys()
 
+func create_local_player() -> Dictionary: 
+	var player := Player.new()
+
+	player.setup(PlayerProfile._name, 0, PlayerProfile.secret)
+	return {"token": PlayerProfile.token, "player_dict": player.to_dictionary()}
+
 func update_persistent_data_from_scene(token: String):
 	var node = get_player_node(token)
 	if node == null:
@@ -77,9 +83,7 @@ func get_persistent_data_dict() -> Dictionary:
 	var result := {}
 	
 	for token in players.keys():
-		
 		var p = players[token]
-		
 		result[token] = p.to_dictionary()
 	
 	return result
@@ -108,13 +112,13 @@ func load_data(data: Dictionary):
 		var _secret :String = p.get("secret", "")
 		var _peer_id : int = 0
 		var _position : Vector2 = Vector2(p.get("position", {}).get("x", 0), p.get("position", {}).get("y", 0))
-		var _inventory :Array= p.get("inventory", [])
 		var _health : float =  p.get("health", 100)
 		var _scene :PlayerCharacter = null
 		
-		player_res.setup(_name, _peer_id, _secret, _position, _inventory, _health, _scene)
+		player_res.setup(_name, _peer_id, _secret, _position, _health, _scene)
 		players[token] = player_res
-
+		
+		
 		#players[token] = {
 			#"name": p.get("name", ""),
 			#"peer_id": 0,  # Will be set when player joins

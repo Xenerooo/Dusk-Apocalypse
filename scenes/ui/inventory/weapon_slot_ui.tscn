@@ -1,0 +1,90 @@
+[gd_scene load_steps=4 format=3 uid="uid://cjb152lfgxabs"]
+
+[ext_resource type="Script" uid="uid://dtblxqydth177" path="res://scenes/ui/inventory/weapon_slot_ui.gd" id="2_e3otu"]
+[ext_resource type="Texture2D" uid="uid://yhalrvtwjt5p" path="res://asset/user_interface/UI_Panel_black_BG.png" id="2_jldhs"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_v4tpq"]
+texture = ExtResource("2_jldhs")
+texture_margin_left = 3.91879
+texture_margin_top = 3.64852
+texture_margin_right = 5.13496
+texture_margin_bottom = 7.29705
+modulate_color = Color(1, 1, 1, 0.196078)
+
+[node name="SlotUi" type="Control" node_paths=PackedStringArray("icon", "amount", "amount_panel")]
+clip_contents = true
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 541.0
+offset_bottom = 157.0
+script = ExtResource("2_e3otu")
+icon = NodePath("Icon")
+amount = NodePath("HBoxContainer/ammo")
+amount_panel = NodePath("AmountPanel")
+
+[node name="Panel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxTexture_v4tpq")
+metadata/_edit_use_anchors_ = true
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0573013
+anchor_top = 0.044586
+anchor_right = 0.950647
+anchor_bottom = 0.921656
+grow_horizontal = 2
+grow_vertical = 2
+stretch_mode = 5
+metadata/_edit_use_anchors_ = true
+
+[node name="AmountPanel" type="NinePatchRect" parent="."]
+modulate = Color(1, 1, 1, 0.392157)
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.808917
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("2_jldhs")
+patch_margin_left = 5
+patch_margin_top = 8
+patch_margin_right = 6
+patch_margin_bottom = 6
+metadata/_edit_use_anchors_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.853503
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="ammo" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="durability" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 2
+metadata/_edit_use_anchors_ = true

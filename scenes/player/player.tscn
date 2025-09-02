@@ -1,11 +1,10 @@
-[gd_scene load_steps=58 format=3 uid="uid://c7p4yb8qo842k"]
+[gd_scene load_steps=60 format=3 uid="uid://c7p4yb8qo842k"]
 
 [ext_resource type="Script" uid="uid://c8ksb2nbbe7tf" path="res://player.gd" id="1_dovo2"]
 [ext_resource type="Texture2D" uid="uid://wandk0jlox88" path="res://human_sample.png" id="2_gmlin"]
 [ext_resource type="Script" uid="uid://iourc46v7n1i" path="res://scenes/player/movement.gd" id="2_lvxji"]
 [ext_resource type="Script" uid="uid://bwqyi7dfpbbvc" path="res://scenes/player/input_sync.gd" id="3_p47bc"]
 [ext_resource type="Script" uid="uid://c5s3k13gh82nf" path="res://scenes/player/sprites.gd" id="4_0owmy"]
-[ext_resource type="Texture2D" uid="uid://dvjt6a5eorh0" path="res://asset/character/shadow.png" id="5_5gtgg"]
 [ext_resource type="Texture2D" uid="uid://dehlhiu6mmp8c" path="res://asset/character/character_top.png" id="6_5gtgg"]
 [ext_resource type="Script" uid="uid://b0bqn8gtyevqu" path="res://addons/behaviour_toolkit/finite_state_machine/fsm.gd" id="7_qek5x"]
 [ext_resource type="Script" uid="uid://bbvmbjjl4c5pi" path="res://scenes/player/states/idle.gd" id="8_h17s1"]
@@ -24,6 +23,7 @@
 [ext_resource type="AudioStream" uid="uid://b1ybqwfkq40hj" path="res://asset/audio/wood_2.ogg" id="21_uniwh"]
 [ext_resource type="AudioStream" uid="uid://cdkwwo43ghput" path="res://asset/audio/wood_3.ogg" id="22_iqsei"]
 [ext_resource type="AudioStream" uid="uid://5bj5jqk3bdcf" path="res://asset/audio/wood_4.ogg" id="23_tffgl"]
+[ext_resource type="FontFile" uid="uid://cdaraer6p8qne" path="res://asset/fonts/LiberationSans-Regular.ttf" id="25_007i1"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_p47bc"]
 properties/0/path = NodePath(".:sync_position")
@@ -482,6 +482,12 @@ stream_1/stream = ExtResource("21_uniwh")
 stream_2/stream = ExtResource("22_iqsei")
 stream_3/stream = ExtResource("23_tffgl")
 
+[sub_resource type="LabelSettings" id="LabelSettings_6cv16"]
+font = ExtResource("25_007i1")
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_cnsyf"]
+polygon = PackedVector2Array(-8, 0, -4, -4, 4, -4, 8, 0, 4, 4, -4, 4)
+
 [node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("animation_tree", "state_machine", "audios")]
 collision_layer = 512
 motion_mode = 1
@@ -514,10 +520,6 @@ shape = SubResource("CircleShape2D_bcbcq")
 
 [node name="Sprites" type="Node2D" parent="."]
 script = ExtResource("4_0owmy")
-
-[node name="Shadow" type="Sprite2D" parent="Sprites"]
-position = Vector2(0, 1)
-texture = ExtResource("5_5gtgg")
 
 [node name="Body" type="Sprite2D" parent="Sprites"]
 position = Vector2(-2, -28)
@@ -607,7 +609,13 @@ offset_top = -54.0
 offset_right = 273.0
 offset_bottom = -31.0
 text = "test"
+label_settings = SubResource("LabelSettings_6cv16")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="."]
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_cnsyf")
 
 [connection signal="tree_entered" from="." to="." method="_on_tree_entered"]

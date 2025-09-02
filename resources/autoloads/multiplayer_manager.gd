@@ -7,13 +7,6 @@ var port := 7777  # You can make this configurable if needed
 var ClientPeer: MultiplayerPeer
 var timer: Timer
 
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_accept"):
-		#print(multiplayer.is_server())
-		#print(multiplayer.get_unique_id())
-		#reset_manager()
-		print(multiplayer.has_multiplayer_peer())
-
 func start_host():
 	timer.stop()
 	reset_manager()
@@ -27,6 +20,7 @@ func start_host():
 	multiplayer.multiplayer_peer = peer
 	ClientPeer = multiplayer.multiplayer_peer
 	
+	##TODO: FIND A WAY TO SPAWN LOCAL PLAYER WITHOUT REGISTERING FIRST
 	var profile = PlayerProfile
 	MultiplayerManager.register_host_identity(
 		profile._name,
@@ -96,8 +90,10 @@ func register_player_identity(display_name: String, player_token: String, player
 			return
 	else:
 		print("🛜 New Player, accepting and registing %s" % [display_name])
-
+	
+	
 	PlayerManager.add_or_update_player(player_token, display_name, peer_id, player_secret)
+	InventoryManager.register_inventory(player_token, true)
 	GameSession.spawn_player(player_token)
 
 func register_host_identity(display_name: String, player_token: String, player_secret: String):
@@ -143,7 +139,6 @@ func reset_manager():
 	
 	ClientPeer = multiplayer.multiplayer_peer
 
-	print("multiplayer manager: reset")
 
 func on_join_timeout():
 	cancel_join()

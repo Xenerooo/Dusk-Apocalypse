@@ -13,6 +13,7 @@ func _input(event: InputEvent) -> void:
 
 func _ready() -> void:
 	GameSession.set_player_container(self)
+	
 
 func load_world_data():
 	var world_data = WorldManager.get_world_data()

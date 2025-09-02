@@ -79,31 +79,7 @@ func _on_CreateNewWorldButton_pressed():
 	populate_world_list()
 
 func create_new_world(world_name: String):
-	var path = "user://worlds/%s" % world_name
-	DirAccess.make_dir_recursive_absolute(path)
-	
-	var _map_gen := preload("res://scenes/ChunkSystem/map_generator.tscn").instantiate()
-	var world_data = _map_gen.generate_map(world_name)
-	var world_dict = {
-		"world_name": world_name,
-		"map_size": world_data.map_size,
-		"tile_size": world_data.tile_size,
-		"chunk_size": world_data.chunk_size,
-		"chunks": world_data.chunks,
-		"seed": world_data.seed
-	}
-	
-	SaveHelper.save_dict_to_file(world_dict, path.path_join("world.bin"))
-	#SaveHelper.save_json(path.path_join("world.json"), world_dict)
-	SaveHelper.save_json(path.path_join("players.json"), {})   # Empty players
-	SaveHelper.save_json(path.path_join("storages.json"), {})  # Empty storages
-	SaveHelper.save_json(path.path_join("meta.json"), {
-		"created_at": Time.get_datetime_string_from_system(),
-		"seed": world_data.seed
-	})
-	
-	_map_gen.queue_free()
-	print("💾 saved!")
+	GameSession.create_world(world_name)
 	#GameSession.load_world(path)
 
 

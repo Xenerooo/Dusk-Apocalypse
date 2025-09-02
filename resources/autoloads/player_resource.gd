@@ -4,7 +4,7 @@ class_name Player
 var name :String
 var peer_id : int
 var secret: String
-var inventory := []
+var inventory := {}
 var position :Vector2 = Vector2.ZERO
 var health := 100.0
 var scene : PlayerCharacter = null
@@ -13,7 +13,6 @@ func setup( _name:String,
 			_peer_id:int, 
 			_secret:String, 
 			_position := Vector2.ZERO, 
-			_inventory := [], 
 			_health := 100.0, 
 			_scene: PlayerCharacter = null):
 				
@@ -21,7 +20,6 @@ func setup( _name:String,
 	peer_id = _peer_id
 	secret = _secret
 	position = _position
-	inventory = _inventory
 	health = _health
 	scene = _scene
 

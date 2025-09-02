@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://dd2angpf8tugg"]
+[gd_scene load_steps=6 format=3 uid="uid://dd2angpf8tugg"]
 
 [ext_resource type="PackedScene" uid="uid://6h03nnl67df4" path="res://scenes/structures/Structure.tscn" id="1_sncho"]
 [ext_resource type="Texture2D" uid="uid://vwa4b04545vu" path="res://asset/structures/b_village_green-sheet0.png" id="2_bvvxp"]
@@ -6,6 +6,9 @@
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bvvxp"]
 size = Vector2(118, 63)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_bvvxp"]
+polygon = PackedVector2Array(-61, -10, -61, 57, -24, 57, -24, 64, 27, 64, 27, 57, 64, 56, 64, -11)
 
 [node name="structure_green_house" instance=ExtResource("1_sncho")]
 
@@ -25,3 +28,6 @@ polygon = PackedVector2Array(-7, 60, -7, 64, -23, 64, -23, 57, -61, 57, -61, -11
 [node name="CollisionShape2D" parent="PlayerDetector" index="0"]
 position = Vector2(1, 23.5)
 shape = SubResource("RectangleShape2D_bvvxp")
+
+[node name="LightOccluder2D" parent="." index="4"]
+occluder = SubResource("OccluderPolygon2D_bvvxp")

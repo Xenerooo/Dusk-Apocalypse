@@ -1,0 +1,160 @@
+[gd_scene load_steps=11 format=3 uid="uid://no4u45rtjtg8"]
+
+[ext_resource type="Script" uid="uid://dq0lylve3o0gi" path="res://scenes/ui/inventory/equipment_slot.gd" id="1_5cy44"]
+[ext_resource type="Texture2D" uid="uid://co427upp0iq7a" path="res://asset/user_interface/cover_panel.tres" id="1_r5tm6"]
+[ext_resource type="Texture2D" uid="uid://br80dkcxmnkno" path="res://asset/user_interface/Scroll_bar_handle.png" id="2_wwhko"]
+[ext_resource type="PackedScene" uid="uid://dnu0swsnnx6av" path="res://scenes/ui/inventory/slot_ui.tscn" id="3_3i5q1"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wwhko"]
+texture = ExtResource("1_r5tm6")
+texture_margin_left = 50.0
+texture_margin_top = 38.0
+texture_margin_right = 51.0
+texture_margin_bottom = 55.0
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+region_rect = Rect2(0, 0, 128, 126)
+
+[sub_resource type="ImageTexture" id="ImageTexture_r5tm6"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_st5va"]
+texture = ExtResource("2_wwhko")
+texture_margin_left = 6.0
+texture_margin_top = 7.0
+texture_margin_right = 4.0
+texture_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yj1wc"]
+content_margin_left = 10.0
+content_margin_top = 0.0
+content_margin_right = 10.0
+content_margin_bottom = 0.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_detail = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_424e6"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0.75)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="Theme" id="Theme_st5va"]
+Panel/styles/panel = SubResource("StyleBoxTexture_wwhko")
+VScrollBar/icons/decrement = SubResource("ImageTexture_r5tm6")
+VScrollBar/icons/decrement_highlight = SubResource("ImageTexture_r5tm6")
+VScrollBar/icons/decrement_pressed = SubResource("ImageTexture_r5tm6")
+VScrollBar/icons/increment = SubResource("ImageTexture_r5tm6")
+VScrollBar/icons/increment_highlight = SubResource("ImageTexture_r5tm6")
+VScrollBar/icons/increment_pressed = SubResource("ImageTexture_r5tm6")
+VScrollBar/styles/grabber = SubResource("StyleBoxTexture_st5va")
+VScrollBar/styles/grabber_highlight = SubResource("StyleBoxTexture_st5va")
+VScrollBar/styles/grabber_pressed = SubResource("StyleBoxTexture_st5va")
+VScrollBar/styles/scroll = SubResource("StyleBoxFlat_yj1wc")
+VScrollBar/styles/scroll_focus = SubResource("StyleBoxFlat_424e6")
+
+[node name="EquipmentSlot" type="Control" node_paths=PackedStringArray("root_slot", "grid")]
+layout_mode = 3
+anchor_right = 0.289844
+anchor_bottom = 0.561111
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = SubResource("Theme_st5va")
+script = ExtResource("1_5cy44")
+root_slot = NodePath("MarginContainer/VBoxContainer/HBoxContainer/SlotUi")
+grid = NodePath("MarginContainer/VBoxContainer/ScrollContainer/HBoxContainer/GridContainer")
+has_slots = false
+metadata/_edit_use_anchors_ = true
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+metadata/_edit_use_anchors_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+size_flags_stretch_ratio = 0.2
+alignment = 1
+
+[node name="SlotUi" parent="MarginContainer/VBoxContainer/HBoxContainer" instance=ExtResource("3_3i5q1")]
+layout_mode = 2
+size_flags_stretch_ratio = 0.2
+index = -1
+
+[node name="Panel" parent="MarginContainer/VBoxContainer/HBoxContainer/SlotUi" index="0"]
+visible = false
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 0.8
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.8
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="GridContainer" type="FlowContainer" parent="MarginContainer/VBoxContainer/ScrollContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+last_wrap_alignment = 1
+
+[node name="Container" type="Container" parent="MarginContainer/VBoxContainer/ScrollContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.03
+
+[editable path="MarginContainer/VBoxContainer/HBoxContainer/SlotUi"]

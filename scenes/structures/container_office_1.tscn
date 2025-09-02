@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://catmi3niwxu3i"]
+[gd_scene load_steps=6 format=3 uid="uid://catmi3niwxu3i"]
 
 [ext_resource type="PackedScene" uid="uid://6h03nnl67df4" path="res://scenes/structures/Structure.tscn" id="1_u6a2k"]
 [ext_resource type="Texture2D" uid="uid://b2ke8r3leocmw" path="res://asset/structures/Container_Office1.png" id="2_s50vy"]
@@ -7,9 +7,13 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cho5s"]
 size = Vector2(172, 51)
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_s50vy"]
+polygon = PackedVector2Array(-91, -36, -91, 19, 87, 19, 87, -36)
+
 [node name="container_office1" instance=ExtResource("1_u6a2k")]
 
 [node name="Exterior" parent="." index="0"]
+visible = true
 position = Vector2(8, 19)
 texture = ExtResource("2_s50vy")
 offset = Vector2(0, -51)
@@ -24,3 +28,6 @@ polygon = PackedVector2Array(49, 16, 49, 19, -91, 19, -91, -37, 87, -37, 87, 19,
 [node name="CollisionShape2D" parent="PlayerDetector" index="0"]
 position = Vector2(-3, -8.5)
 shape = SubResource("RectangleShape2D_cho5s")
+
+[node name="LightOccluder2D" parent="." index="4"]
+occluder = SubResource("OccluderPolygon2D_s50vy")

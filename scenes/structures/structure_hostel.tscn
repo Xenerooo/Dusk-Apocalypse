@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://cootura1lqlgi"]
+[gd_scene load_steps=6 format=3 uid="uid://cootura1lqlgi"]
 
 [ext_resource type="PackedScene" uid="uid://6h03nnl67df4" path="res://scenes/structures/Structure.tscn" id="1_8stkk"]
 [ext_resource type="Texture2D" uid="uid://dom8dqke2smi5" path="res://asset/structures/b_hostel-sheet0.png" id="2_jhdyb"]
@@ -6,6 +6,9 @@
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jhdyb"]
 size = Vector2(150, 48)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jhdyb"]
+polygon = PackedVector2Array(-80, 52, 80, 52, 80, -2, -80, -2)
 
 [node name="Structure_Hostel" instance=ExtResource("1_8stkk")]
 
@@ -24,3 +27,6 @@ polygon = PackedVector2Array(-71, 48, -71, 52, -80, 52, -80, -2, 80, -2, 80, 52,
 [node name="CollisionShape2D" parent="PlayerDetector" index="0"]
 position = Vector2(0, 26)
 shape = SubResource("RectangleShape2D_jhdyb")
+
+[node name="LightOccluder2D" parent="." index="4"]
+occluder = SubResource("OccluderPolygon2D_jhdyb")

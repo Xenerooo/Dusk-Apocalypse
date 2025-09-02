@@ -10,7 +10,7 @@ var token := ""
 @onready var HostSsync: MultiplayerSynchronizer = $HostSync
 @onready var camera_2d: Camera2D = $Camera2D
 
-var is_local:= false
+var is_local := false
 var is_inside_structure: =false
 
 @export var lerp_speed := 10.0
@@ -22,6 +22,8 @@ var is_inside_structure: =false
 @export var state_machine: FiniteStateMachine
 @export var audios: Node2D 
 
+@onready var remote_transform_2d: RemoteTransform2D = $RemoteTransform2D
+
 func _on_tree_entered() -> void:
 	pass # Replace with function body.
 	
@@ -30,11 +32,16 @@ func host_setup():
 	InputSync.player = self
 	camera_2d.enabled = InputSync.is_multiplayer_authority()
 
-func _ready() -> void:
-	host_setup()
+func client_setup():
 	movement.player = self
 	request_player_name_setup.rpc_id(1)
 	audios.set_as_current(is_local)
+	if is_local:
+		remote_transform_2d.remote_path = GameSession.shadow.get_path()
+
+func _ready() -> void:
+	host_setup()
+	client_setup()
 
 func _physics_process(delta: float) -> void:
 	if !multiplayer.is_server():

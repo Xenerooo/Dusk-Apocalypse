@@ -1,0 +1,23 @@
+[gd_scene load_steps=6 format=3 uid="uid://bs833bucc5n3k"]
+
+[ext_resource type="Shader" uid="uid://k2elal3oqu0s" path="res://scenes/structures/Structure.gdshader" id="1_8ggpk"]
+[ext_resource type="Script" uid="uid://dgig12gprnifl" path="res://scenes/effects/drop_shadow.gd" id="2_mrgge"]
+
+[sub_resource type="Gradient" id="Gradient_3lsd2"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_37wfv"]
+gradient = SubResource("Gradient_3lsd2")
+fill_to = Vector2(0.606838, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fvag4"]
+shader = ExtResource("1_8ggpk")
+shader_parameter/color = Color(0, 0, 0, 0.298039)
+shader_parameter/angle = 310.808
+shader_parameter/max_dist = 58.004
+shader_parameter/gradientTexture = SubResource("GradientTexture2D_37wfv")
+
+[node name="Polygon2D" type="Polygon2D"]
+material = SubResource("ShaderMaterial_fvag4")
+scale = Vector2(1.22222, 1.33333)
+polygon = PackedVector2Array(-576, -384, 576, -384, 576, 384, -576, 384)
+script = ExtResource("2_mrgge")

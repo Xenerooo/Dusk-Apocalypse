@@ -1,12 +1,18 @@
-[gd_scene load_steps=13 format=3 uid="uid://xw0rgdcs8rf0"]
+[gd_scene load_steps=15 format=3 uid="uid://xw0rgdcs8rf0"]
 
 [ext_resource type="Script" uid="uid://b5bskh456xhw3" path="res://world.gd" id="1_eu7l1"]
 [ext_resource type="PackedScene" uid="uid://cf70atxem4i7a" path="res://scenes/ChunkSystem/chunk.tscn" id="2_2dftf"]
+[ext_resource type="AudioStream" uid="uid://c5f13mdaxbl3j" path="res://asset/audio/forest_ambient.ogg" id="2_bah7m"]
 [ext_resource type="Script" uid="uid://dhclc17k6vdwl" path="res://scenes/ChunkSystem/universal_chunk_manager.gd" id="2_wygdx"]
 [ext_resource type="Script" uid="uid://cd75o1rcp0yft" path="res://terrain_logic.gd" id="4_fv4w7"]
 [ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://scenes/ui/DynamicMargins.gd" id="4_wygdx"]
 [ext_resource type="Script" uid="uid://bpqljsrpxr6p3" path="res://resources/terrain/tile_generator.gd" id="6_f5c0m"]
 [ext_resource type="Script" uid="uid://c3b3eioqj67cr" path="res://scenes/ChunkSystem/chunk_debug_manager.gd" id="6_kva58"]
+
+[sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_fv4w7"]
+shuffle = true
+stream_count = 1
+stream_0 = ExtResource("2_bah7m")
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_fvag4"]
 frequency = 0.0034
@@ -56,6 +62,14 @@ script = ExtResource("1_eu7l1")
 visible = false
 offset_right = 27443.0
 offset_bottom = 11519.0
+
+[node name="Environtment" type="Node2D" parent="."]
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="Environtment"]
+stream = SubResource("AudioStreamPlaylist_fv4w7")
+autoplay = true
+mix_target = 1
+bus = &"music"
 
 [node name="ChunkManager" type="Node2D" parent="." node_paths=PackedStringArray("label_chunk")]
 y_sort_enabled = true
@@ -123,3 +137,6 @@ position = Vector2(339, 321)
 
 [node name="Marker2D" type="Marker2D" parent="PlayerContainer"]
 position = Vector2(376, 477)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.77, 0.885, 1, 1)

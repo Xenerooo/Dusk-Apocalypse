@@ -1,5 +1,5 @@
 extends Node2D
-
+class_name PlayerAudio
 enum {
 	DIRT,
 	WOOD,
@@ -11,8 +11,6 @@ enum {
 @onready var wood: AudioStreamPlayer2D = $wood
 
 @onready var audio_listener_2d: AudioListener2D = $AudioListener2D
-
-
 
 func footstep(player: PlayerCharacter):
 	if player.is_inside_structure:

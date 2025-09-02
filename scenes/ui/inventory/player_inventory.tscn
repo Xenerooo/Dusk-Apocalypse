@@ -1,0 +1,192 @@
+[gd_scene load_steps=13 format=3 uid="uid://d0r0slab76emc"]
+
+[ext_resource type="Script" uid="uid://bxyysq7o8w2jm" path="res://scenes/ui/inventory/inventory.gd" id="1_daqg1"]
+[ext_resource type="Texture2D" uid="uid://dona2y2eteohk" path="res://asset/user_interface/gui_inventory-sheet3.png" id="1_xh4mm"]
+[ext_resource type="Texture2D" uid="uid://cgh22dhf11040" path="res://asset/user_interface/default_bag.tres" id="2_g8tco"]
+[ext_resource type="Texture2D" uid="uid://jh0mxmlhx18u" path="res://asset/user_interface/default_body.tres" id="3_o28ww"]
+[ext_resource type="Texture2D" uid="uid://cylm6jih3pmfm" path="res://asset/user_interface/default_head.tres" id="3_scqwt"]
+[ext_resource type="Texture2D" uid="uid://b7w2fankj7ya3" path="res://asset/user_interface/default_melee.tres" id="4_scqwt"]
+[ext_resource type="Texture2D" uid="uid://pm7p4mw0jwgb" path="res://asset/user_interface/default_vest.tres" id="5_o28ww"]
+[ext_resource type="Texture2D" uid="uid://d3y71ymuh3jqc" path="res://asset/user_interface/default_gun.tres" id="6_scqwt"]
+[ext_resource type="PackedScene" uid="uid://no4u45rtjtg8" path="res://scenes/ui/inventory/equipment_slot.tscn" id="9_d01df"]
+[ext_resource type="PackedScene" uid="uid://caj3ttghjbeho" path="res://scenes/ui/inventory/single_slot_ui.tscn" id="10_lue4j"]
+[ext_resource type="PackedScene" uid="uid://cn1clkbra625h" path="res://scenes/ui/inventory/weapon_slot.tscn" id="11_rpr5o"]
+[ext_resource type="Texture2D" uid="uid://cwg8ly760lnxl" path="res://asset/user_interface/UI_button_close.png" id="12_gnm1w"]
+
+[node name="PlayerInventory" type="Control" node_paths=PackedStringArray("head_panel", "vest_panel", "bag_panel", "body_panel", "weapon1_panel", "weapon2_panel", "melee_panel")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_daqg1")
+head_panel = NodePath("HeadSlot")
+vest_panel = NodePath("VestSlot")
+bag_panel = NodePath("BagSlot")
+body_panel = NodePath("BodySlot")
+weapon1_panel = NodePath("WeaponSlot1")
+weapon2_panel = NodePath("WeaponSlot2")
+melee_panel = NodePath("MeleeSlot")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.150781
+anchor_top = 0.0569444
+anchor_right = 0.853906
+anchor_bottom = 0.931944
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_xh4mm")
+metadata/_edit_use_anchors_ = true
+
+[node name="default_bag" type="TextureRect" parent="TextureRect"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.545556
+anchor_top = 0.720635
+anchor_right = 0.654444
+anchor_bottom = 0.879365
+texture = ExtResource("2_g8tco")
+metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
+
+[node name="default_head" type="TextureRect" parent="TextureRect"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.527778
+anchor_top = 0.0634921
+anchor_right = 0.604444
+anchor_bottom = 0.198413
+texture = ExtResource("3_scqwt")
+metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
+
+[node name="default_body" type="TextureRect" parent="TextureRect"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.327778
+anchor_top = 0.425397
+anchor_right = 0.434444
+anchor_bottom = 0.571429
+offset_bottom = -3.05176e-05
+texture = ExtResource("3_o28ww")
+metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
+
+[node name="default_melee" type="TextureRect" parent="TextureRect"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.747778
+anchor_top = 0.068254
+anchor_right = 0.824444
+anchor_bottom = 0.192063
+texture = ExtResource("4_scqwt")
+metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
+
+[node name="default_vest" type="TextureRect" parent="TextureRect"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.328889
+anchor_top = 0.119048
+anchor_right = 0.428889
+anchor_bottom = 0.25873
+offset_bottom = -1.52588e-05
+texture = ExtResource("5_o28ww")
+metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
+
+[node name="default_gun" type="TextureRect" parent="TextureRect"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.673333
+anchor_top = 0.477778
+anchor_right = 0.928889
+anchor_bottom = 0.604762
+texture = ExtResource("6_scqwt")
+metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
+
+[node name="default_gun2" type="TextureRect" parent="TextureRect"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.673333
+anchor_top = 0.285714
+anchor_right = 0.928889
+anchor_bottom = 0.412698
+texture = ExtResource("6_scqwt")
+metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
+
+[node name="BagSlot" parent="." instance=ExtResource("9_d01df")]
+layout_mode = 1
+anchor_left = 0.346094
+anchor_top = 0.627778
+anchor_right = 0.821094
+anchor_bottom = 0.891667
+root = "bag"
+
+[node name="BodySlot" parent="." instance=ExtResource("9_d01df")]
+layout_mode = 1
+anchor_left = 0.346094
+anchor_top = 0.366667
+anchor_right = 0.492969
+anchor_bottom = 0.616667
+root = "body"
+
+[node name="VestSlot" parent="." instance=ExtResource("9_d01df")]
+layout_mode = 1
+anchor_left = 0.346094
+anchor_top = 0.0777778
+anchor_right = 0.492969
+anchor_bottom = 0.356944
+root = "vest"
+
+[node name="HeadSlot" parent="." instance=ExtResource("10_lue4j")]
+layout_mode = 1
+anchor_left = 0.498437
+anchor_top = 0.0763889
+anchor_right = 0.597656
+anchor_bottom = 0.256944
+root = "head"
+has_slots = true
+
+[node name="WeaponSlot1" parent="." instance=ExtResource("11_rpr5o")]
+layout_mode = 1
+anchor_left = 0.605469
+anchor_top = 0.448611
+anchor_right = 0.821094
+anchor_bottom = 0.616667
+root = "weapon1"
+
+[node name="WeaponSlot2" parent="." instance=ExtResource("11_rpr5o")]
+layout_mode = 1
+anchor_left = 0.605469
+anchor_top = 0.268056
+anchor_right = 0.821094
+anchor_bottom = 0.434722
+root = "weapon2"
+
+[node name="MeleeSlot" parent="." instance=ExtResource("11_rpr5o")]
+layout_mode = 1
+anchor_left = 0.605469
+anchor_top = 0.0763889
+anchor_right = 0.821094
+anchor_bottom = 0.255556
+root = "melee"
+
+[node name="HideButton" type="TextureButton" parent="."]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.970312
+anchor_right = 1.0
+anchor_bottom = 0.0527778
+grow_horizontal = 0
+texture_normal = ExtResource("12_gnm1w")
+texture_pressed = ExtResource("12_gnm1w")
+metadata/_edit_use_anchors_ = true
+
+[connection signal="pressed" from="HideButton" to="." method="_on_hide_button_pressed"]

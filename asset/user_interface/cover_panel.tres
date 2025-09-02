@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://co427upp0iq7a"]
+
+[ext_resource type="Texture2D" uid="uid://c21ydsl3kbmua" path="res://asset/user_interface/gui_card_cover-sheet1.png" id="1_sqmio"]
+
+[resource]
+atlas = ExtResource("1_sqmio")
+region = Rect2(320, 132, 128, 126)

@@ -1,0 +1,121 @@
+[gd_scene load_steps=9 format=3 uid="uid://cdyehwj7vpius"]
+
+[ext_resource type="Theme" uid="uid://daxwvtsgkip4" path="res://scenes/ui/inventory/inventory_theme.tres" id="1_pefhr"]
+[ext_resource type="Script" uid="uid://bxyysq7o8w2jm" path="res://scenes/ui/inventory/inventory.gd" id="1_xce7s"]
+[ext_resource type="PackedScene" uid="uid://no4u45rtjtg8" path="res://scenes/ui/inventory/equipment_slot.tscn" id="2_xce7s"]
+[ext_resource type="Texture2D" uid="uid://dwj25j5ypaseg" path="res://asset/user_interface/UI_Panel.png" id="3_lobmi"]
+[ext_resource type="Texture2D" uid="uid://cwg8ly760lnxl" path="res://asset/user_interface/UI_button_close.png" id="4_8ndef"]
+[ext_resource type="PackedScene" uid="uid://caj3ttghjbeho" path="res://scenes/ui/inventory/single_slot_ui.tscn" id="5_otfgc"]
+[ext_resource type="Texture2D" uid="uid://cfglo8s5ghenb" path="res://asset/user_interface/gui_inventory-sheet0.png" id="6_otfgc"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_8ndef"]
+texture = ExtResource("3_lobmi")
+texture_margin_left = 5.81061
+texture_margin_top = 6.35113
+texture_margin_right = 7.9727
+texture_margin_bottom = 7.02679
+
+[node name="Inventory" type="Control" node_paths=PackedStringArray("head_panel", "vest_panel", "bag_panel", "body_panel")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_pefhr")
+script = ExtResource("1_xce7s")
+head_panel = NodePath("PlayerInventory/MarginContainer/VBoxContainer/HBoxContainer2/head_slot")
+vest_panel = NodePath("PlayerInventory/MarginContainer/VBoxContainer/HBoxContainer/VestSlot")
+bag_panel = NodePath("PlayerInventory/MarginContainer/VBoxContainer/BagSlot")
+body_panel = NodePath("PlayerInventory/MarginContainer/VBoxContainer/HBoxContainer/BodySlot")
+metadata/_edit_use_anchors_ = true
+
+[node name="PlayerInventory" type="Control" parent="."]
+layout_mode = 1
+anchor_left = 0.0164931
+anchor_top = 0.0324074
+anchor_right = 0.414931
+anchor_bottom = 0.973765
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="Panel" type="Panel" parent="PlayerInventory"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_8ndef")
+
+[node name="MarginContainer" type="MarginContainer" parent="PlayerInventory"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PlayerInventory/MarginContainer"]
+layout_mode = 2
+
+[node name="TopWindow" type="HBoxContainer" parent="PlayerInventory/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Container" type="Container" parent="PlayerInventory/MarginContainer/VBoxContainer/TopWindow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HideButton" type="TextureButton" parent="PlayerInventory/MarginContainer/VBoxContainer/TopWindow"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture_normal = ExtResource("4_8ndef")
+texture_pressed = ExtResource("4_8ndef")
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PlayerInventory/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="head_slot" parent="PlayerInventory/MarginContainer/VBoxContainer/HBoxContainer2" instance=ExtResource("5_otfgc")]
+layout_mode = 2
+root = "head"
+has_slots = true
+
+[node name="Control" type="Control" parent="PlayerInventory/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PlayerInventory/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BodySlot" parent="PlayerInventory/MarginContainer/VBoxContainer/HBoxContainer" instance=ExtResource("2_xce7s")]
+layout_mode = 2
+root = "body"
+
+[node name="VestSlot" parent="PlayerInventory/MarginContainer/VBoxContainer/HBoxContainer" instance=ExtResource("2_xce7s")]
+layout_mode = 2
+root = "vest"
+
+[node name="BagSlot" parent="PlayerInventory/MarginContainer/VBoxContainer" instance=ExtResource("2_xce7s")]
+layout_mode = 2
+size_flags_stretch_ratio = 1.5
+root = "bag"
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+modulate = Color(1, 1, 1, 0.176471)
+layout_mode = 0
+offset_left = -191.0
+offset_top = 77.0
+offset_right = 171.0
+offset_bottom = 360.0
+scale = Vector2(2, 2)
+texture = ExtResource("6_otfgc")
+
+[connection signal="pressed" from="PlayerInventory/MarginContainer/VBoxContainer/TopWindow/HideButton" to="." method="_on_hide_button_pressed"]

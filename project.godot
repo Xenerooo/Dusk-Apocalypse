@@ -17,21 +17,25 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+ItemDatabase="*res://resources/autoloads/ItemDatabase/Database/itemDB_Manager.gd"
 SceneCache="*res://resources/autoloads/scene_cache.gd"
 PlayerProfile="*res://resources/autoloads/player_profile.gd"
 GameSession="*res://resources/autoloads/game_session_node.tscn"
 MultiplayerManager="*res://resources/autoloads/multiplayer_manager.gd"
 WorldManager="*res://resources/autoloads/world_manager.gd"
 PlayerManager="*res://resources/autoloads/player_manager.gd"
-SoundManager="*res://resources/autoloads/sound_manager.gd"
+InventoryManager="*res://resources/autoloads/ItemDatabase/inventory_manager.gd"
+AudioManager="*res://resources/autoloads/audio_manager.gd"
 GameUI="*res://scenes/ui/game_ui.tscn"
 uuid="*res://addons/uuid/uuid.gd"
 DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
 
 [display]
 
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/size/always_on_top=true
-window/stretch/mode="canvas_items"
+window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 
 [editor_plugins]
@@ -85,6 +89,10 @@ resume={
 "deadzone": 0.2,
 "events": []
 }
+open_inventory={
+"deadzone": 0.2,
+"events": []
+}
 
 [input_devices]
 
@@ -105,3 +113,5 @@ renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
 textures/default_filters/use_nearest_mipmap_filter=true
+2d/sdf/oversize=0
+2d/sdf/scale=2

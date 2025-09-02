@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bfk0mhdjuq5vd"]
+[gd_scene load_steps=13 format=3 uid="uid://bfk0mhdjuq5vd"]
 
 [ext_resource type="Script" uid="uid://udu5lcvxef5q" path="res://scenes/ui/game_ui.gd" id="1_bma8u"]
 [ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://scenes/ui/DynamicMargins.gd" id="1_gwk6t"]
@@ -6,15 +6,19 @@
 [ext_resource type="Script" uid="uid://cd1oc45wde6qo" path="res://scenes/ui/player_controls.gd" id="3_fct72"]
 [ext_resource type="Texture2D" uid="uid://d0hi1m61eaxxb" path="res://icon.svg" id="5_v1bdg"]
 [ext_resource type="Script" uid="uid://4fobfp3r5tpr" path="res://scenes/ui/InteractiveTouchScreenButton.gd" id="6_qrkc0"]
-[ext_resource type="Texture2D" uid="uid://do7dnrov2pyte" path="res://asset/user_interface/Zoom_in.png" id="6_yvtb5"]
-[ext_resource type="Texture2D" uid="uid://bv6pq8alfsrin" path="res://asset/user_interface/Zoom_out.png" id="7_k7elv"]
+[ext_resource type="Texture2D" uid="uid://cettw3imkawu4" path="res://asset/user_interface/Zoom_in.png" id="6_yvtb5"]
+[ext_resource type="Texture2D" uid="uid://c022tiitf6vs0" path="res://asset/user_interface/Zoom_out.png" id="7_k7elv"]
+[ext_resource type="Texture2D" uid="uid://bvrm05bdx0f28" path="res://asset/user_interface/7.png" id="8_bxde6"]
 [ext_resource type="PackedScene" uid="uid://bbl0ecp85cxbo" path="res://scenes/ui/pause_menu.tscn" id="9_k7elv"]
+[ext_resource type="Texture2D" uid="uid://gb0qkgty5k21" path="res://asset/user_interface/buildingsIU_button_pause.png" id="9_opxtl"]
+[ext_resource type="PackedScene" uid="uid://d0r0slab76emc" path="res://scenes/ui/inventory/player_inventory.tscn" id="12_opxtl"]
 
-[node name="GameUi" type="CanvasLayer" node_paths=PackedStringArray("player_controls", "pause_menu")]
+[node name="GameUi" type="CanvasLayer" node_paths=PackedStringArray("player_controls", "pause_menu", "inventory_control")]
 process_mode = 3
 script = ExtResource("1_bma8u")
 player_controls = NodePath("AutoMargin/PlayerControls")
 pause_menu = NodePath("PauseMenu")
+inventory_control = NodePath("AutoMargin/PlayerInventory")
 
 [node name="AutoMargin" type="MarginContainer" parent="."]
 anchors_preset = 15
@@ -34,15 +38,15 @@ move_stick = NodePath("MoveStick")
 [node name="Buttons" type="GridContainer" parent="AutoMargin/PlayerControls"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.837493
+anchor_left = 0.791486
 anchor_right = 1.0
 anchor_bottom = 0.0725309
 offset_left = 0.207947
 grow_horizontal = 0
-columns = 4
+columns = 5
 metadata/_edit_use_anchors_ = true
 
-[node name="Reset" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+[node name="OpenDebug" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -53,7 +57,7 @@ script = ExtResource("6_qrkc0")
 input_action = &"cycle_debug_menu"
 metadata/_edit_use_anchors_ = true
 
-[node name="Reset2" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+[node name="ZoomIn" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -64,7 +68,7 @@ script = ExtResource("6_qrkc0")
 input_action = &"cam_zoom"
 metadata/_edit_use_anchors_ = true
 
-[node name="Reset3" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+[node name="ZoomOut" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -75,11 +79,22 @@ script = ExtResource("6_qrkc0")
 input_action = &"cam_zoom_out"
 metadata/_edit_use_anchors_ = true
 
+[node name="Inventory" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("8_bxde6")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("6_qrkc0")
+input_action = &"open_inventory"
+metadata/_edit_use_anchors_ = true
+
 [node name="Pause" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-texture_normal = ExtResource("5_v1bdg")
+texture_normal = ExtResource("9_opxtl")
 ignore_texture_size = true
 stretch_mode = 5
 script = ExtResource("6_qrkc0")
@@ -90,4 +105,8 @@ metadata/_edit_use_anchors_ = true
 layout_mode = 1
 active_zone = 2.0
 
+[node name="PlayerInventory" parent="AutoMargin" instance=ExtResource("12_opxtl")]
+layout_mode = 2
+
 [node name="PauseMenu" parent="." instance=ExtResource("9_k7elv")]
+visible = false
