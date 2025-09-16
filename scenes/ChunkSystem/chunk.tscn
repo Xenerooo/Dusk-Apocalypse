@@ -4,8 +4,8 @@
 [ext_resource type="TileSet" uid="uid://cpra0q1m00ecn" path="res://resources/terrain/GroundTiles.tres" id="2_e81nj"]
 [ext_resource type="TileSet" uid="uid://baqvve5g684u7" path="res://asset/environment/props.tres" id="3_5lkun"]
 [ext_resource type="TileSet" uid="uid://ddc701j8tin6a" path="res://resources/terrain/Vegetation.tres" id="4_44qyl"]
-[ext_resource type="Shader" uid="uid://n0wmq3uun33u" path="res://resources/foliage.gdshader" id="5_eoxb4"]
-[ext_resource type="Shader" uid="uid://dty8osef5o6pi" path="res://resources/wind.gdshader" id="6_lkuu7"]
+[ext_resource type="Shader" uid="uid://n0wmq3uun33u" path="res://resources/shaders/foliage.gdshader" id="5_eoxb4"]
+[ext_resource type="Shader" uid="uid://dty8osef5o6pi" path="res://resources/shaders/wind.gdshader" id="6_lkuu7"]
 [ext_resource type="TileSet" uid="uid://bw2pxa6p1te7a" path="res://resources/terrain/Trees.tres" id="7_aj7hh"]
 [ext_resource type="TileSet" uid="uid://dsym70gbg4cyp" path="res://resources/terrain/HouseOutline.tres" id="10_aj7hh"]
 

@@ -1,6 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://bs833bucc5n3k"]
+[gd_scene load_steps=8 format=3 uid="uid://bs833bucc5n3k"]
 
-[ext_resource type="Shader" uid="uid://k2elal3oqu0s" path="res://scenes/structures/Structure.gdshader" id="1_8ggpk"]
+[ext_resource type="Shader" uid="uid://k2elal3oqu0s" path="res://resources/shaders/Structure.gdshader" id="1_8ggpk"]
 [ext_resource type="Script" uid="uid://dgig12gprnifl" path="res://scenes/effects/drop_shadow.gd" id="2_mrgge"]
 
 [sub_resource type="Gradient" id="Gradient_3lsd2"]
@@ -16,8 +16,18 @@ shader_parameter/angle = 310.808
 shader_parameter/max_dist = 58.004
 shader_parameter/gradientTexture = SubResource("GradientTexture2D_37wfv")
 
+[sub_resource type="Curve" id="Curve_mrgge"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_rqbqk"]
+_data = [Vector2(0, 0.16699), 0.0, 0.0, 0, 0, Vector2(0.146096, 0.16699), 0.0, 0.0, 0, 0, Vector2(0.274559, 0.81068), 2.89078, 2.89078, 0, 0, Vector2(0.506297, 0.312136), 0.0, 0.0, 0, 0, Vector2(0.657431, 0.734951), -1.67023, -1.67023, 0, 0, Vector2(0.833753, 0.211165), 0.0, 0.0, 0, 0, Vector2(1, 0.192233), 0.0, 0.0, 0, 0]
+point_count = 7
+
 [node name="Polygon2D" type="Polygon2D"]
 material = SubResource("ShaderMaterial_fvag4")
 scale = Vector2(1.22222, 1.33333)
 polygon = PackedVector2Array(-576, -384, 576, -384, 576, 384, -576, 384)
 script = ExtResource("2_mrgge")
+sun_curve = SubResource("Curve_mrgge")
+shadow_curve = SubResource("Curve_rqbqk")

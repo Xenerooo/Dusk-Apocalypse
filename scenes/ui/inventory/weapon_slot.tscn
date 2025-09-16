@@ -117,9 +117,7 @@ alignment = 1
 [node name="SlotUi" parent="MarginContainer/VBoxContainer/HBoxContainer" instance=ExtResource("4_3ruoy")]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="Icon" parent="MarginContainer/VBoxContainer/HBoxContainer/SlotUi" index="1"]
-stretch_mode = 6
+mouse_default_cursor_shape = 2
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 visible = false

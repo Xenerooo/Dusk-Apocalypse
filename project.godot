@@ -22,13 +22,14 @@ SceneCache="*res://resources/autoloads/scene_cache.gd"
 PlayerProfile="*res://resources/autoloads/player_profile.gd"
 GameSession="*res://resources/autoloads/game_session_node.tscn"
 MultiplayerManager="*res://resources/autoloads/multiplayer_manager.gd"
-WorldManager="*res://resources/autoloads/world_manager.gd"
+WorldManager="*res://resources/autoloads/world_manager.tscn"
 PlayerManager="*res://resources/autoloads/player_manager.gd"
 InventoryManager="*res://resources/autoloads/ItemDatabase/inventory_manager.gd"
 AudioManager="*res://resources/autoloads/audio_manager.gd"
 GameUI="*res://scenes/ui/game_ui.tscn"
 uuid="*res://addons/uuid/uuid.gd"
 DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
+PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
 
 [display]
 
@@ -40,7 +41,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/behaviour_toolkit/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/uuid/plugin.cfg")
+enabled=PackedStringArray("res://addons/behaviour_toolkit/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/uuid/plugin.cfg")
 
 [file_customization]
 
@@ -54,6 +55,7 @@ folder_colors={
 [global_group]
 
 bake=""
+lights=""
 
 [input]
 
@@ -93,6 +95,34 @@ open_inventory={
 "deadzone": 0.2,
 "events": []
 }
+inc_time={
+"deadzone": 0.2,
+"events": []
+}
+dec_time={
+"deadzone": 0.2,
+"events": []
+}
+swap_weapon={
+"deadzone": 0.2,
+"events": []
+}
+reload_weapon={
+"deadzone": 0.2,
+"events": []
+}
+joystick_fire={
+"deadzone": 0.2,
+"events": []
+}
+switch_weapon_mode={
+"deadzone": 0.2,
+"events": []
+}
+toggle_sneak={
+"deadzone": 0.2,
+"events": []
+}
 
 [input_devices]
 
@@ -105,6 +135,10 @@ pointing/emulate_touch_from_mouse=true
 2d_physics/layer_3="hurtbox"
 2d_physics/layer_10="player"
 2d_physics/layer_11="zed"
+
+[physics]
+
+common/physics_interpolation=true
 
 [rendering]
 

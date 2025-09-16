@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://cl1fx07iuq8uk"]
+
+[ext_resource type="Script" uid="uid://df87mbhxitbx1" path="res://scenes/effects/LightSource.gd" id="1_g82bm"]
+
+[node name="Node2D" type="Marker2D" groups=["lights"]]
+script = ExtResource("1_g82bm")
+color = Color(0.77, 0.9195, 1, 1)
+radius = 174
+strength = 26.955

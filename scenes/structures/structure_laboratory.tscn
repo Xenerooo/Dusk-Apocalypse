@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://dco8stgllu50t"]
+
+[ext_resource type="PackedScene" uid="uid://6h03nnl67df4" path="res://scenes/structures/Structure.tscn" id="1_ydqrq"]
+[ext_resource type="Texture2D" uid="uid://muad0jyta62h" path="res://asset/structures/b_laboratory-exterior.png" id="2_x7v6v"]
+[ext_resource type="Texture2D" uid="uid://dyhj2gflvpmep" path="res://asset/structures/b_laboratory-interior.png" id="3_e0q7r"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pgo7k"]
+size = Vector2(434, 60)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_edjm5"]
+polygon = PackedVector2Array(-220, 94, -91, 94, -91, 70, -62, 70, -61, 94, 39, 94, 39, 70, 69, 70, 69, 94, 218, 94, 218, 29, -220, 30)
+
+[node name="Laboratory" instance=ExtResource("1_ydqrq")]
+
+[node name="Exterior" parent="." index="0"]
+position = Vector2(10, 65)
+texture = ExtResource("2_x7v6v")
+offset = Vector2(0, -95)
+
+[node name="Interior" parent="." index="1"]
+position = Vector2(10, -30)
+texture = ExtResource("3_e0q7r")
+
+[node name="Structure" parent="." index="2"]
+position = Vector2(10, -30)
+
+[node name="CollisionPolygon2D" parent="Structure" index="0"]
+polygon = PackedVector2Array(-220, 94, -91, 94, -91, 70, -61, 70, -61, 94, -18, 94, -18, 90, -56, 90, -56, 66, -96, 66, -96, 90, -215, 90, -215, 52, -135, 52, -135, 35, -96, 35, -96, 42, -26, 42, -26, 35, 33, 35, 33, 42, 74, 42, 74, 35, 104, 35, 104, 38, 213, 38, 213, 90, 196, 90, 196, 66, 180, 66, 180, 90, 151, 90, 151, 66, 137, 66, 137, 90, 110, 90, 110, 66, 97, 66, 97, 90, 74, 90, 74, 66, 34, 66, 34, 90, 0, 90, 0, 94, 39, 94, 39, 70, 69, 70, 69, 94, 218, 94, 218, 29, -220, 30)
+
+[node name="PlayerDetector" parent="." index="3"]
+position = Vector2(10, -30)
+
+[node name="CollisionShape2D" parent="PlayerDetector" index="0"]
+position = Vector2(0, 62)
+shape = SubResource("RectangleShape2D_pgo7k")
+
+[node name="LightOccluder2D" parent="." index="4"]
+position = Vector2(10, -30)
+occluder = SubResource("OccluderPolygon2D_edjm5")

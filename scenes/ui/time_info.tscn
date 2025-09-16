@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3 uid="uid://cmvgw333a5fxq"]
+
+[ext_resource type="Texture2D" uid="uid://b7buga241kpbq" path="res://asset/user_interface/gui_time_bg-sheet0.png" id="1_vj4q6"]
+[ext_resource type="Script" uid="uid://wehgb3qsu3d5" path="res://scenes/ui/time_info.gd" id="2_n7q0f"]
+[ext_resource type="FontFile" uid="uid://cdaraer6p8qne" path="res://asset/fonts/LiberationSans-Regular.ttf" id="3_l5kjt"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_cr2s0"]
+font = ExtResource("3_l5kjt")
+font_size = 23
+font_color = Color(0, 0, 0, 1)
+
+[node name="TimeInfo" type="TextureRect"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -59.0
+offset_bottom = 24.0
+grow_horizontal = 0
+texture = ExtResource("1_vj4q6")
+stretch_mode = 5
+script = ExtResource("2_n7q0f")
+
+[node name="Text" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.259615
+anchor_top = 0.209677
+anchor_right = 0.932692
+anchor_bottom = 0.580645
+grow_horizontal = 2
+grow_vertical = 2
+text = "24:00"
+label_settings = SubResource("LabelSettings_cr2s0")
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true

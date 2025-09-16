@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://saeswn8vawol"]
+
+[ext_resource type="Script" uid="uid://kv52bmgxtw8x" path="res://scenes/ui/reload_btn.gd" id="1_1dfj8"]
+
+[node name="ReloadBtn" type="TextureButton"]
+script = ExtResource("1_1dfj8")
+metadata/_custom_type_script = "uid://4fobfp3r5tpr"

@@ -1,0 +1,42 @@
+[gd_scene load_steps=4 format=3 uid="uid://j82ev8ie32t8"]
+
+[ext_resource type="Script" uid="uid://djsc613omqyxx" path="res://scenes/player/crosshair.gd" id="1_nnvrg"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_nnvrg"]
+light_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_rjxxp"]
+offsets = PackedFloat32Array(0.898374, 1)
+colors = PackedColorArray(0, 0, 0, 1, 1, 1, 1, 0)
+
+[node name="Crosshair" type="Marker2D" node_paths=PackedStringArray("aim_crosshair", "recoil_indicator", "recoil_indicator_2", "muzzle")]
+material = SubResource("CanvasItemMaterial_nnvrg")
+script = ExtResource("1_nnvrg")
+aim_crosshair = NodePath("MuzzleRoot/Muzzle")
+recoil_indicator = NodePath("MuzzleRoot/Line2D")
+recoil_indicator_2 = NodePath("MuzzleRoot/Line2D2")
+muzzle = NodePath("MuzzleRoot/Muzzle")
+
+[node name="Root" type="Marker2D" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="Root"]
+offset_left = 4.0
+offset_top = -4.0
+offset_right = 8.0
+offset_bottom = 4.0
+
+[node name="MuzzleRoot" type="Marker2D" parent="."]
+position = Vector2(0, -16)
+
+[node name="Muzzle" type="Marker2D" parent="MuzzleRoot"]
+position = Vector2(16, 0)
+
+[node name="Line2D" type="Line2D" parent="MuzzleRoot"]
+points = PackedVector2Array(16, 0, 96, 0)
+width = 2.0
+gradient = SubResource("Gradient_rjxxp")
+
+[node name="Line2D2" type="Line2D" parent="MuzzleRoot"]
+points = PackedVector2Array(16, 0, 96, 0)
+width = 2.0
+gradient = SubResource("Gradient_rjxxp")

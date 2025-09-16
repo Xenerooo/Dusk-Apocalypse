@@ -1,406 +1,238 @@
 extends Node
 class_name TimeManager
-## Time description.
 
-signal current_second_changed
-signal current_minute_changed
-signal current_hour_changed
-signal current_cycle_changed
-signal time_manually_changed
-signal time_freezed
+# ==============================
+# Signals
+# ==============================
+signal second_changed
+signal minute_changed
+signal hour_changed
+signal day_changed
+signal month_changed
+signal year_changed
+signal cycle_changed(new_cycle)
+signal time_synced
 
+
+# ==============================
+# Enums
+# ==============================
 enum CycleState { NIGHT, DAWN, DAY, DUSK }
-enum Months {JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER}
+
+
+# ==============================
+# Constants
+# ==============================
 const SECONDS_IN_A_MINUTE: int = 60
 const MINUTES_IN_AN_HOUR: int = 60
 const HOURS_IN_A_DAY: int = 24
-const DAYS_IN_A_WEEK: int = 7
 const DAYS_IN_A_MONTH: int = 30
-const DAYS_IN_A_YEAR: int = 365
 const MONTHS_IN_A_YEAR: int = 12
 
 const SECONDS_IN_AN_HOUR: int = SECONDS_IN_A_MINUTE * MINUTES_IN_AN_HOUR
-const SECONDS_IN_A_DAY: int = SECONDS_IN_A_MINUTE * MINUTES_IN_AN_HOUR * HOURS_IN_A_DAY
-const SECONDS_IN_A_MONTH: int = SECONDS_IN_A_DAY * DAYS_IN_A_MONTH
-const SECONDS_IN_A_YEAR: int = SECONDS_IN_A_MONTH * MONTHS_IN_A_YEAR
+const SECONDS_IN_A_DAY: int = SECONDS_IN_AN_HOUR * HOURS_IN_A_DAY
 
-## The amount of in-game seconds that should elapse for each real-time second.
-##
-## It has to be at least `60` so that `seconds_elapsed` can be stored as an `int`.
-##
-## > 90 minutes (5400 seconds) in game == 1 second in real time.
-const IN_GAME_SECONDS_PER_REAL_TIME_SECONDS: int = 60
 
-## The hour of the day at which the game starts (0-23).
-var game_start_hour: int = 12
-## The day of the month at which the game starts (1-30).
-var game_start_day: int = 1
-## The month at which the game starts (1-12).
-var game_start_month: int = 1
-## The year at which the game starts (0-INF).
-var game_start_year: int = 2021
+# ==============================
+# Settings
+# ==============================
+## In-game speed (1 real second = 60 in-game seconds)
+var IN_GAME_SECONDS_PER_REAL_SECOND: int = 60
 
-## The starting hour of the dawn cycle state (0-23).
+## Starting time
+var current_seconds: int = 0
+var current_minutes: int = 0
+var current_hours: int = 12
+var current_day: int = 1
+var current_month: int = 1
+var current_year: int = 2021
+
+## Cycle start hours
 var state_dawn_start_hour: int = 5
-## The starting hour of the day cycle state (0-23).
 var state_day_start_hour: int = 8
-## The starting hour of the dusk cycle state (0-23).
 var state_dusk_start_hour: int = 16
-## The starting hour of the night cycle state (0-23).
 var state_night_start_hour: int = 19
 
-## The duration, in in-game seconds,
-## of the time it takes to transition from one state to another.
-var state_transition_seconds: int = 3600
-var state_transition_duration: float = (
-	state_transition_seconds
-	/ float(IN_GAME_SECONDS_PER_REAL_TIME_SECONDS)
-)
-
-# The seconds that have elapsed in-game since the game started.
-var seconds_elapsed: int = 0
-# Keeps track of fractions of a second that have elapsed so that we can store
-# 'seconds_elapsed' as an 'int' without losing accuracy when multiplying by delta.
-var seconds_elapsed_remainder: float = 0
-# Keeps track of the seconds to add.
-var seconds_to_add: int
-
-# Keeps track of the current cycle.
-var current_cycle: int
-
-# Seconds at the start of the game.
-var game_epoch: int
-
-# When changing the time via the debug controls, we should skip interpolation.
-var changing_time_manually: bool = false : set = _set_changing_time_manually
-## Stops the time.
-var freeze_time: bool = true : set = _set_freeze_time
+## Current cycle
+var current_cycle: int = CycleState.NIGHT
 
 
-func _ready():
-	if IN_GAME_SECONDS_PER_REAL_TIME_SECONDS < 60:
-		printerr("--------------------")
-		printerr("ERROR!")
-		printerr("File: '%s.gd'." % self.name)
-		printerr(
-			(
-				"Message: The constant 'IN_GAME_SECONDS_PER_REAL_TIME_SECONDS' ("
-				+ str(IN_GAME_SECONDS_PER_REAL_TIME_SECONDS)
-				+ ") must be set to >= 60."
-			)
-		)
-		printerr("--------------------")
-		set_physics_process(false)
+# ==============================
+# Internal State
+# ==============================
+var elapsed_seconds: float = 0.0
+var freeze_time: bool = true
+
+
+# ==============================
+# Multiplayer
+# ==============================
+## Sync interval (in in-game minutes)
+var sync_interval: int = 1
+var last_synced_minute: int = -1
+
+
+# ==============================
+# Process
+# ==============================
+func _physics_process(delta: float) -> void:
+	if freeze_time:
 		return
 
-	if game_start_hour < 0 or game_start_hour > 23:
-		printerr("--------------------")
-		printerr("ERROR!")
-		printerr("File: '%s.gd.'" % self.name)
-		printerr(
-			(
-				"Message: The variable 'game_start_hour' ("
-				+ str(game_start_hour)
-				+ ") must be set between >= 0 and <= 23."
-			)
-		)
-		printerr("--------------------")
-		set_physics_process(false)
-		return
-
-	if game_start_day < 1 or game_start_day > 30:
-		printerr("--------------------")
-		printerr("ERROR!")
-		printerr("File: '%s.gd.'" % self.name)
-		printerr(
-			(
-				"Message: The variable 'game_start_day' ("
-				+ str(game_start_day)
-				+ ") must be set between >= 1 and <= 30."
-			)
-		)
-		printerr("--------------------")
-		set_physics_process(false)
-		return
-
-	if game_start_month < 1 or game_start_month > 12:
-		printerr("--------------------")
-		printerr("ERROR!")
-		printerr("File: '%s.gd.'" % self.name)
-		printerr(
-			(
-				"Message: The variable 'game_start_month' ("
-				+ str(game_start_month)
-				+ ") must be set between >= 1 and <= 12."
-			)
-		)
-		printerr("--------------------")
-		set_physics_process(false)
-		return
-
-	var start_hour_in_seconds: int = game_start_hour * SECONDS_IN_AN_HOUR
-	var start_day_in_seconds: int = (game_start_day - 1) * SECONDS_IN_A_DAY
-	var start_month_in_seconds: int = (game_start_month - 1) * SECONDS_IN_A_MONTH
-	var start_year_in_seconds: int = game_start_year * SECONDS_IN_A_YEAR
-
-	#game_epoch = (
-		#start_hour_in_seconds
-		#+ start_day_in_seconds
-		#+ start_month_in_seconds
-		#+ start_year_in_seconds
-	#)
-#
-	#_set_seconds_elapsed(game_epoch)
-
-func set_time(value) :
-	game_epoch = value
-	_set_seconds_elapsed(game_epoch)
-
-## for world creation
-func get_new_year() -> int :
-	var start_hour_in_seconds: int = game_start_hour * SECONDS_IN_AN_HOUR
-	var start_day_in_seconds: int = (game_start_day - 1) * SECONDS_IN_A_DAY
-	var start_month_in_seconds: int = (game_start_month - 1) * SECONDS_IN_A_MONTH
-	var start_year_in_seconds: int = game_start_year * SECONDS_IN_A_YEAR
-
-	game_epoch = (
-		start_hour_in_seconds
-		+ start_day_in_seconds
-		+ start_month_in_seconds
-		+ start_year_in_seconds
-	)
-	return game_epoch
-
-func _physics_process(delta):
-	seconds_elapsed_remainder = delta * IN_GAME_SECONDS_PER_REAL_TIME_SECONDS
-
-	seconds_to_add = int(seconds_elapsed_remainder)
+	# Simulate locally for smoothness
+	elapsed_seconds += delta * IN_GAME_SECONDS_PER_REAL_SECOND
+	var seconds_to_add: int = int(elapsed_seconds)
 
 	if seconds_to_add >= 1:
-		seconds_elapsed_remainder -= seconds_to_add
-		
-		_set_seconds_elapsed(seconds_elapsed + seconds_to_add)
-	
+		elapsed_seconds -= seconds_to_add
+		advance_time(seconds_to_add)
 
-# PUBLIC FUNCTIONS
-# ----------------
-# Getters for particular units (m/s/h/etc.) of the current time.
-
-
-## Returns the current second.
-func get_current_second() -> int:
-	return seconds_elapsed % SECONDS_IN_A_MINUTE
+	# Server: send sync periodically
+	if multiplayer.is_server():
+		if current_minutes != last_synced_minute and current_seconds == 0:
+			last_synced_minute = current_minutes
+			rpc("sync_time", current_seconds, current_minutes, current_hours,
+				current_day, current_month, current_year, current_cycle)
 
 
-## Returns the current minute.
-func get_current_minute() -> int:
-	var minutes_elapsed = int(seconds_to_minutes(seconds_elapsed))
-	return minutes_elapsed % MINUTES_IN_AN_HOUR
+# ==============================
+# Time Advancement
+# ==============================
+func advance_time(seconds: int) -> void:
+	current_seconds += seconds
+
+	# Seconds → Minutes
+	while current_seconds >= SECONDS_IN_A_MINUTE:
+		current_seconds -= SECONDS_IN_A_MINUTE
+		current_minutes += 1
+		emit_signal("minute_changed", current_minutes)
+
+	# Minutes → Hours
+	while current_minutes >= MINUTES_IN_AN_HOUR:
+		current_minutes -= MINUTES_IN_AN_HOUR
+		current_hours += 1
+		emit_signal("hour_changed", current_hours)
+		update_cycle()
+
+	# Hours → Days
+	while current_hours >= HOURS_IN_A_DAY:
+		current_hours -= HOURS_IN_A_DAY
+		current_day += 1
+		emit_signal("day_changed", current_day)
+
+		# Days → Months
+		if current_day > DAYS_IN_A_MONTH:
+			current_day = 1
+			current_month += 1
+			emit_signal("month_changed", current_month)
+
+			# Months → Years
+			if current_month > MONTHS_IN_A_YEAR:
+				current_month = 1
+				current_year += 1
+				emit_signal("year_changed", current_year)
 
 
-## Returns the current hour.
-func get_current_hour() -> int:
-	return _seconds_elapsed_to_hour(seconds_elapsed)
+# ==============================
+# Cycle Updates
+# ==============================
+func update_cycle() -> void:
+	var new_cycle: int
+
+	if current_hours >= state_night_start_hour or current_hours < state_dawn_start_hour:
+		new_cycle = CycleState.NIGHT
+	elif current_hours >= state_dawn_start_hour and current_hours < state_day_start_hour:
+		new_cycle = CycleState.DAWN
+	elif current_hours >= state_day_start_hour and current_hours < state_dusk_start_hour:
+		new_cycle = CycleState.DAY
+	elif current_hours >= state_dusk_start_hour and current_hours < state_night_start_hour:
+		new_cycle = CycleState.DUSK
+	else:
+		new_cycle = CycleState.NIGHT  # Fallback
+
+	if new_cycle != current_cycle:
+		current_cycle = new_cycle
+		emit_signal("cycle_changed", current_cycle_to_string())
 
 
-## Returns the current day.
-func get_current_day() -> int:
-	return _seconds_elapsed_to_day(seconds_elapsed)
-
-
-## Returns the current month.
-func get_current_month() -> int:
-	return _seconds_elapsed_to_month(seconds_elapsed)
-
-
-## Returns the current year.
-func get_current_year() -> int:
-	return _seconds_elapsed_to_year(seconds_elapsed)
-
-
-# Setters for particular units (m/s/h/etc.) of the current time.
-
-
-## Sets the current hour.
-func set_current_hour(hour: int):
-	var previous_hour = get_current_hour()
-
-	if hour == previous_hour:
-		return
-
-	var difference = hour - previous_hour
-	var difference_in_seconds = hours_to_seconds(difference)
-
-	_set_seconds_elapsed(seconds_elapsed + difference_in_seconds)
-
-
-# General string conversion functions.
-
-
-## Returns the current time in `H:M:S`.
-func current_time_string() -> String:
-	return (
-		str("%02d" % get_current_hour())
-		+ ":"
-		+ str("%02d" % get_current_minute())
-	)
-
-
-## Returns the current date in `D/M/Y`.
-func current_date_string() -> String:
-	return (
-		str(Months.keys() [get_current_month()])
-		+ " "
-		+ str("%02d" % get_current_day())
-		+ ", "
-		+ str("%02d" % get_current_year())
-	)
-
-
-## Returns the current cycle state in a `String` format.
 func current_cycle_to_string() -> String:
 	return CycleState.keys()[current_cycle]
 
 
-# General time unit conversion functions.
-
-
-## Converts seconds into minutes.
-func seconds_to_minutes(seconds: float) -> float:
-	return seconds / SECONDS_IN_A_MINUTE
-
-
-## Converts seconds into hours.
-func seconds_to_hours(seconds: float) -> float:
-	return seconds / SECONDS_IN_AN_HOUR
-
-
-## Converts seconds into days.
-func seconds_to_days(seconds: float) -> float:
-	return seconds / SECONDS_IN_A_DAY
-
-
-## Converts seconds into months.
-func seconds_to_months(seconds: float) -> float:
-	return seconds / SECONDS_IN_A_MONTH
-
-
-## Converts seconds into years.
-func seconds_to_years(seconds: float) -> float:
-	return seconds / SECONDS_IN_A_YEAR
-
-
-## Converts minutes into seconds.
-func minutes_to_seconds(minutes: float) -> float:
-	return minutes * SECONDS_IN_A_MINUTE
-
-
-## Converts minutes into hours.
-func minutes_to_hours(minutes: float) -> float:
-	return minutes / MINUTES_IN_AN_HOUR
-
-
-## Converts hours into seconds.
-func hours_to_seconds(hours: float) -> float:
-	return hours * MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE
-
-
-## Converts hours into days.
-func hours_to_days(hours: float) -> float:
-	return hours / HOURS_IN_A_DAY
-
-
-## Converts days into months.
-func days_to_months(days: float) -> float:
-	return days / DAYS_IN_A_MONTH
-
-
-## Converts months into years.
-func months_to_years(months: float) -> float:
-	return months / MONTHS_IN_A_YEAR
-
-
-# PRIVATE FUNCTIONS
-# -----------------
-func _set_seconds_elapsed(seconds):
-	if seconds == seconds_elapsed:
-		return
-
-	var previous_minute = int(get_current_minute())
-	var previous_hour = int(get_current_hour())
-
-	seconds_elapsed = seconds
-
-	emit_signal("current_second_changed")
-
-	if int(get_current_minute()) != previous_minute:
-		emit_signal("current_minute_changed")
-
-	if int(get_current_hour()) != previous_hour:
-		emit_signal("current_hour_changed")
-
-	_update_current_cycle()
-
-
-func _seconds_elapsed_to_hour(seconds):
-	return floor(
-		(
-			(((seconds % SECONDS_IN_A_YEAR) % SECONDS_IN_A_MONTH) % SECONDS_IN_A_DAY)
-			/ float(SECONDS_IN_AN_HOUR)
-		)
-	)
-
-
-func _seconds_elapsed_to_day(seconds):
-	return floor(
-		(
-			(((seconds % SECONDS_IN_A_YEAR) % SECONDS_IN_A_MONTH) + SECONDS_IN_A_DAY)
-			/ float(SECONDS_IN_A_DAY)
-		)
-	)
-
-
-func _seconds_elapsed_to_month(seconds):
-	return floor(((seconds % SECONDS_IN_A_YEAR) + SECONDS_IN_A_MONTH) / float(SECONDS_IN_A_MONTH))
-
-
-func _seconds_elapsed_to_year(seconds):
-	return floor(seconds / float(SECONDS_IN_A_YEAR))
-
-
-func _update_current_cycle():
-	var current_day_hour = get_current_hour()
-
-	if current_day_hour >= state_night_start_hour or current_day_hour < state_dawn_start_hour:
-		_set_current_cycle(CycleState.NIGHT)
-	elif current_day_hour >= state_dawn_start_hour and current_day_hour < state_day_start_hour:
-		_set_current_cycle(CycleState.DAWN)
-	elif current_day_hour >= state_day_start_hour and current_day_hour < state_dusk_start_hour:
-		_set_current_cycle(CycleState.DAY)
-	elif current_day_hour >= state_dusk_start_hour and current_day_hour < state_night_start_hour:
-		_set_current_cycle(CycleState.DUSK)
-
-
-func _set_current_cycle(cycle):
-	if cycle == current_cycle:
-		return
-
+# ==============================
+# Multiplayer Sync
+# ==============================
+@rpc("any_peer", "call_local")
+func sync_time(seconds:int, minutes:int, hours:int, day:int, month:int, year:int, cycle:int) -> void:
+	current_seconds = seconds
+	current_minutes = minutes
+	current_hours = hours
+	current_day = day
+	current_month = month
+	current_year = year
 	current_cycle = cycle
-
-	emit_signal("current_cycle_changed", current_cycle_to_string())
-
-
-func _set_changing_time_manually(new_value):
-	changing_time_manually = new_value
-
-	emit_signal("time_manually_changed")
-
-	if not freeze_time:
-		set_physics_process(not changing_time_manually)
+	emit_signal("time_synced")
 
 
-func _set_freeze_time(new_value):
-	freeze_time = new_value
-	emit_signal("time_freezed")
+# ==============================
+# Utilities
+# ==============================
+func get_current_time_string() -> String:
+	return "%02d:%02d" % [current_hours, current_minutes]
 
-	set_physics_process(not freeze_time)
+func get_current_date_string() -> String:
+	return "%02d/%02d/%04d" % [current_day, current_month, current_year]
+
+func get_current_date_time_string() -> String:
+	return get_current_date_string() + " " + get_current_time_string()
+
+## Total seconds in the current day
+func get_total_seconds_in_day() -> int:
+	return (current_hours * SECONDS_IN_AN_HOUR) \
+		+ (current_minutes * SECONDS_IN_A_MINUTE) \
+		+ current_seconds
+
+## Normalized progress of the day (0.0 → 1.0)
+func get_day_progress() -> float:
+	return float(get_total_seconds_in_day()) / float(SECONDS_IN_A_DAY)
+
+
+# ==============================
+# Save & Load
+# ==============================
+func get_default_data() -> Dictionary:
+	return {
+		"current_seconds": 0,
+		"current_minutes": 30,
+		"current_hours": 4,
+		"current_day": 28,
+		"current_month": 3,
+		"current_year": 2025,
+		"freeze_time": freeze_time,
+		"current_cycle": current_cycle
+	}
+
+func reset_manager() -> void:
+	freeze_time = true
+
+func load_time(time_data: Dictionary) -> void:
+	current_seconds = int(time_data.get("current_seconds", 0))
+	current_minutes = int(time_data.get("current_minutes", 0))
+	current_hours = int(time_data.get("current_hours", 12))
+	current_day = int(time_data.get("current_day", 1))
+	current_month = int(time_data.get("current_month", 1))
+	current_year = int(time_data.get("current_year", 2021))
+	current_cycle = int(time_data.get("current_cycle", CycleState.DAWN))
+	freeze_time = false
+
+func get_time_dict() -> Dictionary:
+	return {
+		"current_seconds": current_seconds,
+		"current_minutes": current_minutes,
+		"current_hours": current_hours,
+		"current_day": current_day,
+		"current_month": current_month,
+		"current_year": current_year,
+		"freeze_time": freeze_time,
+		"current_cycle": current_cycle
+	}

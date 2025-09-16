@@ -9,6 +9,7 @@ extends Control
 @export var weapon1_panel: Control
 @export var weapon2_panel: Control
 @export var melee_panel: Control
+@onready var panel: Panel = $Panel
 
 # panels dictionary: root -> PanelUI
 var panels: Dictionary = {}
@@ -39,15 +40,13 @@ func _ready() -> void:
 	for panel in panels.values():
 		panel.player_token = player_token
 		panel.setup()
-	
-	
-	#for child in panel_container.get_children():
-		#panels[child.root] = child
-		#child.player_token = player_token
-		#child.setup()
-	# Ask server for initial sync
-	#rpc_id(1, "request_inventory_sync", player_token)
 
+@rpc("any_peer", "reliable", "call_local")
+func block_input():
+	panel.show()
+@rpc("any_peer", "reliable", "call_local")
+func unblock_input():
+	panel.hide()
 # ---------------------------------
 # Refresh (only update existing panels)
 # ---------------------------------

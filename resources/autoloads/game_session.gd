@@ -9,13 +9,10 @@ var local_player :PlayerCharacter
 var current_world_path : String
 var current_world_node: Node2D
 
-var player_container:Node2D = null
-
+var player_container: Node2D = null
 var on_session:=false
 
 @onready var spawner :MultiplayerSpawner= $PlayerSpawner
-@onready var shadow: Polygon2D = $Node2D/Shadow
-
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action("save"):
@@ -26,13 +23,15 @@ func _ready():
 		OS.request_permission("android.permission.READ_EXTERNAL_STORAGE")
 		OS.request_permission("android.permission.MANAGE_EXTERNAL_STORAGE")
 	
-	
 	spawner.spawn_function = _on_spawn_entity  # Custom handler
 	print("GameSession ready")
 
 func join_world():
 	var world_scene = preload("res://World.tscn").instantiate()
 	current_world_node = world_scene
+	
+	#GameSession.set_player_container(world_scene.entity_container)
+	#AudioManager.set_audio_container(world_scene.audio_container)
 	var scene_root = get_node("/root/Main/SceneRoot")
 	scene_root.add_child(world_scene)
 	scene_root.get_node("MenuMargins/MainMenu").queue_free()
@@ -90,7 +89,19 @@ func load_world(path: String) -> void:
 func _on_spawn_entity(data:Dictionary) -> Node:
 	if data.type_key == "Player":
 		return _spawn_player_scene(data.token)
+	elif data.type_key == "Bullet":
+		return _spawn_bullet_scene(data.token, data.pos, data.rot, data.speed, data.time, data.damage)
 	return null
+
+func _spawn_bullet_scene(player_token: String, _pos: Vector2, _rot:float, _speed:float, _time:float, _dmg:float) -> Node:
+	var bullet := preload("res://scenes/entities/bullet.tscn").instantiate()
+	bullet.global_position = _pos
+	bullet.rotation = _rot
+	bullet.bullet_speed = _speed
+	bullet.bullet_life = _time
+	if multiplayer.is_server():
+		bullet.b_owner = PlayerManager.get_player_node(player_token)
+	return bullet
 
 func spawn_player(player_token: String):
 	if active_players.has(player_token):
@@ -98,13 +109,29 @@ func spawn_player(player_token: String):
 	var data:= {"type_key": 'Player', "token": player_token}
 	spawner.spawn(data)  # Type + data
 
+func spawn_bullet(player_token:String,  _pos: Vector2, _rot, _speed:float, _time:float, _dmg:float):
+	var data := {"type_key": 'Bullet',
+				"token": player_token,
+				"pos": _pos,
+				"rot": _rot,
+				"speed": _speed,
+				"time": _time,
+				"damage": _dmg
+				}
+	spawner.spawn(data)
+
 func _spawn_player_scene(token: String) -> Node:
 	var player = preload("res://scenes/player/player.tscn").instantiate()
 	player.token = token
 
 	var peer_id = PlayerManager.get_peer_id(token)
-	#print("🌐 Spawn Called %s compared to %s" % [multiplayer.get_unique_id(), peer_id])
 	player.name = str(peer_id)
+	
+	if multiplayer.is_server() :
+		player.global_position = PlayerManager.get_position(token)
+		PlayerManager.set_player_node(token, player)
+		active_players[token] = player
+	
 	if PlayerProfile.token == token:
 		local_player = player
 		player.is_local = true
@@ -113,13 +140,6 @@ func _spawn_player_scene(token: String) -> Node:
 		var chunk_manager :ChunkManagerMP= get_node_or_null( "/root/Main/SceneRoot/World/ChunkManager")
 		if chunk_manager :
 			chunk_manager.player_ref = local_player
-		#print("🌐 I am who i am")
-		
-	if multiplayer.is_server() :
-		player.global_position = PlayerManager.get_position(token)
-
-		PlayerManager.set_player_node(token, player)
-		active_players[token] = player
 	# We dont need to manually set where to spawn them because spawner handles it base where we set the spawn path
 	# We already have path so it's okay
 	return player
@@ -141,8 +161,8 @@ func respawn_player(player_token: String):
 	spawn_player(player_token)
 
 func set_player_container(node: Node2D):
-	player_container =node
-	spawner.spawn_path = node.get_path()
+	player_container = node
+	spawner.spawn_path = player_container.get_path()
 
 func save_world():
 	if current_world_path.is_empty():
@@ -198,9 +218,9 @@ func reset_session():
 	PlayerManager.reset_manager()
 	InventoryManager.reset_manager()
 	WorldManager.reset_manager()
+	AudioManager.reset_manager()
 	
-	GameUI.hide_controls()
-	GameUI.hide_pause_menu()
+	GameUI.reset_ui()
 
 	var menu = MAIN_MENU.instantiate()
 	var menu_margins := get_node("/root/Main/SceneRoot/MenuMargins")
@@ -221,7 +241,8 @@ func create_world(world_name):
 		"tile_size": world_data.tile_size,
 		"chunk_size": world_data.chunk_size,
 		"chunks": world_data.chunks,
-		"seed": world_data.seed
+		"seed": world_data.seed,
+		"time" : WorldManager.time_manager.get_default_data()
 	}
 	var player_dict := {}
 	var inventory_dict := {}
@@ -238,6 +259,11 @@ func create_world(world_name):
 	item.slots[4] = ItemDatabase.get_spawn_item("vest_swat")
 	item.slots[8] = ItemDatabase.get_spawn_item("set_farmer")
 	item.slots[9] = ItemDatabase.get_spawn_item("gun_remington")
+	item.slots[10] = ItemDatabase.get_spawn_item("gun_izh")
+	item.slots[11] = ItemDatabase.get_spawn_item("ammo_12g", 999)
+	item.slots[12] = ItemDatabase.get_spawn_item("ammo_7.62", 999)
+	item.slots[13] = ItemDatabase.get_spawn_item("melee_huntingknife")
+	
 	inventory_dict[local_player.token].bag = item.to_dict()
 	
 	SaveHelper.save_dict_to_file(world_dict, path.path_join("world.bin"))
@@ -250,6 +276,3 @@ func create_world(world_name):
 	
 	_map_gen.queue_free()
 	print("💾 saved!")
-
-func get_shadow()->Polygon2D:
-	return current_world_node.shadow

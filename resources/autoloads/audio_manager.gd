@@ -6,10 +6,11 @@ const PICK_1 = "res://asset/audio/pick1.ogg"
 const PICK_2 = "res://asset/audio/pick2.ogg"
 const PICK_PISTOL = "res://asset/audio/pick_pistol.ogg"
 const PICK_RIFLE = "res://asset/audio/pick_rifle.ogg"
+const EMPTY_CLICK = "res://asset/audio/empty_click.ogg"
 var inventory_feedback := [PICK_1, PICK_2]
 
-const RELOAD_PISTOL = "res://resources/audio/reload_pistol.ogg"
-const RELOAD_RIFLE = "res://resources/audio/reload_rifle.ogg"
+const RELOAD_PISTOL = "res://asset/audio/reload_pistol.ogg"
+const RELOAD_RIFLE = "res://asset/audio/reload_rifle.ogg"
 
 const AUDIO_2D = preload("res://asset/audio/audio_2d.tscn")
 
@@ -17,6 +18,11 @@ const AUDIO_2D = preload("res://asset/audio/audio_2d.tscn")
 "res://resources/audio/concrete_run_2.ogg",
  "res://resources/audio/concrete_run_3.ogg",
  "res://resources/audio/concrete_run_4.ogg"]
+
+@export var punch := [
+	"res://asset/audio/punch_swipes_1.ogg",
+	"res://asset/audio/punch_swipes_0.ogg"
+]
 
 @export var footsteps := ["res://resources/audio/run_1.ogg",
  "res://resources/audio/run_2.ogg",
@@ -40,13 +46,18 @@ enum cell_noise {
 	road = 1
 	}
 
-@rpc("authority", "call_local")
+var audio_container: Node2D
+
+func set_audio_container(node:Node2D):
+	audio_container = node
+
+@rpc("authority", "call_local", "unreliable")
 func spawn_audio(path :String, pos: Vector2, dist: int = 2000, attenuation :int = 10.5,target = null) :
 	if multiplayer.is_server() :
 		if target :
-			spawn_following_audio.rpc(path, pos, dist, target)
+			spawn_following_audio(path, pos, dist, attenuation, target)
 		else :
-			spawn_static_audio.rpc(path, pos, dist, attenuation)
+			spawn_static_audio(path, pos, dist, attenuation)
 
 #@rpc("any_peer", "call_local")
 #func spawn_noise(p, l, world) :
@@ -62,20 +73,28 @@ func get_tile_audio(audio_type :int):
 			audio = concrete.pick_random()
 	return audio
 
-@rpc("authority", "call_local")
 func spawn_static_audio(path:String, pos: Vector2, _dist: int, attenuation:int) :
 	var a = AUDIO_2D.instantiate()
 	a.following = false
-	a.dist = _dist
-	a.path = path
-	a.global_position = pos
-	a.attenuation = attenuation
-	add_child(a, true)
 
-func spawn_following_audio(path, pos, _dist, target) :
-	var a = AUDIO_2D.instantiate()
-	a.follow_target = target
 	a.dist = _dist
 	a.path = path
 	a.global_position = pos
-	add_child(a, true)
+	a.att = attenuation
+	audio_container.add_child(a, true)
+
+func spawn_following_audio(path: String, pos: Vector2, _dist :int, attenuation:int, target:Node2D) :
+	var a = AUDIO_2D.instantiate()
+	a.following = true
+	a.dist = _dist
+	a.path = path
+	a.global_position = pos
+	a.att = attenuation
+	a.follow_target = target
+	audio_container.add_child(a, true)
+
+
+func reset_manager():
+	for i in get_children():
+		i.queue_free()
+	audio_container = null

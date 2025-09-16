@@ -2,7 +2,10 @@ extends ItemWeapon
 class_name ItemGun
 
 enum shootTypes {single, scatter, burst}
+enum FireMode { AUTO, SEMI }
+
 var shoot_type : shootTypes = shootTypes.single
+var fire_mode : FireMode = FireMode.AUTO
 
 @export var bullet_count : = 1
 @export var bullet_speed := 0.0
@@ -18,6 +21,7 @@ var shoot_type : shootTypes = shootTypes.single
 @export var run_penalty := 0.0
 
 var ammo : = 0
+var current_recoil: float = 0.0
 
 func _init() -> void:
 	item_type = ItemTypes.weapon
@@ -64,6 +68,11 @@ func set_data(data):
 			durability = stats.durability
 		if stats.has("ammo") :
 			ammo = stats.ammo
+		if stats.has("mode") :
+			fire_mode = stats.mode
+		if stats.has("current_recoil") :
+			current_recoil = stats.current_recoil
+
 
 func get_ammo_needed() -> int:
 	return max_ammo - ammo
@@ -73,7 +82,9 @@ func to_dict() -> Dictionary :
 		"itemid" : itemid,
 		"item_stats" : {
 			"durability" : durability,
-			"ammo" : ammo
+			"ammo" : ammo,
+			"mode":  fire_mode,
+			"current_recoil": current_recoil
 		}
 	}
 	return data

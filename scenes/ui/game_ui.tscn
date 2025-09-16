@@ -1,20 +1,23 @@
-[gd_scene load_steps=13 format=3 uid="uid://bfk0mhdjuq5vd"]
+[gd_scene load_steps=15 format=3 uid="uid://bfk0mhdjuq5vd"]
 
 [ext_resource type="Script" uid="uid://udu5lcvxef5q" path="res://scenes/ui/game_ui.gd" id="1_bma8u"]
 [ext_resource type="Script" uid="uid://byo46vcpfe6m2" path="res://scenes/ui/DynamicMargins.gd" id="1_gwk6t"]
 [ext_resource type="PackedScene" uid="uid://dmr0fcamx7t56" path="res://addons/joystick/virtual_joystick.tscn" id="2_xjfbv"]
 [ext_resource type="Script" uid="uid://cd1oc45wde6qo" path="res://scenes/ui/player_controls.gd" id="3_fct72"]
-[ext_resource type="Texture2D" uid="uid://d0hi1m61eaxxb" path="res://icon.svg" id="5_v1bdg"]
+[ext_resource type="Texture2D" uid="uid://ba0tpepbbnbn4" path="res://asset/user_interface/Settings_icon.png" id="4_opxtl"]
 [ext_resource type="Script" uid="uid://4fobfp3r5tpr" path="res://scenes/ui/InteractiveTouchScreenButton.gd" id="6_qrkc0"]
 [ext_resource type="Texture2D" uid="uid://cettw3imkawu4" path="res://asset/user_interface/Zoom_in.png" id="6_yvtb5"]
 [ext_resource type="Texture2D" uid="uid://c022tiitf6vs0" path="res://asset/user_interface/Zoom_out.png" id="7_k7elv"]
 [ext_resource type="Texture2D" uid="uid://bvrm05bdx0f28" path="res://asset/user_interface/7.png" id="8_bxde6"]
 [ext_resource type="PackedScene" uid="uid://bbl0ecp85cxbo" path="res://scenes/ui/pause_menu.tscn" id="9_k7elv"]
 [ext_resource type="Texture2D" uid="uid://gb0qkgty5k21" path="res://asset/user_interface/buildingsIU_button_pause.png" id="9_opxtl"]
+[ext_resource type="PackedScene" uid="uid://qwq2wg0morog" path="res://scenes/ui/gun_ui_btn.tscn" id="10_x0n6o"]
+[ext_resource type="PackedScene" uid="uid://cmvgw333a5fxq" path="res://scenes/ui/time_info.tscn" id="12_crnce"]
 [ext_resource type="PackedScene" uid="uid://d0r0slab76emc" path="res://scenes/ui/inventory/player_inventory.tscn" id="12_opxtl"]
 
 [node name="GameUi" type="CanvasLayer" node_paths=PackedStringArray("player_controls", "pause_menu", "inventory_control")]
 process_mode = 3
+layer = 10
 script = ExtResource("1_bma8u")
 player_controls = NodePath("AutoMargin/PlayerControls")
 pause_menu = NodePath("PauseMenu")
@@ -29,28 +32,39 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_gwk6t")
 
-[node name="PlayerControls" type="Control" parent="AutoMargin" node_paths=PackedStringArray("move_stick")]
+[node name="PlayerControls" type="Control" parent="AutoMargin" node_paths=PackedStringArray("move_stick", "aim_stick")]
 layout_mode = 2
 mouse_filter = 1
 script = ExtResource("3_fct72")
 move_stick = NodePath("MoveStick")
+aim_stick = NodePath("AimStick")
 
 [node name="Buttons" type="GridContainer" parent="AutoMargin/PlayerControls"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.791486
+anchor_left = 1.0
 anchor_right = 1.0
-anchor_bottom = 0.0725309
-offset_left = 0.207947
+offset_left = -90.0
+offset_top = 71.0
+offset_bottom = 393.0
 grow_horizontal = 0
-columns = 5
+
+[node name="Pause" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("9_opxtl")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("6_qrkc0")
+input_action = &"pause"
 metadata/_edit_use_anchors_ = true
 
 [node name="OpenDebug" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-texture_normal = ExtResource("5_v1bdg")
+texture_normal = ExtResource("4_opxtl")
 ignore_texture_size = true
 stretch_mode = 5
 script = ExtResource("6_qrkc0")
@@ -79,7 +93,16 @@ script = ExtResource("6_qrkc0")
 input_action = &"cam_zoom_out"
 metadata/_edit_use_anchors_ = true
 
-[node name="Inventory" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
+[node name="LeftContainer" type="GridContainer" parent="AutoMargin/PlayerControls"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -90.0
+offset_right = 90.0
+grow_vertical = 0
+
+[node name="Inventory" type="TextureButton" parent="AutoMargin/PlayerControls/LeftContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -90,23 +113,54 @@ script = ExtResource("6_qrkc0")
 input_action = &"open_inventory"
 metadata/_edit_use_anchors_ = true
 
-[node name="Pause" type="TextureButton" parent="AutoMargin/PlayerControls/Buttons"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-texture_normal = ExtResource("9_opxtl")
-ignore_texture_size = true
-stretch_mode = 5
-script = ExtResource("6_qrkc0")
-input_action = &"pause"
-metadata/_edit_use_anchors_ = true
+[node name="RightContainer" parent="AutoMargin/PlayerControls" instance=ExtResource("10_x0n6o")]
+layout_mode = 1
+offset_left = -160.0
+offset_top = -165.0
+offset_bottom = -5.0
 
 [node name="MoveStick" parent="AutoMargin/PlayerControls" instance=ExtResource("2_xjfbv")]
 layout_mode = 1
+offset_left = 107.0
+offset_top = -274.0
+offset_right = 307.0
+offset_bottom = -74.0
+pivot_offset = Vector2(100, 100)
 active_zone = 2.0
 
-[node name="PlayerInventory" parent="AutoMargin" instance=ExtResource("12_opxtl")]
+[node name="AimStick" parent="AutoMargin/PlayerControls" instance=ExtResource("2_xjfbv")]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.68625
+anchor_top = 0.545778
+anchor_right = 0.875781
+anchor_bottom = 0.889
+offset_left = 0.600037
+offset_top = 0.0399475
+offset_right = -1.00012
+offset_bottom = -0.0800171
+pivot_offset = Vector2(0, 0)
+clampzone_size = 100.0
+active_zone = 0.9
+input_action = &"joystick_fire"
+metadata/_edit_use_anchors_ = true
+
+[node name="Status" type="Control" parent="AutoMargin"]
 layout_mode = 2
+mouse_filter = 2
+metadata/_edit_lock_ = true
+metadata/_edit_group_ = true
+
+[node name="TimeInfo" parent="AutoMargin/Status" instance=ExtResource("12_crnce")]
+layout_mode = 1
+offset_left = -121.0
+offset_bottom = 55.0
+
+[node name="PlayerInventory" parent="AutoMargin" instance=ExtResource("12_opxtl")]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
 
 [node name="PauseMenu" parent="." instance=ExtResource("9_k7elv")]
 visible = false

@@ -17,7 +17,7 @@ func footstep(player: PlayerCharacter):
 		wood.play()
 		return
 
-	var audio_type:= WorldManager.get_player_current_audio(player)
+	var audio_type: int = WorldManager.get_player_current_audio(player)
 	match audio_type:
 		0:
 			dirt.play()

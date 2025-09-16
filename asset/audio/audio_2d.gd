@@ -1,27 +1,27 @@
 extends AudioStreamPlayer2D
 
-var path : String = ""
-var dist : int = 192
+@export var path : String = ""
+@export var dist : int = 2000
+@export var att : float
 var following : bool = false
 var follow_target: Node2D
 
 func _ready() -> void:
-	#if multiplayer.is_server() :
 	if path.is_empty() :
 		queue_free()
 	max_distance = dist
 	stream = load(path)
+	attenuation = att
 	playing = true
-	#else :
-		#max_distance = dist
-		#stream = load(path)
-		#playing = true
 	
-	set_process(following == true)
+	if multiplayer.is_server():
+		set_process(following == true)
+	
 
 func _on_finished() -> void:
-	queue_free()
+	if multiplayer.is_server():
+		queue_free()
 
 func _process(delta: float) -> void:
-	if multiplayer.is_server() and following:
+	if following:
 		global_position = follow_target.global_position

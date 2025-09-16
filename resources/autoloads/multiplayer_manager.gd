@@ -48,8 +48,9 @@ func cancel_join():
 func request_world_setup():
 	var peer_id := multiplayer.get_remote_sender_id()
 	
-	var seed := WorldManager.seed
-	WorldManager.setup_world.rpc_id(peer_id, seed)
+	WorldManager.client_load_data.rpc_id(peer_id, WorldManager.get_world_data())
+	
+	#WorldManager.setup_world.rpc_id(peer_id, seed)
 	
 
 func _on_connected():

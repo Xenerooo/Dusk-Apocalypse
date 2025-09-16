@@ -1,3 +1,4 @@
+@tool
 class_name VirtualJoystick
 
 extends Control
@@ -9,6 +10,7 @@ extends Control
 
 signal analogic_chage(move: Vector2)
 signal analogic_released
+signal analogic_pressed
 signal active(status)
 signal pressed(status)
 ## The color of the button when the joystick is pressed.
@@ -99,9 +101,12 @@ func _on_resized() -> void:
 	self.pivot_offset = size  / 2
 	_base_radius = _base.size / 2
 	_base.pivot_offset = _base.size / 2
-	#_tip_default_position
-	_tip_default_position = _base.pivot_offset
 	_tip.pivot_offset = _tip.size / 2
+	#_tip_default_position
+	_base_default_position = _base.position
+	_tip_default_position =  _base_radius - _tip.pivot_offset
+	#print()
+	#_tip_default_position = _base.position
 	#_base_default_position = _base_radius / 2
 	pass
 
@@ -209,6 +214,18 @@ func _reset():
 			if Input.is_action_pressed(action) or Input.is_action_just_pressed(action):
 				Input.action_release(action)
 
+func joystick_held():
+	var event = InputEventAction.new()
+	event.action = input_action
+	event.pressed = true
+	Input.parse_input_event(event)
+
+func joystick_released():
+	var event = InputEventAction.new()
+	event.action = input_action
+	event.pressed = false
+	Input.parse_input_event(event)
+	
 func action_active():
 	var event = InputEventAction.new()
 	event.action = input_action

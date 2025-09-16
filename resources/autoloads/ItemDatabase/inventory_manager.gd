@@ -1,5 +1,9 @@
 extends Node
 
+signal item_transferred()
+signal item_equipped()
+signal weapon_reloaded(token, body, index)
+
 # Holds all inventories by token (player_id, storage_id, etc.)
 var inventories: Dictionary = {}
 
@@ -115,7 +119,7 @@ func can_store_in_equipment(equipment: ItemEquipment, item: Item) -> bool:
 		return false
 	if not (equipment is ItemEquipment):
 		return false
-	if item is ItemEquipment and not equipment.can_store_equipment:
+	if (item is ItemEquipment or item is ItemWeapon) and not equipment.can_store_equipment:
 		return false
 	return true
 
@@ -163,18 +167,25 @@ func set_item_at(token: String, root: String, index: int, item: Item) -> bool:
 
 	return false
 
-func get_available_slot(player_token: String) -> Dictionary:
+
+func get_available_slot(player_token: String, find_can_store_equipment: bool =false) -> Dictionary:
 	if not inventories.has(player_token):
 		return {}
-
+	
 	var inv = inventories[player_token]
+	if inv.is_empty():
+		return {}
+	
 	for root in inv.keys():
 		var equip: ItemEquipment = inv[root]
-		if equip != null and equip is ItemEquipment:
-			for i in range(equip.max_slots):
-				if equip.slots[i] == null:
-					return {"root": root, "index": i}
+		if find_can_store_equipment == true and equip.can_store_equipment != false:
+			continue
+		if equip:
+			var idx = equip.slots.find(null)
+			if idx != -1:
+				return {"root": root, "index": idx}
 	return {}
+
 
 # ===========================
 # Equip / Unequip
@@ -205,6 +216,30 @@ func unequip_item(player_token: String, root: String) -> bool:
 	set_item_at(player_token, root, -1, null)
 	return true
 
+func empty_item(item: Item)-> Array[Item]:
+	if !item is ItemEquipment  :
+		return []
+	var residual_items :Array[Item]= []
+	for i in item.slots.size():
+		if item.slots[i] != null:
+			residual_items.append(item.slots[i])
+			item.slots[i] = null
+	return residual_items
+
+func place_in_available_slot(token:String, item:Item):
+	if !item in [ItemWeapon, ItemEquipment]:
+		var slot := get_available_slot(token)
+		if slot : set_item_at(token, slot.root, slot.index, item)
+		else: drop_item(item)
+		
+	else : 
+		var slot := get_available_slot(token)
+		if slot : set_item_at(token, slot.root, slot.index, item)
+		else: drop_item(item)
+
+func drop_item(item:Item):
+	# PLACE HOLDER
+	print("Item dropped: ", item.name)
 # ===========================
 # Transfer
 # ===========================
@@ -214,6 +249,7 @@ func transfer_item(
 	dst_token: String, dst_root: String, dst_index: int
 ) -> bool:
 	var src_item = get_item_at(src_token, src_root, src_index)
+	var dst_item := get_item_at(dst_token, dst_root, dst_index) 
 	if src_item == null:
 		return false
 
@@ -223,16 +259,44 @@ func transfer_item(
 	
 	var player:PlayerCharacter = PlayerManager.get_player_node(src_token)
 
-	
-	# Destination: root equip slot
+	# Destination: root equip slot / equipping
 	if dst_index == -1:
 		if not can_equip(dst_root, src_item):
 			return false
-		set_item_at(dst_token, dst_root, -1, src_item)
-		set_item_at(src_token, src_root, src_index, null)
-		if player: AudioManager.spawn_audio.rpc(AudioManager.GEARPICK, player.global_position)
-		return true
 
+		set_item_at(src_token, src_root, src_index, null)
+		set_item_at(dst_token, dst_root, -1, src_item)
+		# swap the item if dst has item
+		if dst_item != null :
+			set_item_at(src_token, src_root, src_index, dst_item)
+			
+		var dst_residual := empty_item(dst_item)
+		for i in dst_residual:
+			place_in_available_slot(dst_token, i)
+		#Audio Application
+		if player: cue_audio(player, src_item)
+		return true
+	
+	#Source : root slot swapping from any item
+	if src_index == -1:
+		if not can_store_in_equipment(get_item_at(dst_token, dst_root, -1), src_item): return false
+		if dst_item != null :
+			if not can_equip(src_root, dst_item): return false
+			set_item_at(dst_token, dst_root, dst_index, src_item)
+			set_item_at(src_token, src_root, src_index, null)
+			# swap the item if dst has item
+			if dst_item != null :
+				set_item_at(src_token, src_root, src_index, dst_item)
+		else :
+			set_item_at(dst_token, dst_root, dst_index, src_item)
+			set_item_at(src_token, src_root, src_index, null)
+		var src_residual := empty_item(src_item)
+		for i in src_residual:
+			place_in_available_slot(dst_token, i)
+			
+		if player: cue_audio(player, src_item)
+		return true
+	
 	# Destination: inside container
 	var dst_equipment: ItemEquipment = get_item_at(dst_token, dst_root, -1)
 	if not (dst_equipment is ItemEquipment):
@@ -241,12 +305,13 @@ func transfer_item(
 		return false
 	if dst_index >= dst_equipment.max_slots:
 		return false
-	if get_item_at(dst_token, dst_root, dst_index) != null:
-		return false # occupied
-
+	#if get_item_at(dst_token, dst_root, dst_index) != null:
+		#return false # occupied
 	# Place item
 	set_item_at(dst_token, dst_root, dst_index, src_item)
 	set_item_at(src_token, src_root, src_index, null)
+	if dst_index != null:
+		set_item_at(src_token, src_root, src_index, dst_item)
 	
 	if player: AudioManager.spawn_audio.rpc(AudioManager.inventory_feedback.pick_random(), player.global_position)
 	return true
@@ -281,19 +346,252 @@ func split_item(player_token: String, root: String, index: int, amount: int) -> 
 # ========================================
 @rpc("any_peer", "call_local")
 func request_transfer_item(src_player_token: String, src_root: String, src_index: int, dst_player_token:String, dst_root: String, dst_index: int) -> void:
-	if not multiplayer.is_server():
+	var peer_id := multiplayer.get_remote_sender_id()
+	
+	var is_busy := PlayerManager.get_player_node(src_player_token).is_busy()
+	
+	if is_busy :
 		return
-
-	var success = transfer_item(src_player_token, src_root, src_index, dst_player_token, dst_root, dst_index)
-	print(success)
+	
+	var success :bool= transfer_item(src_player_token, src_root, src_index, dst_player_token, dst_root, dst_index)
+	
 	if success:
+		if src_root in ["melee", "weapon1", "weapon2"]:
+			reset_weapon_index(src_player_token)
 		# Push the new state back to the client
 		var snapshot = get_player_persistent_data(src_player_token)
-		#rpc_id(multiplayer.get_remote_sender_id(), "update_inventory", src_player_token, snapshot)
-		GameUI.rpc_id(multiplayer.get_remote_sender_id(), "update_local_inventory", snapshot)
-
+		GameUI.rpc_id(peer_id, "update_local_inventory", snapshot)
+		#print("%s local: data sent to %s" % [multiplayer.get_unique_id(), peer_id])
+	
 @rpc("any_peer", "call_local")
 func request_update_inventory(token: String):
 	var snapshot = get_player_persistent_data(token)
 	GameUI.rpc_id(multiplayer.get_remote_sender_id(), "update_local_inventory", snapshot)
+
+# Returns consume time of consumable at slot
+func get_consume_time(token: String, slot: int) -> float:
+	var inv: Dictionary = inventories.get(token, {})
+	if inv.is_empty():
+		return 0.0
 	
+	var item = inv.get(slot, null)
+	if item == null or not item.has("consume_time"):
+		return 0.0
+	
+	return item["consume_time"]
+
+# ============================================
+# WEAPON FUNCTIONS
+# ==========================================
+
+func get_player_current_weapon(token: String, index : int)->ItemWeapon:
+	var inventory :Dictionary= inventories.get(token, {})
+	if inventory.is_empty():
+		return null
+	
+	match index:
+		0 : return get_item_at(token, "melee", -1)
+		1 : return get_item_at(token, "weapon1", -1)
+		2 : return get_item_at(token, "weapon2", -1)
+	
+	return null
+
+	
+	
+
+# Returns reload time of weapon at slot
+func get_reload_time(token: String, slot: int) -> float:
+	var inv: Dictionary = inventories.get(token, {})
+	if inv.is_empty():
+		return 0.0
+
+	var root_slot:String = ""
+	match slot:
+		1: root_slot = "weapon1"
+		2: root_slot = "weapon2"
+
+	var weapon :ItemGun= inv.get(root_slot, null)
+	if weapon == null : return 0.0
+
+	
+	return weapon.reload_time
+
+@rpc("any_peer", "call_local")
+func request_reload(token: String):
+	if not multiplayer.is_server():
+		return
+	
+	var inv: Dictionary = inventories.get(token, {})
+	if inv.is_empty():
+		return
+
+	# look up the active weapon slot internally
+	var player :PlayerCharacter = PlayerManager.get_player_node(token)
+	var active_index: int = player.get("active_weapon_index")
+	var slot_name := "melee"
+	match active_index:
+		0: slot_name = "melee"
+		1: slot_name = "weapon1"
+		2: slot_name = "weapon2"
+		_: "melee"
+
+	var weapon: ItemGun = inv.get(slot_name, null)
+	if weapon == null:
+		return
+	var ammo_id: String = weapon.ammo_id
+	var max_ammo: int = weapon.max_ammo
+	var current_ammo: int = weapon.ammo
+	var available_ammo := find_ammo_slot(token, ammo_id)
+	
+	var needed_ammo :int = max_ammo - current_ammo
+	var ammo_item := get_item_at(token, available_ammo.root, available_ammo.index)
+	var ammo_item_amount := ammo_item.amount
+	
+	if ammo_item_amount > needed_ammo :
+		ammo_item.amount = ammo_item.amount - needed_ammo
+		weapon.ammo = weapon.ammo + needed_ammo
+	else :
+		set_item_at(token,  available_ammo.root, available_ammo.index, null)
+		weapon.ammo = weapon.ammo + ammo_item.amount
+
+	AudioManager.spawn_audio.rpc(AudioManager.RELOAD_RIFLE, Vector2.ZERO, 2000, 10.5, player)
+
+
+func can_reload(token: String, slot: int) -> bool:
+	var inv: Dictionary = inventories.get(token, {})
+	if inv.is_empty():
+		return false
+	
+	var root_slot:String = ""
+	match slot:
+		1: root_slot = "weapon1"
+		2: root_slot = "weapon2"
+	
+	var weapon :ItemGun= inv.get(root_slot, null)
+	if weapon == null:
+		return false
+	
+	var ammo_id: String = weapon.ammo_id
+	var mag_size: int = weapon.max_ammo
+	var current_ammo: int = weapon.ammo
+	var available_ammo := find_ammo_slot(token, ammo_id)
+
+	# no need to reload if already full
+	if current_ammo >= mag_size:
+		return false
+	
+	if available_ammo.is_empty():
+		return false
+	
+	return true
+
+func find_ammo_slot(player_token: String, ammo_id: String) -> Dictionary:
+	if not inventories.has(player_token):
+		return {}
+	
+	var inv = inventories[player_token]
+	if inv.is_empty():
+		return {}
+	
+	for root in inv.keys():
+		var equip: Item = inv[root]
+		if equip == null or !equip is ItemEquipment:
+			continue
+		
+		for i in range(equip.slots.size()):
+			var item = equip.slots[i]
+			if item and item.itemid == ammo_id:
+				return {"root": root, "index": i}
+	
+	return {}
+
+@rpc("any_peer", "call_local")
+func reset_weapon_index(token:String):
+	if not multiplayer.is_server():
+		return
+	var _player := PlayerManager.get_player_node(token)
+	var _peer_id := PlayerManager.get_peer_id(token)
+
+	_player.rpc_id(_peer_id, "confirm_swap_weapon", 0)
+	_player.rpc("confirm_swap_weapon", 0) # for other peers
+	GameUI.rpc_id(_peer_id, "update_local_swap_btn", 0)
+
+@rpc("any_peer", "call_local")
+func request_swap_weapon(token: String):
+	if not multiplayer.is_server():
+		return
+	var _peer_id: int = PlayerManager.get_peer_id(token)
+	var inv: Dictionary = inventories.get(token, {})
+	if inv.is_empty():
+		return
+
+	# build the priority list
+	var order: Array[int] = [0] # melee always valid
+	if inv["weapon1"] != null:
+		order.append(1)
+	if inv["weapon2"] != null:
+		order.append(2)
+
+	if order.is_empty():
+		return
+
+	# get player node and current slot
+	var _player: PlayerCharacter = PlayerManager.get_player_node(token)
+	if _player == null:
+		return
+
+	var current_index := _player.active_weapon_index
+	var idx := order.find(current_index)
+
+	var next_slot: int
+	if idx == -1 or idx == order.size() - 1:
+		next_slot = order[0] # wrap around
+	else:
+		next_slot = order[idx + 1]
+
+	# confirm swap back to player + others
+	
+	
+	_player.rpc_id(_peer_id, "confirm_swap_weapon", next_slot)
+	_player.rpc("confirm_swap_weapon", next_slot) # for other peers
+	#GameUI.rpc_id(_peer_id, "update_local_swap_btn", next_slot)
+
+func get_weapon_data(player_token:String, index: int)->Dictionary:
+	if not multiplayer.is_server():
+		return {}
+	var data := {
+				"item": null,
+				"type" : ""
+				}
+	var inv: Dictionary = inventories.get(player_token, {})
+	if inv.is_empty():
+		return {}
+	var root_slot : String
+	match index :
+		0 : 
+			root_slot = "melee"
+			data.type = "melee"
+		1 :
+			root_slot = "weapon1"
+			data.type = "gun"
+		2 :
+			root_slot = "weapon2"
+			data.type = "gun"
+		
+	var weapon : ItemWeapon = get_item_at(player_token, root_slot, -1)
+	if weapon != null:
+		data.item = weapon
+	return data
+	
+
+# ============================================
+# AUDIO CUE
+# ==========================================
+
+func cue_audio(player :PlayerCharacter, src_item:Item):
+	if player: 
+		match src_item.item_type:
+			src_item.ItemTypes.equipment:
+				AudioManager.spawn_audio.rpc(AudioManager.GEARPICK, player.global_position)
+			src_item.ItemTypes.weapon:
+				AudioManager.spawn_audio.rpc(AudioManager.PICK_RIFLE, player.global_position)

@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://b6r2hrct318r3"]
+
+[ext_resource type="Script" uid="uid://60wkwhdot5pe" path="res://resources/autoloads/world_manager.gd" id="1_puxgp"]
+[ext_resource type="Script" uid="uid://cawurvh48lty6" path="res://resources/autoloads/time_manager.gd" id="2_8q2km"]
+[ext_resource type="PackedScene" uid="uid://bs833bucc5n3k" path="res://scenes/effects/drop_shadow.tscn" id="3_oiscd"]
+
+[node name="WorldManager" type="Node"]
+script = ExtResource("1_puxgp")
+
+[node name="TimeManager" type="Node" parent="."]
+script = ExtResource("2_8q2km")
+
+[node name="Node2D" type="Node2D" parent="."]
+
+[node name="Shadow" parent="Node2D" instance=ExtResource("3_oiscd")]
+position = Vector2(1, -1)

@@ -1,13 +1,21 @@
 extends Polygon2D
 
-var angle: float = 0.0
-var speed: float = 60.0 # degrees per second
+
+@export var sun_curve : Curve
+@export var shadow_curve : Curve
 
 func _process(delta: float) -> void:
-	angle += speed * delta
-	if angle >= 360.0:
-		angle -= 360.0
+	var time : TimeManager = WorldManager.time_manager
+	
+	var total_minutes: int = time.current_hours * 60 + time.current_minutes   # 0–1439
+	var t: float = float(total_minutes) / 1440.0  # normalized (0–1)
+	var angle: float = sun_curve.sample(t) * 360
+	var length : float = shadow_curve.sample(t) * 100
+
 	material.set("shader_parameter/angle", angle)
-	pass
+	material.set("shader_parameter/max_dist", length)
+
+
+	
 #func _process(delta: float) -> void:
 	

@@ -35,7 +35,7 @@ func set_node(token: String, node: Node):
 	if players.has(token):
 		players[token].scene = node
 
-func get_player_node(token: String) -> Node:
+func get_player_node(token: String) -> PlayerCharacter:
 	var player :Player= players.get(token)
 	return player.scene
 
@@ -71,6 +71,10 @@ func update_persistent_data_from_scene(token: String):
 		return
 	#players[token].inventory = node.get_inventory_data()
 	players[token].position = node.global_position
+	players[token].weapon_index = node.active_weapon_index
+	players[token].sneaking = node.sneaking
+	players[token].facing_vector = node.get_last_aim_input()
+	
 	#players[token].health = node.health
 	set_node(token, null)
 
@@ -83,7 +87,9 @@ func get_persistent_data_dict() -> Dictionary:
 	var result := {}
 	
 	for token in players.keys():
-		var p = players[token]
+		var p :Player= players[token]
+		if p.scene != null :
+			update_persistent_data_from_scene(token)
 		result[token] = p.to_dictionary()
 	
 	return result
@@ -114,8 +120,11 @@ func load_data(data: Dictionary):
 		var _position : Vector2 = Vector2(p.get("position", {}).get("x", 0), p.get("position", {}).get("y", 0))
 		var _health : float =  p.get("health", 100)
 		var _scene :PlayerCharacter = null
+		var _weapon_index: int = p.get("weapon_index", 0)
+		var _facing_vector: Vector2 = Vector2(p.get("face_position", {}).get("x", 0), p.get("face_position", {}).get("y", 0))
+		var _sneaking : bool =  p.get("sneaking", false)
 		
-		player_res.setup(_name, _peer_id, _secret, _position, _health, _scene)
+		player_res.setup(_name, _peer_id, _secret, _position, _health, _scene, _weapon_index,_facing_vector, _sneaking)
 		players[token] = player_res
 		
 		

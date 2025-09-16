@@ -1,0 +1,93 @@
+[gd_scene load_steps=12 format=3 uid="uid://qwq2wg0morog"]
+
+[ext_resource type="Texture2D" uid="uid://c2jtwqmeadeq8" path="res://asset/user_interface/gui_btn_reload-sheet0.png" id="1_exhte"]
+[ext_resource type="Script" uid="uid://dfaetqnu5ovqu" path="res://scenes/ui/gun_ui_btn.gd" id="1_swue7"]
+[ext_resource type="Texture2D" uid="uid://yob4tt2g2pwh" path="res://asset/user_interface/gui_btn_switch-sheet3.png" id="2_55l34"]
+[ext_resource type="Script" uid="uid://4fobfp3r5tpr" path="res://scenes/ui/InteractiveTouchScreenButton.gd" id="2_swue7"]
+[ext_resource type="Texture2D" uid="uid://c76t1e8s86vh" path="res://asset/user_interface/gui_btn_switch-sheet0.png" id="3_r0mfc"]
+[ext_resource type="PackedScene" uid="uid://saeswn8vawol" path="res://scenes/ui/reload_btn.tscn" id="4_314ww"]
+[ext_resource type="Script" uid="uid://ckagtpg2b4ehl" path="res://scenes/ui/sneak_btn.gd" id="5_uwdhd"]
+[ext_resource type="Texture2D" uid="uid://3yunq8k07npx" path="res://asset/user_interface/gui_btn_switch-sheet1.png" id="6_55l34"]
+[ext_resource type="Texture2D" uid="uid://gi6h1rvn00uu" path="res://asset/user_interface/gui_btn_crouch-sheet0.png" id="6_ggis2"]
+[ext_resource type="Texture2D" uid="uid://qqj7wvyi6h5q" path="res://asset/user_interface/gui_btn_crouch-sheet1.png" id="7_lnw5j"]
+[ext_resource type="Texture2D" uid="uid://by7abdnyvtlh3" path="res://asset/user_interface/gui_btn_switch-sheet2.png" id="7_uwdhd"]
+
+[node name="RightContainer" type="GridContainer" node_paths=PackedStringArray("reload_btn", "swap_btn", "switch_mode_btn", "sneak_btn")]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -144.0
+offset_top = -144.0
+grow_horizontal = 0
+grow_vertical = 0
+columns = 2
+script = ExtResource("1_swue7")
+reload_btn = NodePath("ReloadContainer/Reload")
+swap_btn = NodePath("Switch")
+switch_mode_btn = NodePath("Control/SwapMode")
+sneak_btn = NodePath("Sneak")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SwapMode" type="TextureButton" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("2_55l34")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("2_swue7")
+input_action = &"switch_weapon_mode"
+
+[node name="ReloadContainer" type="Control" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Reload" type="TextureButton" parent="ReloadContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("1_exhte")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("2_swue7")
+input_action = &"reload_weapon"
+
+[node name="Sneak" type="TextureButton" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("7_lnw5j")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("5_uwdhd")
+sneak_on = ExtResource("6_ggis2")
+sneak_off = ExtResource("7_lnw5j")
+input_action = &"toggle_sneak"
+
+[node name="Switch" parent="." instance=ExtResource("4_314ww")]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture_normal = ExtResource("3_r0mfc")
+stretch_mode = 5
+melee_texture = ExtResource("3_r0mfc")
+weapon1_texture = ExtResource("6_55l34")
+weapon2_texture = ExtResource("7_uwdhd")
+input_action = &"swap_weapon"

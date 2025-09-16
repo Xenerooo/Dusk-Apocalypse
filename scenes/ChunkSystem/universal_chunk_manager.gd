@@ -686,3 +686,5 @@ func _update_debug_label():
 func _exit_tree():
 	if slice_thread.is_started() :
 		slice_thread.wait_to_finish()
+	for i in chunk_pool:
+		i.queue_free()
