@@ -80,9 +80,10 @@ func _physics_process(delta: float) -> void:
 		_update_crosshair(gun.current_recoil,  gun.min_acc,gun.max_acc)
 
 func _shoot_and_apply_recoil(gun: ItemGun):
-	gun.current_recoil = clamp(gun.current_recoil + gun.recoil, gun.min_acc, gun.max_acc)
+	
 	recoil_cooldown = gun.use_interval
 	_fire_gun(gun)
+	gun.current_recoil = clamp(gun.current_recoil + gun.recoil, gun.min_acc, gun.max_acc)
 
 # ----------------------
 # Crosshair visuals
@@ -100,7 +101,7 @@ func _update_crosshair(spread: float, min_recoil:float,max_recoil: float) -> voi
 		recoil_indicator_2.gradient.set_color(0, color)
 		
 		var base_scale := 1.0
-		var extra_scale := 0.02 * spread
+		var extra_scale :=  spread
 		aim_crosshair.scale = Vector2.ONE * (base_scale + extra_scale)
 
 # ----------------------

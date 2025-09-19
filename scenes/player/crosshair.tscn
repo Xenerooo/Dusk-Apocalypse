@@ -6,10 +6,11 @@
 light_mode = 1
 
 [sub_resource type="Gradient" id="Gradient_rjxxp"]
-offsets = PackedFloat32Array(0.898374, 1)
-colors = PackedColorArray(0, 0, 0, 1, 1, 1, 1, 0)
+offsets = PackedFloat32Array(0.90708, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
 
 [node name="Crosshair" type="Marker2D" node_paths=PackedStringArray("aim_crosshair", "recoil_indicator", "recoil_indicator_2", "muzzle")]
+z_index = 2
 material = SubResource("CanvasItemMaterial_nnvrg")
 script = ExtResource("1_nnvrg")
 aim_crosshair = NodePath("MuzzleRoot/Muzzle")
@@ -29,14 +30,16 @@ offset_bottom = 4.0
 position = Vector2(0, -16)
 
 [node name="Muzzle" type="Marker2D" parent="MuzzleRoot"]
-position = Vector2(16, 0)
+position = Vector2(8, 0)
 
 [node name="Line2D" type="Line2D" parent="MuzzleRoot"]
-points = PackedVector2Array(16, 0, 96, 0)
+position = Vector2(2, 0)
+points = PackedVector2Array(16, 0, 136, 0)
 width = 2.0
 gradient = SubResource("Gradient_rjxxp")
 
 [node name="Line2D2" type="Line2D" parent="MuzzleRoot"]
-points = PackedVector2Array(16, 0, 96, 0)
+position = Vector2(2, 0)
+points = PackedVector2Array(16, 0, 136, 0)
 width = 2.0
 gradient = SubResource("Gradient_rjxxp")

@@ -1,8 +1,11 @@
 extends Node
 
 signal item_transferred()
-signal item_equipped()
+signal item_equipped(token, root)
+signal item_unequipped(token, root)
 signal weapon_reloaded(token, body, index)
+
+
 
 # Holds all inventories by token (player_id, storage_id, etc.)
 var inventories: Dictionary = {}
@@ -18,6 +21,12 @@ var PLAYER_INVENTORY_TEMPLATE := {
 	"weapon2": null,
 	"melee": null
 }
+
+func _ready() -> void:
+	item_equipped.connect(func(token, root):
+		print("Item Equipped on %s %s" % [token, root]))
+	item_unequipped.connect(func(token, root):
+		print("Item Unequipped on %s %s" % [token, root]))
 
 # ===========================
 # Register / Init
@@ -265,15 +274,22 @@ func transfer_item(
 			return false
 
 		set_item_at(src_token, src_root, src_index, null)
+		if src_index == -1 :
+			emit_signal("item_unequipped", src_token, src_root)
+		
 		set_item_at(dst_token, dst_root, -1, src_item)
 		# swap the item if dst has item
 		if dst_item != null :
 			set_item_at(src_token, src_root, src_index, dst_item)
+			if src_index == -1 :
+				emit_signal("item_equipped", src_token, src_root)
+			#emit_signal("item_equipped", dst_token, src_root)
 			
 		var dst_residual := empty_item(dst_item)
 		for i in dst_residual:
 			place_in_available_slot(dst_token, i)
 		#Audio Application
+		emit_signal("item_equipped", dst_token, dst_root)
 		if player: cue_audio(player, src_item)
 		return true
 	
@@ -284,16 +300,22 @@ func transfer_item(
 			if not can_equip(src_root, dst_item): return false
 			set_item_at(dst_token, dst_root, dst_index, src_item)
 			set_item_at(src_token, src_root, src_index, null)
+			emit_signal("item_unequipped", src_token, src_root)
 			# swap the item if dst has item
 			if dst_item != null :
 				set_item_at(src_token, src_root, src_index, dst_item)
+				emit_signal("item_equipped", src_token, dst_root)
+			emit_signal("item_equipped", dst_token, src_root)
 		else :
 			set_item_at(dst_token, dst_root, dst_index, src_item)
 			set_item_at(src_token, src_root, src_index, null)
+			emit_signal("item_unequipped", src_token, src_root)
+			
+			
 		var src_residual := empty_item(src_item)
 		for i in src_residual:
 			place_in_available_slot(dst_token, i)
-			
+		
 		if player: cue_audio(player, src_item)
 		return true
 	

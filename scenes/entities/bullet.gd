@@ -5,7 +5,7 @@ var bullet_velocity := 0.0
 var bullet_speed : = 20.0
 var bullet_life : = 1.0
 var b_owner : PlayerCharacter
-var pierce := true
+var pierce := false
 
 func _ready() -> void:
 	#if multiplayer.is_server() :
@@ -20,8 +20,6 @@ func _physics_process(delta: float) -> void:
 #	
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if multiplayer.is_server():
-		if body is Hurtbox :
-			body.receive_damage(damage)
 		queue_free()
 
 func _on_area_2d_area_entered(area: Area2D) -> void:
@@ -35,7 +33,6 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 			else :
 				pierce = false
 				queue_free()
-
 
 func _on_area_2d_area_exited(area: Area2D) -> void:
 	pass # Replace with function body.
