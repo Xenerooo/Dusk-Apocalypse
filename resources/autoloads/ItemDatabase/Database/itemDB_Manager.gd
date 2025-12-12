@@ -109,7 +109,5 @@ func get_spawn_item(item_id, amount:=1) -> Item :
 			return m
 	return null
 
-func get_data(id)  :
-	if database.has(id) :
-		return database[id]
-	return null
+func get_data(id) :
+	return database.get(id, {})

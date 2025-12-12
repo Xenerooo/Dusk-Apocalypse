@@ -34,7 +34,7 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_released("switch_weapon_mode"):
 		player.request_switch_mode.rpc_id(1)
 	if event.is_action_pressed("toggle_sneak"):
-		player.request_toggle_sneak()
+		player.request_toggle_sneak.rpc_id(1)
 	
 func _physics_process(delta: float) -> void:
 	if player and is_multiplayer_authority():

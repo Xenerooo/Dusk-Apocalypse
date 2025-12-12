@@ -2034,13 +2034,16 @@ metadata/_custom_type_script = "uid://1h0braq41vwb"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_bcbcq")
 
-[node name="Sprites" type="Node2D" parent="." node_paths=PackedStringArray("human_sprite", "part_body", "part_head", "part_vest", "part_bag")]
+[node name="Sprites" type="Node2D" parent="." node_paths=PackedStringArray("human_sprite", "part_body", "part_head", "part_vest", "part_bag", "part_melee", "part_weapon1", "part_weapon2")]
 script = ExtResource("4_0owmy")
 human_sprite = NodePath("Human")
 part_body = NodePath("Body")
 part_head = NodePath("Head")
 part_vest = NodePath("Vest")
 part_bag = NodePath("Bag")
+part_melee = NodePath("Melee")
+part_weapon1 = NodePath("Weapon1")
+part_weapon2 = NodePath("Weapon2")
 
 [node name="Human" type="Sprite2D" parent="Sprites"]
 position = Vector2(0, -28)
@@ -2068,6 +2071,24 @@ vframes = 26
 frame = 7
 
 [node name="Bag" type="Sprite2D" parent="Sprites"]
+position = Vector2(0, -28)
+hframes = 6
+vframes = 26
+frame = 7
+
+[node name="Melee" type="Sprite2D" parent="Sprites"]
+position = Vector2(0, -28)
+hframes = 6
+vframes = 26
+frame = 7
+
+[node name="Weapon1" type="Sprite2D" parent="Sprites"]
+position = Vector2(0, -28)
+hframes = 6
+vframes = 26
+frame = 7
+
+[node name="Weapon2" type="Sprite2D" parent="Sprites"]
 position = Vector2(0, -28)
 hframes = 6
 vframes = 26

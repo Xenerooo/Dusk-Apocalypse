@@ -5,8 +5,6 @@ signal item_equipped(token, root)
 signal item_unequipped(token, root)
 signal weapon_reloaded(token, body, index)
 
-
-
 # Holds all inventories by token (player_id, storage_id, etc.)
 var inventories: Dictionary = {}
 
@@ -23,10 +21,8 @@ var PLAYER_INVENTORY_TEMPLATE := {
 }
 
 func _ready() -> void:
-	item_equipped.connect(func(token, root):
-		print("Item Equipped on %s %s" % [token, root]))
-	item_unequipped.connect(func(token, root):
-		print("Item Unequipped on %s %s" % [token, root]))
+	item_equipped.connect(on_equipped)
+	item_unequipped.connect(on_unequipped)
 
 # ===========================
 # Register / Init
@@ -99,9 +95,9 @@ func register_inventory(token: String, is_player: bool = true) -> void:
 func unregister_inventory(token: String) -> void:
 	inventories.erase(token)
 
-
 func inventory_exist(token)->bool:
 	return inventories.has(token)
+
 # ===========================
 # Validation
 # ===========================
@@ -304,7 +300,6 @@ func transfer_item(
 			# swap the item if dst has item
 			if dst_item != null :
 				set_item_at(src_token, src_root, src_index, dst_item)
-				emit_signal("item_equipped", src_token, dst_root)
 			emit_signal("item_equipped", dst_token, src_root)
 		else :
 			set_item_at(dst_token, dst_root, dst_index, src_item)
@@ -543,6 +538,7 @@ func request_swap_weapon(token: String):
 	if not multiplayer.is_server():
 		return
 	var _peer_id: int = PlayerManager.get_peer_id(token)
+	#print(_peer_id)
 	var inv: Dictionary = inventories.get(token, {})
 	if inv.is_empty():
 		return
@@ -574,8 +570,9 @@ func request_swap_weapon(token: String):
 	# confirm swap back to player + others
 	
 	
-	_player.rpc_id(_peer_id, "confirm_swap_weapon", next_slot)
+	#_player.rpc_id(_peer_id, "confirm_swap_weapon", next_slot)
 	_player.rpc("confirm_swap_weapon", next_slot) # for other peers
+	GameUI.update_local_swap_btn.rpc_id(_peer_id, next_slot)
 	#GameUI.rpc_id(_peer_id, "update_local_swap_btn", next_slot)
 
 func get_weapon_data(player_token:String, index: int)->Dictionary:
@@ -617,3 +614,35 @@ func cue_audio(player :PlayerCharacter, src_item:Item):
 				AudioManager.spawn_audio.rpc(AudioManager.GEARPICK, player.global_position)
 			src_item.ItemTypes.weapon:
 				AudioManager.spawn_audio.rpc(AudioManager.PICK_RIFLE, player.global_position)
+
+# ============================================
+# SIGNAL FUNCTIONS
+# ============================================
+
+func on_equipped(token: String, root: String):
+	var player: PlayerCharacter = PlayerManager.get_player_node(token)
+	if player == null : return
+	var item := get_item_at(token, root, -1)
+	player.sprites.update_sprite.rpc(root, item.itemid)
+
+func on_unequipped(token:String, root:String):
+	var player: PlayerCharacter = PlayerManager.get_player_node(token)
+	if player == null : return
+	var item := get_item_at(token, root, -1)
+	player.sprites.update_sprite.rpc(root, "")
+
+@rpc("any_peer", "unreliable_ordered", "call_local")
+func request_update_sprites(token :String):
+	var peer_id := multiplayer.get_remote_sender_id()
+	var inventory :Dictionary= inventories[token]
+	var player := PlayerManager.get_player_node(token)
+	var sprites := {}
+	if player == null : return
+	
+	for i in inventory.keys():
+		sprites[i] = ""
+		if inventory[i] != null :
+			sprites[i] = inventory[i].itemid
+	print(peer_id, " requested")
+	player.sprites.update_sprites.rpc_id(peer_id, sprites)
+	

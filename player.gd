@@ -26,6 +26,7 @@ var is_inside_structure: =false
 @onready var remote_transform_2d: RemoteTransform2D = $RemoteTransform2D
 @onready var phantom_camera_2d: PhantomCamera2D = $PhantomCamera2D
 @onready var action_manager: ActionManager = $ActionManager
+@onready var sprites: Node2D = $Sprites
 
 
 var sneaking := false
@@ -35,26 +36,38 @@ var active_weapon_index := 0  # 0 = melee, 1 = weapon1, 2 = weapon2
 
 func _on_tree_entered() -> void:
 	pass # Replace with function body.
-	
+
+func rpc_setup():
+	pass
+
 func host_setup():
-	await get_tree().process_frame
+	
 	if multiplayer.is_server():
 		var weapon_index:int = PlayerManager.players[token].weapon_index
 		confirm_swap_weapon.rpc_id(PlayerManager.get_peer_id(token), weapon_index)
 		InputSync.last_aim_input = PlayerManager.players[token].facing_vector
 		confirm_toggle_sneak.rpc(PlayerManager.players[token].sneaking)
-
+	
+	request_player_name_setup.rpc_id(1)
+	InventoryManager.request_update_sprites.rpc_id(1, token)
+	request_update_weapon.rpc_id(1)
+	print("called")
+	#if is_local :
+		#request_ui_setup.rpc_id(1)
 func client_setup():
 	InputSync.set_multiplayer_authority(int(name))
 	InputSync.player = self
 	phantom_camera_2d.priority = 20 if InputSync.is_multiplayer_authority() else 0
 	action_manager.token = token
 	movement.player = self
-	request_player_name_setup.rpc_id(1)
+	sprites.player = self
 	audios.set_as_current(is_local)
+	
 	if is_local:
 		remote_transform_2d.remote_path = WorldManager.shadow.get_path()
+		
 
+	
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("cam_zoom"):
 		phantom_camera_2d.zoom.x = clamp(phantom_camera_2d.zoom.x+ .1, 0.1, 3.0)
@@ -65,8 +78,10 @@ func _input(event: InputEvent) -> void:
 		phantom_camera_2d.zoom.y = clamp(phantom_camera_2d.zoom.y - .1, 0.1, 3.0)
 
 func _ready() -> void:
-	host_setup()
 	client_setup()
+	await get_tree().create_timer(.1).timeout
+	host_setup()
+
 
 func _physics_process(delta: float) -> void:
 	if !multiplayer.is_server():
@@ -201,6 +216,7 @@ func request_reload_weapon():
 #
 	#action_lock.start_action(ActionLock.ActionType.CONSUME, item.consume_time, {"slot": slot})
 
+
 @rpc("any_peer", "call_local")
 func request_toggle_sneak():
 	sneaking = !sneaking
@@ -229,7 +245,18 @@ func confirm_swap_weapon(new_index: int):
 			crosshair.hide_indicator()
 		1,2 :
 			crosshair.show_indicator()
-	GameUI.update_local_swap_btn(new_index)
+	sprites.update_hand_sprite(new_index)
+
+@rpc("any_peer", "call_local")
+func request_update_weapon():
+	var peer_id := multiplayer.get_unique_id()
+	
+	confirm_swap_weapon.rpc_id(peer_id, active_weapon_index)
+
+@rpc("any_peer", "call_local")
+func request_ui_setup():
+	var _peer_id := multiplayer.get_unique_id()
+	GameUI.update_local_swap_btn.rpc_id(_peer_id, active_weapon_index)
 
 
 	# TODO: update visuals, animations, etc.

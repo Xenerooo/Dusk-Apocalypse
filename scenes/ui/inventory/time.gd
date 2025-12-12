@@ -6,7 +6,6 @@ extends Control
 
 func _ready() -> void:
 	line_edit.text_submitted.connect(change_seconds)
-	print("hmm")
 
 func _process(delta: float) -> void:
 	

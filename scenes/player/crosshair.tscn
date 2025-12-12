@@ -21,6 +21,7 @@ muzzle = NodePath("MuzzleRoot/Muzzle")
 [node name="Root" type="Marker2D" parent="."]
 
 [node name="ColorRect" type="ColorRect" parent="Root"]
+visible = false
 offset_left = 4.0
 offset_top = -4.0
 offset_right = 8.0
